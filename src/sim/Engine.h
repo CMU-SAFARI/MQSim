@@ -45,7 +45,7 @@ namespace MQSimEngine {
 							std::cin.get();\
 							exit(1);\
 						 }
-#define //DEBUG(M) std::cout<<M<<std::endl;
-#define //DEBUG2(M) //std::cout<<M<<std::endl;
+#define DEBUG(M) //std::cout<<M<<std::endl;
+//#define //DEBUG2(M) //std::cout<<M<<std::endl;
 #define SIM_TIME_TO_MICROSECONDS_COEFF 1000
 #endif // !ENGINE_H
