@@ -1,6 +1,6 @@
 # MQSim: A Simulator for Modern NVMe and SATA SSDs
 
-This is a preliminary version of MQSim which only supports a limited set of input workloads. The final version will be released on Fabruary 28th, 2018.
+This is a preliminary version of MQSim. A final version will be released at the end of February 2018.
 
 
 ## Usage
