@@ -1,0 +1,144 @@
+#ifndef CHIP_H
+#define CHIP_H
+
+#include "../../sim/Sim_Object.h"
+#include "../../sim/Sim_Defs.h"
+#include "../../sim/Sim_Event.h"
+#include "../../sim/Engine.h"
+#include "FlashTypes.h"
+#include "Die.h"
+#include "Flash_Command.h"
+#include <vector>
+
+namespace NVM
+{
+	namespace FlashMemory
+	{
+		class Chip : public MQSimEngine::Sim_Object
+		{
+			enum class Internal_Status { IDLE, BUSY };
+			enum class Chip_Sim_Event_Type { COMMAND_FINISHED };
+		public:
+			Chip(const sim_object_id_type&, flash_channel_ID_type channelID, flash_chip_ID_type localChipID,
+				Flash_Technology_Type flash_technology, 
+				unsigned int dieNo, unsigned int PlaneNoPerDie, unsigned int Block_no_per_plane, unsigned int Page_no_per_block,
+				sim_time_type *readLatency, sim_time_type *programLatency, sim_time_type eraseLatency,
+				sim_time_type suspendProgramLatency, sim_time_type suspendEraseLatency,
+				sim_time_type commProtocolDelayRead = 20, sim_time_type commProtocolDelayWrite = 0, sim_time_type commProtocolDelayErase = 0);
+			~Chip();
+			flash_channel_ID_type ChannelID;
+			flash_chip_ID_type ChipID;         //Flashchip position in its related channel
+
+			void StartCMDXfer()
+			{
+				this->lastTransferStart = Simulator->Time();
+			}
+			void StartCMDDataInXfer()
+			{
+				this->lastTransferStart = Simulator->Time();
+			}
+			void StartDataOutXfer()
+			{
+				this->lastTransferStart = Simulator->Time();
+			}
+			void EndCMDXfer(Flash_Command* command)//End transferring write data to the Flash chip
+			{
+				this->STAT_totalXferTime += (Simulator->Time() - this->lastTransferStart);
+				if (this->idleDieNo != die_no)
+					STAT_totalOverlappedXferExecTime += (Simulator->Time() - lastTransferStart);
+				this->Dies[command->Address[0].DieID]->STAT_TotalXferTime += (Simulator->Time() - lastTransferStart);
+
+				startCommandExecution(command);
+
+				this->lastTransferStart = INVALID_TIME;
+			}
+			void EndCMDDataInXfer(Flash_Command* command)//End transferring write data of a group of multi-plane transactions to the Flash chip
+			{
+				this->STAT_totalXferTime += (Simulator->Time() - this->lastTransferStart);
+				if (this->idleDieNo != die_no)
+					STAT_totalOverlappedXferExecTime += (Simulator->Time() - lastTransferStart);
+				this->Dies[command->Address[0].DieID]->STAT_TotalXferTime += (Simulator->Time() - lastTransferStart);
+
+				startCommandExecution(command);
+
+				this->lastTransferStart = INVALID_TIME;
+			}
+			void EndDataOutXfer(Flash_Command* command)
+			{
+				this->STAT_totalXferTime += (Simulator->Time() - this->lastTransferStart);
+				if (this->idleDieNo != die_no)
+					STAT_totalOverlappedXferExecTime += (Simulator->Time() - lastTransferStart);
+				this->Dies[command->Address[0].DieID]->STAT_TotalXferTime += (Simulator->Time() - lastTransferStart);
+
+				this->lastTransferStart = INVALID_TIME;
+			}
+			void Start_simulation();
+			void Validate_simulation_config();
+			void Setup_triggers();
+			void Execute_simulator_event(MQSimEngine::Sim_Event*);
+			typedef void(*ChipReadySignalHandlerType) (Chip* targetChip, Flash_Command* command);
+			void ConnectToChipReadySignal(ChipReadySignalHandlerType);
+			sim_time_type Get_command_execution_latency(command_code_type CMDCode, flash_page_ID_type pageID)
+			{
+				int latencyType = 0;
+				if (flash_technology == Flash_Technology_Type::MLC)
+				{
+					latencyType = pageID % 2;
+				}
+				else if (flash_technology == Flash_Technology_Type::TLC)
+				{
+					//From: Yaakobi et al., "Characterization and Error-Correcting Codes for TLC Flash Memories", ICNC 2012
+					latencyType = (pageID <= 5) ? 0 : ((pageID <= 7) ? 1 : (((pageID - 8) >> 1) % 3));;
+				}
+
+				switch (CMDCode)
+				{
+				case CMD_READ_PAGE:
+				case CMD_READ_PAGE_MULTIPLANE:
+				case CMD_READ_PAGE_COPYBACK:
+				case CMD_READ_PAGE_COPYBACK_MULTIPLANE:
+					return _readLatency[latencyType] + _RBSignalDelayRead;
+				case CMD_PROGRAM_PAGE:
+				case CMD_PROGRAM_PAGE_MULTIPLANE:
+				case CMD_PROGRAM_PAGE_COPYBACK:
+				case CMD_PROGRAM_PAGE_COPYBACK_MULTIPLANE:
+					return _programLatency[latencyType] + _RBSignalDelayWrite;
+				case CMD_ERASE_BLOCK:
+				case CMD_ERASE_BLOCK_MULTIPLANE:
+					return _eraseLatency + _RBSignalDelayErase;
+				default:
+					throw "Unsupported command for flash chip.";
+				}
+			}
+			void Suspend(flash_die_ID_type dieID);
+			void Resume(flash_die_ID_type dieID);
+			sim_time_type GetSuspendProgramTime();
+			sim_time_type GetSuspendEraseTime();
+		private:
+			Flash_Technology_Type flash_technology;
+			Internal_Status status;
+			unsigned int idleDieNo;
+			Die** Dies;
+			unsigned int die_no;
+			unsigned int plane_no_in_die;                  //indicate how many planes in a die
+			unsigned int block_no_in_plane;                //indicate how many blocks in a plane
+			unsigned int page_no_per_block;                 //indicate how many pages in a block
+			sim_time_type *_readLatency, *_programLatency, _eraseLatency;
+			sim_time_type _suspendProgramLatency, _suspendEraseLatency;
+			sim_time_type _RBSignalDelayRead, _RBSignalDelayWrite, _RBSignalDelayErase;
+			sim_time_type lastTransferStart;
+			sim_time_type executionStartTime, expectedFinishTime;
+
+			unsigned long STAT_readCount, STAT_progamCount, STAT_eraseCount;
+			unsigned long STAT_totalSuspensionCount, STAT_totalResumeCount;
+			sim_time_type STAT_totalExecTime, STAT_totalXferTime, STAT_totalOverlappedXferExecTime;
+
+			void startCommandExecution(Flash_Command* command);
+			void finishCommandExecution(Flash_Command* command);
+			void broadcastReadySignal(Flash_Command* command);
+			std::vector<ChipReadySignalHandlerType> connectedReadyHandlers;
+		};
+	}
+}
+
+#endif // !CHIP_H
