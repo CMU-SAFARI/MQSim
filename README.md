@@ -5,6 +5,6 @@ This is a preliminary version of MQSim which only supports a limited set of inpu
 
 ## Usage
 
-make
+$ make
 
-./MQSim -i ./ssdconfig.mqs -w ./workload.mqs
+$ ./MQSim -i ./ssdconfig.mqs -w ./workload.mqs
