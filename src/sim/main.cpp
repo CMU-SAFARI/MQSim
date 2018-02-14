@@ -49,7 +49,7 @@ void read_parameters(string ssd_config_file_path, string workload_defs_file_path
 		//Read input workload parameters
 		string line;
 		ssd_config_file >> line;
-		if (line == "USE_INTERNAL_PARAMS")
+		if (line.compare("USE_INTERNAL_PARAMS"))
 		{
 			PRINT_MESSAGE("Using MQSim's default parameters")
 		}
@@ -69,7 +69,7 @@ void read_parameters(string ssd_config_file_path, string workload_defs_file_path
 	{
 		string line;
 		workload_defs_file >> line;
-		if (line != "USE_INTERNAL_PARAMS")
+		if (!line.compare("USE_INTERNAL_PARAMS"))
 		{
 			use_default_workloads = false;
 		}
