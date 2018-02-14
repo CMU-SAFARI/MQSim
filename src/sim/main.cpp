@@ -3,10 +3,10 @@
 #include <ctime>
 #include <string>
 #include <cstring>
-#include "ssd/SSDTypes.h"
-#include "exec/Execution_Parameter_Set.h"
-#include "exec/SSD_Device.h"
-#include "exec/Host_System.h"
+#include "../ssd/SSDTypes.h"
+#include "../exec/Execution_Parameter_Set.h"
+#include "../exec/SSD_Device.h"
+#include "../exec/Host_System.h"
 
 using namespace std;
 

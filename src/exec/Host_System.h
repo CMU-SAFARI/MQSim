@@ -22,7 +22,7 @@ public:
 	void Execute_simulator_event(MQSimEngine::Sim_Event* event);
 
 	void Attach_ssd_device(SSD_Device* ssd_device);
-	const std::vector<Host_Components::IO_Flow_Base*> const Get_io_flows();
+	const std::vector<Host_Components::IO_Flow_Base*> Get_io_flows();
 private:
 	Host_Components::PCIe_Root_Complex* PCIe_root_complex;
 	Host_Components::PCIe_Link* Link;
