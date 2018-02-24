@@ -168,7 +168,7 @@ namespace SSD_Components
 		void generate_flash_writeback_request_for_mapping_data(const stream_id_type streamID, const LPA_type lpn);
 
 		unsigned int no_of_translation_entries_per_page;
-		MVPN_type get_MVPN(const LPA_type);
+		MVPN_type get_MVPN(const LPA_type lpn, stream_id_type stream_id);
 		LPA_type get_start_LPN_MVP(const MVPN_type);
 		LPA_type get_end_LPN_in_MVP(const MVPN_type);
 

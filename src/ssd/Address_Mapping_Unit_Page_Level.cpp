@@ -474,9 +474,9 @@ namespace SSD_Components
 	}
 
 
-	inline MVPN_type Address_Mapping_Unit_Page_Level::get_MVPN(const LPA_type lpn)
+	inline MVPN_type Address_Mapping_Unit_Page_Level::get_MVPN(const LPA_type lpn, stream_id_type stream_id)
 	{
-		return (MVPN_type)(lpn / no_of_translation_entries_per_page);
+		return (MVPN_type)((lpn % (domains[stream_id]->Total_logical_pages_no)) / no_of_translation_entries_per_page);
 	}
 
 	inline LPA_type Address_Mapping_Unit_Page_Level::get_start_LPN_MVP(const MVPN_type mvpn)
@@ -784,10 +784,10 @@ namespace SSD_Components
 		domain->GlobalTranslationDirectory[mvpn].TimeStamp = CurrentTimeStamp;
 	}
 
-	bool Address_Mapping_Unit_Page_Level::request_mapping_entry_for_lpn(const stream_id_type streamID, const LPA_type lpn)
+	bool Address_Mapping_Unit_Page_Level::request_mapping_entry_for_lpn(const stream_id_type stream_id, const LPA_type lpn)
 	{
-		AddressMappingDomain* domain = domains[streamID];
-		MVPN_type mvpn = get_MVPN(lpn);
+		AddressMappingDomain* domain = domains[stream_id];
+		MVPN_type mvpn = get_MVPN(lpn, stream_id);
 
 		/*This is the first time that a user request accesses this address.
 		Just create an entry in cache! No flash read is needed.*/
@@ -807,11 +807,11 @@ namespace SSD_Components
 					if (domain->GlobalMappingTable[lpn].TimeStamp > CurrentTimeStamp)
 						throw "Unexpected situation occured in handling GMT!";
 					domain->GlobalMappingTable[lpn].TimeStamp = CurrentTimeStamp;
-					generate_flash_writeback_request_for_mapping_data(streamID, lpn);
+					generate_flash_writeback_request_for_mapping_data(stream_id, lpn);
 				}
 			}
-			domain->CMT->Reserve_slot_for_lpn(streamID, lpn);
-			domain->CMT->Insert_new_mapping_info(streamID, lpn, NO_PPA, UNWRITTEN_LOGICAL_PAGE);
+			domain->CMT->Reserve_slot_for_lpn(stream_id, lpn);
+			domain->CMT->Insert_new_mapping_info(stream_id, lpn, NO_PPA, UNWRITTEN_LOGICAL_PAGE);
 			return true;
 		}
 
@@ -823,7 +823,7 @@ namespace SSD_Components
 		* 2. A read has been issued to retrieve the mapping data for some previous user requests*/
 		if (domain->ArrivingMappingEntries.find(mvpn) != domain->ArrivingMappingEntries.end())
 		{
-			if (domain->CMT->Is_slot_reserved_for_lpn_and_waiting(streamID, lpn))
+			if (domain->CMT->Is_slot_reserved_for_lpn_and_waiting(stream_id, lpn))
 				return false;
 			else //An entry should be created in the cache
 			{
@@ -841,10 +841,10 @@ namespace SSD_Components
 						if (domain->GlobalMappingTable[lpn].TimeStamp > CurrentTimeStamp)
 							throw "Unexpected situation occured in handling GMT!";
 						domain->GlobalMappingTable[lpn].TimeStamp = CurrentTimeStamp;
-						generate_flash_writeback_request_for_mapping_data(streamID, lpn);
+						generate_flash_writeback_request_for_mapping_data(stream_id, lpn);
 					}
 				}
-				domain->CMT->Reserve_slot_for_lpn(streamID, lpn);
+				domain->CMT->Reserve_slot_for_lpn(stream_id, lpn);
 				domain->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpn));
 				return false;
 			}
@@ -868,13 +868,13 @@ namespace SSD_Components
 					if (domain->GlobalMappingTable[lpn].TimeStamp > CurrentTimeStamp)
 						throw "Unexpected situation occured in handling GMT!";
 					domain->GlobalMappingTable[lpn].TimeStamp = CurrentTimeStamp;
-					generate_flash_writeback_request_for_mapping_data(streamID, lpn);
+					generate_flash_writeback_request_for_mapping_data(stream_id, lpn);
 				}
 			}
-			domain->CMT->Reserve_slot_for_lpn(streamID, lpn);
+			domain->CMT->Reserve_slot_for_lpn(stream_id, lpn);
 			/*Hack: since we do not actually save the values of translation requests, we copy the mapping
 			data from GlobalMappingTable (which actually must be stored on flash)*/
-			domain->CMT->Insert_new_mapping_info(streamID, lpn,
+			domain->CMT->Insert_new_mapping_info(stream_id, lpn,
 				domain->GlobalMappingTable[lpn].PPA, domain->GlobalMappingTable[lpn].WrittenStateBitmap);
 			return true;
 		}	
@@ -894,29 +894,29 @@ namespace SSD_Components
 				if (domain->GlobalMappingTable[lpn].TimeStamp > CurrentTimeStamp)
 					throw "Unexpected situation occured in handling GMT!";
 				domain->GlobalMappingTable[lpn].TimeStamp = CurrentTimeStamp;
-				generate_flash_writeback_request_for_mapping_data(streamID, lpn);
+				generate_flash_writeback_request_for_mapping_data(stream_id, lpn);
 			}
 		}
-		domain->CMT->Reserve_slot_for_lpn(streamID, lpn);
-		generate_flash_read_request_for_mapping_data(streamID, lpn);//consult GTD and create read transaction
+		domain->CMT->Reserve_slot_for_lpn(stream_id, lpn);
+		generate_flash_read_request_for_mapping_data(stream_id, lpn);//consult GTD and create read transaction
 		return false;
 	}
 
-	void Address_Mapping_Unit_Page_Level::generate_flash_writeback_request_for_mapping_data(const stream_id_type streamID, const LPA_type lpn)
+	void Address_Mapping_Unit_Page_Level::generate_flash_writeback_request_for_mapping_data(const stream_id_type stream_id, const LPA_type lpn)
 	{
 		ftl->TSU->Prepare_for_transaction_submit();
 
 		//Writing back all dirty CMT entries that fall into the same translation virtual page (MVPN)
 		unsigned int read_size = 0;
 		page_status_type readSectorsBitmap = 0;
-		MVPN_type mvpn = get_MVPN(lpn);
+		MVPN_type mvpn = get_MVPN(lpn, stream_id);
 		LPA_type startLPN = get_start_LPN_MVP(mvpn);
 		LPA_type endLPN = get_end_LPN_in_MVP(mvpn);
 		for (LPA_type lpn = startLPN; lpn <= endLPN; lpn++)
-			if (domains[streamID]->CMT->Exists(streamID, lpn))
+			if (domains[stream_id]->CMT->Exists(stream_id, lpn))
 			{
-				if (domains[streamID]->CMT->Is_dirty(streamID, lpn))
-					domains[streamID]->CMT->Make_clean(streamID, lpn);
+				if (domains[stream_id]->CMT->Is_dirty(stream_id, lpn))
+					domains[stream_id]->CMT->Make_clean(stream_id, lpn);
 				else
 				{
 					page_status_type bitlocation = (((page_status_type)0x1) << (((lpn - startLPN) * GTD_entry_size) / SECTOR_SIZE_IN_BYTE));
@@ -930,52 +930,52 @@ namespace SSD_Components
 		
 		//Read the unchaged mapping entries from flash to merge them with updated parts of MVPN
 		NVM_Transaction_Flash_RD* readTR = NULL;
-		MPPN_type mppn = domains[streamID]->GlobalTranslationDirectory[mvpn].MPPN;
+		MPPN_type mppn = domains[stream_id]->GlobalTranslationDirectory[mvpn].MPPN;
 		if (mppn != NO_PPA)
 		{
-			readTR = new NVM_Transaction_Flash_RD(TransactionSourceType::MAPPING, streamID, read_size,
+			readTR = new NVM_Transaction_Flash_RD(TransactionSourceType::MAPPING, stream_id, read_size,
 				INVALID_LPN, mppn, NULL, mvpn, NULL, readSectorsBitmap, CurrentTimeStamp);
 			convert_ppa_to_address(mppn, readTR->Address);
-			domains[streamID]->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpn));
+			domains[stream_id]->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpn));
 			ftl->TSU->Submit_transaction(readTR);
 		}
 
-		NVM_Transaction_Flash_WR* writeTR = new NVM_Transaction_Flash_WR(TransactionSourceType::MAPPING, streamID, SECTOR_SIZE_IN_BYTE * sector_no_per_page,
+		NVM_Transaction_Flash_WR* writeTR = new NVM_Transaction_Flash_WR(TransactionSourceType::MAPPING, stream_id, SECTOR_SIZE_IN_BYTE * sector_no_per_page,
 			INVALID_LPN, mppn, NULL, mvpn, readTR, (((page_status_type)0x1) << sector_no_per_page) - 1, CurrentTimeStamp);
 		allocate_plane_for_translation_write(writeTR);
 		allocate_page_in_plane_for_translation_write(writeTR, mvpn);		
-		domains[streamID]->DepartingMappingEntries.insert(get_MVPN(lpn));
+		domains[stream_id]->DepartingMappingEntries.insert(get_MVPN(lpn, stream_id));
 		ftl->TSU->Submit_transaction(writeTR);
 
 
 		Stats::TotalMappingReadRequests++;
 		Stats::TotalMappingWriteRequests++;
-		Stats::MappingReadRequests[streamID]++;
-		Stats::MappingWriteRequests[streamID]++;
+		Stats::MappingReadRequests[stream_id]++;
+		Stats::MappingWriteRequests[stream_id]++;
 
 		ftl->TSU->Schedule();
 	}
 
-	void Address_Mapping_Unit_Page_Level::generate_flash_read_request_for_mapping_data(const stream_id_type streamID, const LPA_type lpn)
+	void Address_Mapping_Unit_Page_Level::generate_flash_read_request_for_mapping_data(const stream_id_type stream_id, const LPA_type lpn)
 	{
 		ftl->TSU->Prepare_for_transaction_submit();
 
-		MVPN_type mvpn = get_MVPN(lpn);
-		PPA_type ppn = domains[streamID]->GlobalTranslationDirectory[mvpn].MPPN;
+		MVPN_type mvpn = get_MVPN(lpn, stream_id);
+		PPA_type ppn = domains[stream_id]->GlobalTranslationDirectory[mvpn].MPPN;
 		
 		if(ppn == NO_PPA)
 			PRINT_ERROR("Reading an unaviable physical flash page in function generate_flash_read_request_for_mapping_data")
 
-		NVM_Transaction_Flash_RD* readTR = new NVM_Transaction_Flash_RD(TransactionSourceType::MAPPING, streamID,
+		NVM_Transaction_Flash_RD* readTR = new NVM_Transaction_Flash_RD(TransactionSourceType::MAPPING, stream_id,
 			SECTOR_SIZE_IN_BYTE, INVALID_LPN, NULL, mvpn, ((page_status_type)0x1) << sector_no_per_page, CurrentTimeStamp);
 		convert_ppa_to_address(ppn, readTR->Address);
 		readTR->PPA = ppn;
-		domains[streamID]->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpn));
+		domains[stream_id]->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpn));
 		ftl->TSU->Submit_transaction(readTR);
 
 
 		Stats::TotalMappingReadRequests++;
-		Stats::MappingReadRequests[streamID]++;
+		Stats::MappingReadRequests[stream_id]++;
 
 		ftl->TSU->Schedule();
 	}
