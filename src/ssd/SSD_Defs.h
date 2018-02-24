@@ -1,5 +1,5 @@
-#ifndef SSD_TYPE_H
-#define SSD_TYPE_H
+#ifndef SSD_DEFS_H
+#define SSD_DEFS_H
 
 #include<cstdint>
 #include <string>
@@ -36,4 +36,4 @@ inline unsigned int sector_count(const page_status_type page_status)
 }
 
 
-#endif // !SSD_TYPE_H
+#endif // !SSD_DEFS_H

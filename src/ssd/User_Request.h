@@ -3,7 +3,7 @@
 
 #include <string>
 #include <list>
-#include "SSDTypes.h"
+#include "SSD_Defs.h"
 #include "../sim/Sim_Defs.h"
 #include "NVM_Transaction.h"
 

@@ -49,12 +49,12 @@ namespace Host_Components
 		Host_IO_Reqeust* request = new Host_IO_Reqeust;
 		if (random_request_type_generator->Uniform(0, 1) <= read_ratio)
 		{
-			request->Is_read = true;
+			request->Type = Host_IO_Request_Type::READ;
 			STAT_generated_read_request_count++;
 		}
 		else
 		{
-			request->Is_read = false;
+			request->Type = Host_IO_Request_Type::WRITE;
 			STAT_generated_write_request_count++;
 		}
 
@@ -113,17 +113,15 @@ namespace Host_Components
 		}
 		STAT_generated_request_count++;
 		request->Arrival_time = Simulator->Time();
-		DEBUG("Request generated - " << (request->Is_read ? "Read, " : "Write, ") << "LBA:" << request->Start_LBA << ", Size:" << request->LBA_count << "")
-		if (Simulator->Time() == 18658999)
-		{
-			int a = 0;
-		}
+		DEBUG2("* Host: Request generated - " << (request->Type == Host_IO_Request_Type::READ ? "Read, " : "Write, ") << "LBA:" << request->Start_LBA << ", Size:" << request->LBA_count << "")
+
 		return request;
 	}
 
 	void IO_Flow_Synthetic::NVMe_consume_io_request(Completion_Queue_Entry* io_request)
 	{
 		IO_Flow_Base::NVMe_consume_io_request(io_request);
+		IO_Flow_Base::NVMe_update_and_submit_completion_queue_tail();
 		if (generator_type == Request_Generator_Type::DEMAND_BASED)
 		{
 			Host_IO_Reqeust* request = Generate_next_request();

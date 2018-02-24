@@ -56,8 +56,7 @@ void Host_System::Attach_ssd_device(SSD_Device* ssd_device)
 	this->PCIe_switch->Attach_ssd_device(ssd_device->Host_interface);
 	this->ssd_device = ssd_device;
 }
-
-const std::vector<Host_Components::IO_Flow_Base*> Host_System::Get_io_flows()
+const std::vector<Host_Components::IO_Flow_Base*> const Host_System::Get_io_flows()
 {
 	return IO_flows;
 }

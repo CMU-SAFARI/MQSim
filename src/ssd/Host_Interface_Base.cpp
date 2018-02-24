@@ -3,6 +3,13 @@
 
 namespace SSD_Components
 {
+	Input_Stream_Base::Input_Stream_Base() :
+		STAT_number_of_read_requests(0), STAT_number_of_write_requests(0), 
+		STAT_number_of_read_transactions(0), STAT_number_of_write_transactions(0),
+		STAT_sum_of_read_transactions_execution_time(0), STAT_sum_of_read_transactions_transfer_time(0), STAT_sum_of_read_transactions_waiting_time(0),
+		STAT_sum_of_write_transactions_execution_time(0), STAT_sum_of_write_transactions_transfer_time(0), STAT_sum_of_write_transactions_waiting_time(0)
+	{}
+
 	Host_Interface_Base* Host_Interface_Base::_myInstance = NULL;
 
 	Host_Interface_Base::Host_Interface_Base(const sim_object_id_type& id, HostInterfaceType type, LSA_type max_logical_sector_address, unsigned int sectors_per_page, Data_Cache_Manager_Base* cache)

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "../sim/Sim_Object.h"
-#include "../ssd/SSDTypes.h"
+#include "../ssd/SSD_Defs.h"
 #include "../ssd/Host_Interface_Base.h"
 #include "../ssd/Host_Interface_SATA.h"
 #include "../ssd/Host_Interface_NVMe.h"

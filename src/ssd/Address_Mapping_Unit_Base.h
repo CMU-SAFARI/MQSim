@@ -4,7 +4,7 @@
 #include "../sim/Sim_Object.h"
 #include "../nvm_chip/flash_memory/Physical_Page_Address.h"
 #include "../nvm_chip/flash_memory/FlashTypes.h"
-#include "SSDTypes.h"
+#include "SSD_Defs.h"
 #include "NVM_Transaction_Flash.h"
 #include "NVM_PHY_ONFI_NVDDR2.h"
 #include "FTL.h"

@@ -6,7 +6,7 @@
 #include <list>
 #include "../sim/Sim_Defs.h"
 #include "../sim/Sim_Object.h"
-#include "../ssd/SSDTypes.h"
+#include "../ssd/SSD_Defs.h"
 #include "../ssd/Host_Interface_Defs.h"
 #include "Host_IO_Request.h"
 #include "PCIe_Root_Complex.h"
@@ -93,6 +93,7 @@ namespace Host_Components
 		sim_time_type STAT_transferred_bytes_total, STAT_transferred_bytes_read, STAT_transferred_bytes_write;
 
 		void submit_io_request(Host_IO_Reqeust*);
+		void NVMe_update_and_submit_completion_queue_tail();
 	};
 }
 

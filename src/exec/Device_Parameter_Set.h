@@ -1,7 +1,7 @@
 #ifndef DEVICE_PARAMETER_SET_H
 #define DEVICE_PARAMETER_SET_H
 
-#include "../ssd/SSDTypes.h"
+#include "../ssd/SSD_Defs.h"
 #include "../ssd/Host_Interface_Defs.h"
 #include "../ssd/Host_Interface_Base.h"
 #include "../ssd/Data_Cache_Manager_Base.h"

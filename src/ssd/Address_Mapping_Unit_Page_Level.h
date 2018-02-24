@@ -8,7 +8,7 @@
 #include <list>
 #include "Address_Mapping_Unit_Base.h"
 #include "Flash_Block_Manager_Base.h"
-#include "SSDTypes.h"
+#include "SSD_Defs.h"
 #include "NVM_Transaction_Flash_RD.h"
 #include "NVM_Transaction_Flash_WR.h"
 

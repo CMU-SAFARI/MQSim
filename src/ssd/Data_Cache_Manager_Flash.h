@@ -5,7 +5,7 @@
 #include <queue>
 #include <unordered_map>
 #include "../nvm_chip/flash_memory/FlashTypes.h"
-#include "SSDTypes.h"
+#include "SSD_Defs.h"
 #include "Data_Cache_Manager_Base.h"
 #include "NVM_Transaction_Flash.h"
 

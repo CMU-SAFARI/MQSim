@@ -107,7 +107,7 @@ namespace Host_Components
 		enqueued_requests.erase(cqe->Command_Identifier);
 		sim_time_type device_response_time = Simulator->Time() - request->Enqueue_time;
 		sim_time_type request_delay = Simulator->Time() - request->Arrival_time;
-		DEBUG("Request #" << cqe->Command_Identifier << " finished: end-to-end delay:" << (request_delay / 1000) << "(us) device response time:" << (device_response_time / 1000) << "(us)")
+		DEBUG2("* Host: Request #" << cqe->Command_Identifier << " finished: end-to-end delay:" << (request_delay / 1000) << "(us) device response time:" << (device_response_time / 1000) << "(us)")
 		STAT_serviced_request_count++;
 		STAT_sum_device_response_time += device_response_time;
 		STAT_sum_request_delay += request_delay;
@@ -121,7 +121,7 @@ namespace Host_Components
 			STAT_min_request_delay = request_delay;
 		STAT_transferred_bytes_total = request->LBA_count * SECTOR_SIZE_IN_BYTE;
 
-		if (request->Is_read)
+		if (request->Type == Host_IO_Request_Type::READ)
 		{
 			STAT_serviced_read_request_count++;
 			STAT_sum_device_response_time_read += device_response_time;
@@ -182,7 +182,7 @@ namespace Host_Components
 		if (request == NULL)
 			throw this->ID() + std::string(": Request to access a submission queue entry that does not exist.\n");
 		sqe->Command_Identifier = request->IO_queue_info;
-		if (request->Is_read)
+		if (request->Type == Host_IO_Request_Type::READ)
 		{
 			sqe->Opcode = NVME_READ_OPCODE;
 			sqe->Command_specific[0] = (uint32_t) request->Start_LBA;
@@ -223,7 +223,14 @@ namespace Host_Components
 		case HostInterfaceType::SATA:
 			break;
 		}
+	}
 
+	void IO_Flow_Base::NVMe_update_and_submit_completion_queue_tail()
+	{
+		nvme_queue_pair.Completion_queue_head++;
+		if (nvme_queue_pair.Completion_queue_head == nvme_queue_pair.Completion_queue_size)
+			nvme_queue_pair.Completion_queue_head = 0;
+		pcie_root_complex->Write_to_device(nvme_queue_pair.Completion_head_register_address_on_device, nvme_queue_pair.Completion_queue_head);//Based on NVMe protocol definition, the updated head pointer should be informed to the device
 	}
 	
 	const NVMe_Queue_Pair* IO_Flow_Base::Get_nvme_queue_pair_info()

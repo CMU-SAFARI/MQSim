@@ -16,7 +16,7 @@ namespace SSD_Components
 	public:
 		Input_Stream_NVMe(LSA_type start_logical_sector_address, LSA_type end_logical_sector_address,
 			uint64_t submission_queue_base_address, uint16_t submission_queue_size,
-			uint64_t completion_queue_base_address, uint16_t completion_queue_size) :
+			uint64_t completion_queue_base_address, uint16_t completion_queue_size) : Input_Stream_Base(),
 			Start_logical_sector_address(start_logical_sector_address), End_logical_sector_address(end_logical_sector_address),
 			Submission_queue_base_address(submission_queue_base_address), Submission_queue_size(submission_queue_size),
 			Completion_queue_base_address(completion_queue_base_address), Completion_queue_size(completion_queue_size),

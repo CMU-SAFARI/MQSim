@@ -1,7 +1,7 @@
 #ifndef STATS_H
 #define STATS_H
 
-#include "SSDTypes.h"
+#include "SSD_Defs.h"
 
 namespace SSD_Components
 {

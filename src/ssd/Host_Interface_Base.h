@@ -28,6 +28,9 @@ namespace SSD_Components
 	class Input_Stream_Base
 	{
 	public:
+		Input_Stream_Base();
+		unsigned int STAT_number_of_read_requests;
+		unsigned int STAT_number_of_write_requests;
 		unsigned int STAT_number_of_read_transactions;
 		unsigned int STAT_number_of_write_transactions;
 		sim_time_type STAT_sum_of_read_transactions_execution_time, STAT_sum_of_read_transactions_transfer_time, STAT_sum_of_read_transactions_waiting_time;

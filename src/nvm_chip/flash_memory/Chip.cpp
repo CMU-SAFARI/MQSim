@@ -55,11 +55,11 @@ namespace NVM
 		void Chip::Validate_simulation_config()
 		{
 			if (Dies == NULL || die_no == 0)
-				throw "FlashChip (" + ID() + ") has no Die";
+				PRINT_ERROR("FlashChip (" + ID() + ") has no Die")
 			for (unsigned int i = 0; i < die_no; i++)
 			{
 				if (Dies[i]->Planes == NULL)
-					throw "Die (" + ID() + ") has no Planes";
+					PRINT_ERROR("Die (" + ID() + ") has no Planes")
 			}
 		}
 		
@@ -87,7 +87,7 @@ namespace NVM
 				&& (command->CommandCode == CMD_READ_PAGE
 					|| command->CommandCode == CMD_PROGRAM_PAGE
 					|| command->CommandCode == CMD_ERASE_BLOCK))
-				throw "Executing operation on a busy die";
+				PRINT_ERROR("Executing operation on a busy die")
 
 			targetDie->ExpectedFinishTime = Simulator->Time() + Get_command_execution_latency(command->CommandCode, command->Address[0].PageID);
 			targetDie->CommandFinishEvent = Simulator->Register_sim_event(targetDie->ExpectedFinishTime,
@@ -103,7 +103,7 @@ namespace NVM
 				status = Internal_Status::BUSY;
 			}
 
-			DEBUG("Command execution started on channel: " << this->ChannelID << " chip: " << this->ChipID << std::endl)
+			DEBUG("Command execution started on channel: " << this->ChannelID << " chip: " << this->ChipID)
 		}
 
 		void Chip::finishCommandExecution(Flash_Command* command)
@@ -166,7 +166,7 @@ namespace NVM
 				break;
 			}
 			default:
-				throw "Unhandled command type requested from chip.";
+				PRINT_ERROR("Unhandled command type requested from chip.")
 			}
 
 			//We always assert ready signal, instead of issueing die status read command
@@ -186,7 +186,7 @@ namespace NVM
 
 			Die* targetDie = Dies[dieID];
 			if (targetDie->Suspended)
-				throw "Suspending a previously suspended chip!";
+				PRINT_ERROR("Suspending a previously suspended chip!")
 
 			/*if (targetDie->CurrentCMD & CMD_READ != 0)
 			throw "Suspend is not supported for read operations!";*/
@@ -213,7 +213,7 @@ namespace NVM
 		{
 			Die* targetDie = Dies[dieID];
 			if (!targetDie->Suspended)
-				throw "Resume requested but there is no suspended flash command!";
+				PRINT_ERROR("Resume requested but there is no suspended flash command!")
 
 
 			targetDie->CurrentCMD = targetDie->SuspendedCMD;
