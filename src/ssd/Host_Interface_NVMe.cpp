@@ -150,6 +150,8 @@ namespace SSD_Components
 					+ (lsa % (((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->End_logical_sector_address
 					- (((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->Start_logical_sector_address)));
 
+			lsa = lsa - ((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->Start_logical_sector_address;
+
 			transaction_size = host_interface->sectors_per_page - (unsigned int)(lsa % host_interface->sectors_per_page);
 			if (hanled_sectors_count + transaction_size >= req_size)
 			{

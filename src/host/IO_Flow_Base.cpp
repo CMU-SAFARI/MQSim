@@ -20,7 +20,7 @@ namespace Host_Components
 		STAT_sum_request_delay(0), STAT_sum_request_delay_read(0), STAT_sum_request_delay_write(0),
 		STAT_min_request_delay(MAXIMUM_TIME), STAT_min_request_delay_read(MAXIMUM_TIME), STAT_min_request_delay_write(MAXIMUM_TIME),
 		STAT_max_request_delay(0), STAT_max_request_delay_read(0), STAT_max_request_delay_write(0),
-		STAT_transferred_bytes_total(0), STAT_transferred_bytes_read(0), STAT_transferred_bytes_write(0)
+		STAT_transferred_bytes_total(0), STAT_transferred_bytes_read(0), STAT_transferred_bytes_write(0), progress(0), next_progress_step(0)
 	{
 		switch (SSD_device_type)
 		{
@@ -173,6 +173,31 @@ namespace Host_Components
 			}
 
 		delete cqe;
+
+		//Announce simulation progress
+		if (stop_time > 0)
+		{
+			progress = int(Simulator->Time() / (double)stop_time * 100);
+		}
+		else
+		{
+			progress = int(STAT_serviced_request_count / (double)total_req_count * 100);
+		}
+		if (progress == next_progress_step)
+		{
+			std::string progress_bar;
+			int barWidth = 100;
+			progress_bar += "[";
+			int pos = progress;
+			for (int i = 0; i < barWidth; i += 5) {
+				if (i < pos) progress_bar += "=";
+				else if (i == pos) progress_bar += ">";
+				else progress_bar += " ";
+			}
+			progress_bar += "] ";
+			PRINT_MESSAGE(progress_bar << " " << progress << "% progress in " << ID() << std::endl)
+			next_progress_step += 5;
+		}
 	}
 
 	Submission_Queue_Entry* IO_Flow_Base::NVMe_read_sqe(uint64_t address)

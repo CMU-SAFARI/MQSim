@@ -14,6 +14,8 @@
 
 namespace SSD_Components
 {
+#define MAKE_TABLE_INDEX(LPN,STREAM)
+
 	enum class CMTEntryStatus {FREE, WAITING, VALID};
 
 	typedef uint32_t MVPN_type;

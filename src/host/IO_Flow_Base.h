@@ -91,6 +91,8 @@ namespace Host_Components
 		sim_time_type STAT_min_request_delay, STAT_min_request_delay_read, STAT_min_request_delay_write;
 		sim_time_type STAT_max_request_delay, STAT_max_request_delay_read, STAT_max_request_delay_write;
 		sim_time_type STAT_transferred_bytes_total, STAT_transferred_bytes_read, STAT_transferred_bytes_write;
+		int progress;
+		int next_progress_step = 0;
 
 		void submit_io_request(Host_IO_Reqeust*);
 		void NVMe_update_and_submit_completion_queue_tail();
