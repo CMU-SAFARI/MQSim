@@ -7,4 +7,4 @@ This is a preliminary version of MQSim. An updated version will be released in M
 
 $ make
 
-$ ./MQSim -i ./ssdconfig.mqs -w ./workload.mqs
+$ ./MQSim -i ./ssdconfig.mqs -w ./workload.xml
