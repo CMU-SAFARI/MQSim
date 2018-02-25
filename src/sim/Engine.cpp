@@ -114,4 +114,9 @@ namespace MQSimEngine
 	{
 		ev->Ignore = true;
 	}
+
+	bool Engine::Is_integrated_execution_mode()
+	{
+		return false;
+	}
 }
