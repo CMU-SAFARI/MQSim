@@ -8,7 +8,7 @@
 #include "User_Request.h"
 #include "Data_Cache_Manager_Base.h"
 #include <stdint.h>
-#include <stdio.h>
+#include <cstring>
 
 namespace Host_Components
 {
