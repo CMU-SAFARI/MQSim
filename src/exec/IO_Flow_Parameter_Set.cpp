@@ -2,6 +2,7 @@
 #include <string>
 #include <set>
 #include <cstring>
+#include <algorithm>
 
 //All serialization and deserialization functions should be replaced by a C++ reflection implementation
 void IO_Flow_Parameter_Set::Serialize(Utils::XmlWriter& xmlwriter)
