@@ -7,7 +7,7 @@
 namespace Host_Components
 {
 	enum class Address_Distribution_Type { STREAMING, UNIFORM_RANDOM, HOTCOLD_RANDOM };
-	enum class Request_Size_Distribution_Type {Fixed, NORMAL};
+	enum class Request_Size_Distribution_Type {FIXED, NORMAL};
 	enum class Request_Generator_Type {TIMED, DEMAND_BASED};//Time_INTERVAL: general requests based on the arrival rate definitions, DEMAND_BASED: just generate a request, every time that there is a demand
 	
 	class IO_Flow_Synthetic : public IO_Flow_Base

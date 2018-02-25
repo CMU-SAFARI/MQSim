@@ -60,7 +60,7 @@ namespace Host_Components
 
 		switch (request_size_distribution)
 		{
-		case Request_Size_Distribution_Type::Fixed:
+		case Request_Size_Distribution_Type::FIXED:
 			request->LBA_count = average_request_size;
 			break;
 		case Request_Size_Distribution_Type::NORMAL:

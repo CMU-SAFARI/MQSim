@@ -71,30 +71,30 @@ namespace SSD_Components
 			statesEpoch[i].nEnterances = 0;
 		}
 	}
-	void Queue_Probe::Snapshot(std::string id, XmlWriter& writer)
+	void Queue_Probe::Snapshot(std::string id, Utils::XmlWriter& writer)
 	{
-		writer.writeStartElementTag(id + "_QueueProbe");
-		writer.writeAttributeString("MaxQueueLength", std::to_string(MaxQueueLength()));
-		writer.writeAttributeString("AvgQueueLength", std::to_string(AvgQueueLength()));
-		writer.writeAttributeString("MaxWaitingTime", std::to_string(MaxWaitingTime()));
-		writer.writeAttributeString("AvgWaitingTime", std::to_string(AvgWaitingTime()));
-		writer.writeAttributeString("NRequests", std::to_string(NRequests()));
-		writer.writeAttributeString("NDepartures", std::to_string(NDepartures()));
+		writer.Write_start_element_tag(id + "_QueueProbe");
+		writer.Write_attribute_string("MaxQueueLength", std::to_string(MaxQueueLength()));
+		writer.Write_attribute_string("AvgQueueLength", std::to_string(AvgQueueLength()));
+		writer.Write_attribute_string("MaxWaitingTime", std::to_string(MaxWaitingTime()));
+		writer.Write_attribute_string("AvgWaitingTime", std::to_string(AvgWaitingTime()));
+		writer.Write_attribute_string("NRequests", std::to_string(NRequests()));
+		writer.Write_attribute_string("NDepartures", std::to_string(NDepartures()));
 		for (unsigned int i = 0; i < states.size(); i++)
 		{
-			writer.writeStartElementTag(id + "_Distribution");
+			writer.Write_start_element_tag(id + "_Distribution");
 			sim_time_type now = Simulator->Time();
 			sim_time_type t = states[i].totalTime;
 			if (count == i)
 				t += now - lastCountChange;
 			double r = (double)t / (double)(now - lastCountChangeReference);
-			writer.writeAttributeString("QueueLength", std::to_string(i));
-			writer.writeAttributeString("nEnterances", std::to_string(states[i].nEnterances));
-			writer.writeAttributeString("totalTime", std::to_string(t));
-			writer.writeAttributeString("totalTimeRatio", std::to_string(r));
-			writer.writeEndElementTag();
+			writer.Write_attribute_string("QueueLength", std::to_string(i));
+			writer.Write_attribute_string("nEnterances", std::to_string(states[i].nEnterances));
+			writer.Write_attribute_string("totalTime", std::to_string(t));
+			writer.Write_attribute_string("totalTimeRatio", std::to_string(r));
+			writer.Write_end_element_tag();
 		}
-		writer.writeEndElementTag();//id + "_QueueProbe"
+		writer.Write_end_element_tag();//id + "_QueueProbe"
 	}
 	unsigned long Queue_Probe::NRequests()
 	{

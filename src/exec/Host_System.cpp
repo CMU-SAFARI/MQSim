@@ -33,10 +33,10 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 				address_range_per_flow * flow_id, address_range_per_flow * (flow_id + 1) - 1, 
 				FLOW_ID_TO_Q_ID(flow_id), ((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_submission_queue_depth(),
 				((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth(),
-				flow_param->Priority_Class, flow_param->Read_Ratio, flow_param->Address_Distribution, flow_param->Ratio_of_Hot_Region,
+				flow_param->Priority_Class, flow_param->Read_Percentage / double(100.0), flow_param->Address_Distribution, flow_param->Percentage_of_Hot_Region / double(100.0),
 				flow_param->Request_Size_Distribution, flow_param->Average_Request_Size, flow_param->Variance_Request_Size,
 				Host_Components::Request_Generator_Type::DEMAND_BASED, 0, flow_param->Average_No_of_Reqs_in_Queue,
-				flow_param->Seed, flow_param->Stop_Time, flow_param->Total_Request_To_Generate, ssd_host_interface->GetType(), this->PCIe_root_complex);
+				flow_param->Seed, flow_param->Stop_Time, flow_param->Total_Requests_To_Generate, ssd_host_interface->GetType(), this->PCIe_root_complex);
 			this->IO_flows.push_back(io_flow);
 			break;
 		}

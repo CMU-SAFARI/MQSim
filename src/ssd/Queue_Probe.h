@@ -25,7 +25,7 @@ namespace SSD_Components
 		void EnqueueRequest(NVM_Transaction* transaction);
 		void DequeueRequest(NVM_Transaction* transaction);
 		void ResetEpochStatistics();
-		void Snapshot(std::string id, XmlWriter& writer);
+		void Snapshot(std::string id, Utils::XmlWriter& writer);
 		unsigned long NRequests();
 		unsigned long NDepartures();
 		int QueueLength();
