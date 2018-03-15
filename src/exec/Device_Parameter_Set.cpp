@@ -32,3 +32,539 @@ unsigned int Device_Parameter_Set::Channel_Transfer_Rate = 300;//MT/s
 unsigned int Device_Parameter_Set::Chip_No_Per_Channel = 4;
 SSD_Components::ONFI_Protocol Device_Parameter_Set::Flash_Comm_Protocol = SSD_Components::ONFI_Protocol::NVDDR2;
 Flash_Parameter_Set Device_Parameter_Set::Flash_Parameters;
+
+void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
+{
+	std::string tmp;
+	tmp = "Device_Parameter_Set";
+	xmlwriter.Write_open_tag(tmp);
+
+	std::string attr = "HostInterface_Type";
+	std::string val;
+	switch (HostInterface_Type)
+	{
+	case HostInterfaceType::NVME:
+		val = "NVME";
+		break;
+	case HostInterfaceType::SATA:
+		val = "SATA";
+		break;
+	default:
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "IO_Queue_Depth";
+	val = std::to_string(IO_Queue_Depth);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Queue_Fetch_Size";
+	val = std::to_string(Queue_Fetch_Size);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Data_Cache_Sharing_Mode";
+	switch (Data_Cache_Sharing_Mode)
+	{
+	case SSD_Components::Cache_Sharing_Mode::SHARED:
+		val = "SHARED";
+		break;
+	case SSD_Components::Cache_Sharing_Mode::EQUAL_PARTITIONING:
+		val = "EQUAL_PARTITIONING";
+		break;
+	default:
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Data_Cache_Capacity";
+	val = std::to_string(Data_Cache_Capacity);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Data_Cache_DRAM_Row_Size";
+	val = std::to_string(Data_Cache_DRAM_Row_Size);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Data_Cache_DRAM_Data_Rate";
+	val = std::to_string(Data_Cache_DRAM_Data_Rate);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Data_Cache_DRAM_Data_Busrt_Size";
+	val = std::to_string(Data_Cache_DRAM_Data_Busrt_Size);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Data_Cache_DRAM_tRCD";
+	val = std::to_string(Data_Cache_DRAM_tRCD);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Data_Cache_DRAM_tCL";
+	val = std::to_string(Data_Cache_DRAM_tCL);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Data_Cache_DRAM_tRP";
+	val = std::to_string(Data_Cache_DRAM_tRP);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Address_Mapping";
+	switch (Address_Mapping)
+	{
+	case SSD_Components::Flash_Address_Mapping_Type::PAGE_LEVEL:
+		val = "PAGE_LEVEL";
+		break;
+	case SSD_Components::Flash_Address_Mapping_Type::HYBRID:
+		val = "HYBRID";
+		break;
+	default:
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "CMT_Capacity";
+	val = std::to_string(CMT_Capacity);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "CMT_Sharing_Mode";
+	switch (CMT_Sharing_Mode)
+	{
+	case SSD_Components::CMT_Sharing_Mode::SHARED:
+		val = "SHARED";
+		break;
+	case SSD_Components::CMT_Sharing_Mode::EQUAL_SIZE_PARTITIONING:
+		val = "EQUAL_SIZE_PARTITIONING";
+		break;
+	default:
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Plane_Allocation_Scheme";
+	switch (Plane_Allocation_Scheme)
+	{
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::CDPW:
+		val = "CDPW";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::CDWP:
+		val = "CDWP";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::CPDW:
+		val = "CPDW";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::CPWD:
+		val = "CPWD";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::CWDP:
+		val = "CWDP";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::CWPD:
+		val = "CWPD";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::DCPW:
+		val = "DCPW";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::DCWP:
+		val = "DCWP";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::DPCW:
+		val = "DPCW";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::DPWC:
+		val = "DPWC";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::DWCP:
+		val = "DWCP";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::DWPC:
+		val = "DWPC";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::F:
+		val = "F";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::PCDW:
+		val = "PCDW";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::PCWD:
+		val = "PCWD";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::PDCW:
+		val = "PDCW";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::PDWC:
+		val = "PDWC";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::PWCD:
+		val = "PWCD";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::PWDC:
+		val = "PWDC";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::WCDP:
+		val = "WCDP";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::WCPD:
+		val = "WCPD";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::WDCP:
+		val = "WDCP";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::WDPC:
+		val = "WDPC";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::WPCD:
+		val = "WPCD";
+		break;
+	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::WPDC:
+		val = "WPDC";
+		break;
+	default:
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Transaction_Scheduling_Policy";
+	switch (Transaction_Scheduling_Policy)
+	{
+	case SSD_Components::Flash_Scheduling_Type::OUT_OF_ORDER:
+		val = "OUT_OF_ORDER";
+		break;
+	default:
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Overprovisioning_Ratio";
+	val = std::to_string(Overprovisioning_Ratio);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "GC_Exect_Threshold";
+	val = std::to_string(GC_Exect_Threshold);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "GC_Block_Selection_Policy";
+	switch (GC_Block_Selection_Policy)
+	{
+	case SSD_Components::GC_Block_Selection_Policy_Type::GREEDY:
+		val = "GREEDY";
+		break;
+	case SSD_Components::GC_Block_Selection_Policy_Type::RGA:
+		val = "RGA";
+		break;
+	case SSD_Components::GC_Block_Selection_Policy_Type::RANDOM:
+		val = "RANDOM";
+		break;
+	case SSD_Components::GC_Block_Selection_Policy_Type::RANDOM_P:
+		val = "RANDOM_P";
+		break;
+	case SSD_Components::GC_Block_Selection_Policy_Type::RANDOM_PP:
+		val = "RANDOM_PP";
+		break;
+	case SSD_Components::GC_Block_Selection_Policy_Type::FIFO:
+		val = "FIFO";
+		break;
+	default:
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Preemptible_GC_Enabled";
+	val = (Preemptible_GC_Enabled ? "true" : "false");
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "GC_Hard_Threshold";
+	val = std::to_string(GC_Hard_Threshold);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Prefered_suspend_erase_time_for_read";
+	val = std::to_string(Prefered_suspend_erase_time_for_read);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Prefered_suspend_erase_time_for_write";
+	val = std::to_string(Prefered_suspend_erase_time_for_write);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Prefered_suspend_write_time_for_read";
+	val = std::to_string(Prefered_suspend_write_time_for_read);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Flash_Channel_Count";
+	val = std::to_string(Flash_Channel_Count);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Flash_Channel_Width";
+	val = std::to_string(Flash_Channel_Width);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Channel_Transfer_Rate";
+	val = std::to_string(Channel_Transfer_Rate);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Chip_No_Per_Channel";
+	val = std::to_string(Chip_No_Per_Channel);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Flash_Comm_Protocol";
+	switch (Flash_Comm_Protocol)
+	{
+	case SSD_Components::ONFI_Protocol::NVDDR2:
+		val = "NVDDR2";
+		break;
+	default:
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	Flash_Parameters.XML_serialize(xmlwriter);
+
+	xmlwriter.Write_close_tag();
+}
+
+void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
+{
+	try
+	{
+		for (auto param = node->first_node(); param; param = param->next_sibling())
+		{
+			if (strcmp(param->name(), "HostInterface_Type") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "NVME") == 0)
+					HostInterface_Type = HostInterfaceType::NVME;
+				else if (strcmp(val.c_str(), "SATA") == 0)
+					HostInterface_Type = HostInterfaceType::SATA;
+				else PRINT_ERROR("Unknown host interface type specified in the input file")
+			}
+			else if (strcmp(param->name(), "IO_Queue_Depth") == 0)
+			{
+				std::string val = param->value();
+				IO_Queue_Depth = (uint16_t) std::stoull(val);
+			}
+			else if (strcmp(param->name(), "Queue_Fetch_Size") == 0)
+			{
+				std::string val = param->value();
+				Queue_Fetch_Size = (uint16_t) std::stoull(val);
+			}
+			else if (strcmp(param->name(), "Data_Cache_Sharing_Mode") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "SHARED") == 0)
+					Data_Cache_Sharing_Mode = SSD_Components::Cache_Sharing_Mode::SHARED;
+				else if (strcmp(val.c_str(), "EQUAL_PARTITIONING") == 0)
+					Data_Cache_Sharing_Mode = SSD_Components::Cache_Sharing_Mode::EQUAL_PARTITIONING;
+				else PRINT_ERROR("Unknown data cache sharing mode specified in the input file")
+			}
+			else if (strcmp(param->name(), "Data_Cache_Capacity") == 0)
+			{
+				std::string val = param->value();
+				Data_Cache_Capacity = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Data_Cache_DRAM_Row_Size") == 0)
+			{
+				std::string val = param->value();
+				Data_Cache_DRAM_Row_Size = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Data_Cache_DRAM_Data_Rate") == 0)
+			{
+				std::string val = param->value();
+				Data_Cache_DRAM_Data_Rate = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Data_Cache_DRAM_Data_Busrt_Size") == 0)
+			{
+				std::string val = param->value();
+				Data_Cache_DRAM_Data_Busrt_Size = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Data_Cache_DRAM_tRCD") == 0)
+			{
+				std::string val = param->value();
+				Data_Cache_DRAM_tRCD = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Data_Cache_DRAM_tCL") == 0)
+			{
+				std::string val = param->value();
+				Data_Cache_DRAM_tCL = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Data_Cache_DRAM_tRP") == 0)
+			{
+				std::string val = param->value();
+				Data_Cache_DRAM_tRP = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Address_Mapping") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "PAGE_LEVEL") == 0)
+					Address_Mapping = SSD_Components::Flash_Address_Mapping_Type::PAGE_LEVEL;
+				else if (strcmp(val.c_str(), "HYBRID") == 0)
+					Address_Mapping = SSD_Components::Flash_Address_Mapping_Type::HYBRID;
+				else PRINT_ERROR("Unknown address mapping type specified in the input file")
+			}
+			else if (strcmp(param->name(), "CMT_Capacity") == 0)
+			{
+				std::string val = param->value();
+				CMT_Capacity = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "CMT_Sharing_Mode") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "SHARED") == 0)
+					CMT_Sharing_Mode = SSD_Components::CMT_Sharing_Mode::SHARED;
+				else if (strcmp(val.c_str(), "EQUAL_SIZE_PARTITIONING") == 0)
+					CMT_Sharing_Mode = SSD_Components::CMT_Sharing_Mode::EQUAL_SIZE_PARTITIONING;
+				else PRINT_ERROR("Unknown CMT sharing mode specified in the input file")
+			}
+			else if (strcmp(param->name(), "Plane_Allocation_Scheme") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "CDPW") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::CDPW;
+				else if (strcmp(val.c_str(), "CDWP") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::CDWP;
+				else if (strcmp(val.c_str(), "CPDW") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::CPDW;
+				else if (strcmp(val.c_str(), "CPWD") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::CPWD;
+				else if (strcmp(val.c_str(), "CWDP") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::CWDP;
+				else if (strcmp(val.c_str(), "CWPD") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::CWPD;
+				else if (strcmp(val.c_str(), "DCPW") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::DCPW;
+				else if (strcmp(val.c_str(), "DCWP") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::DCWP;
+				else if (strcmp(val.c_str(), "DPCW") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::DPCW;
+				else if (strcmp(val.c_str(), "DPWC") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::DPWC;
+				else if (strcmp(val.c_str(), "DWCP") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::DWCP;
+				else if (strcmp(val.c_str(), "DWPC") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::DWPC;
+				else if (strcmp(val.c_str(), "PCDW") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::PCDW;
+				else if (strcmp(val.c_str(), "PCWD") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::PCWD;
+				else if (strcmp(val.c_str(), "PDCW") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::PDCW;
+				else if (strcmp(val.c_str(), "PDWC") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::PDWC;
+				else if (strcmp(val.c_str(), "PWCD") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::PWCD;
+				else if (strcmp(val.c_str(), "PWDC") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::PWDC;
+				else if (strcmp(val.c_str(), "WCDP") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::WCDP;
+				else if (strcmp(val.c_str(), "WCPD") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::WCPD;
+				else if (strcmp(val.c_str(), "WDCP") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::WDCP;
+				else if (strcmp(val.c_str(), "WDPC") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::WDPC;
+				else if (strcmp(val.c_str(), "WPCD") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::WPCD;
+				else if (strcmp(val.c_str(), "WPDC") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::WPDC;
+				else if (strcmp(val.c_str(), "F") == 0)
+					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::F;
+				else PRINT_ERROR("Unknown plane allocation scheme type specified in the input file")
+			}
+			else if (strcmp(param->name(), "Transaction_Scheduling_Policy") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "OUT_OF_ORDER") == 0)
+					Transaction_Scheduling_Policy = SSD_Components::Flash_Scheduling_Type::OUT_OF_ORDER;
+				else PRINT_ERROR("Unknown transaction scheduling type specified in the input file")
+			}
+			else if (strcmp(param->name(), "Overprovisioning_Ratio") == 0)
+			{
+				std::string val = param->value();
+				Overprovisioning_Ratio = std::stod(val);
+			}
+			else if (strcmp(param->name(), "GC_Exect_Threshold") == 0)
+			{
+				std::string val = param->value();
+				GC_Exect_Threshold = std::stod(val);
+			}
+			else if (strcmp(param->name(), "GC_Block_Selection_Policy") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "GREEDY") == 0)
+					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::GREEDY;
+				else if (strcmp(val.c_str(), "RGA") == 0)
+					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::RGA;
+				else if (strcmp(val.c_str(), "RANDOM") == 0)
+					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::RANDOM;
+				else if (strcmp(val.c_str(), "RANDOM_P") == 0)
+					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::RANDOM_P;
+				else if (strcmp(val.c_str(), "RANDOM_PP") == 0)
+					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::RANDOM_PP;
+				else if (strcmp(val.c_str(), "FIFO") == 0)
+					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::FIFO;
+				else PRINT_ERROR("Unknown GC block selection policy specified in the input file")
+			}
+			else if (strcmp(param->name(), "Preemptible_GC_Enabled") == 0)
+			{
+				std::string val = param->value();
+				Preemptible_GC_Enabled = (val.compare("false") ? false : true);
+			}
+			else if (strcmp(param->name(), "GC_Hard_Threshold") == 0)
+			{
+				std::string val = param->value();
+				GC_Hard_Threshold = std::stod(val);
+			}
+			else if (strcmp(param->name(), "Prefered_suspend_erase_time_for_read") == 0)
+			{
+				std::string val = param->value();
+				Prefered_suspend_erase_time_for_read = std::stoull(val);
+			}
+			else if (strcmp(param->name(), "Prefered_suspend_erase_time_for_write") == 0)
+			{
+				std::string val = param->value();
+				Prefered_suspend_erase_time_for_write = std::stoull(val);
+			}
+			else if (strcmp(param->name(), "Prefered_suspend_write_time_for_read") == 0)
+			{
+				std::string val = param->value();
+				Prefered_suspend_write_time_for_read = std::stoull(val);
+			}
+			else if (strcmp(param->name(), "Flash_Channel_Count") == 0)
+			{
+				std::string val = param->value();
+				Flash_Channel_Count = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Flash_Channel_Width") == 0)
+			{
+				std::string val = param->value();
+				Flash_Channel_Width = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Channel_Transfer_Rate") == 0)
+			{
+				std::string val = param->value();
+				Channel_Transfer_Rate = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Chip_No_Per_Channel") == 0)
+			{
+				std::string val = param->value();
+				Chip_No_Per_Channel = std::stoul(val);
+			}
+			else if (strcmp(param->name(), "Flash_Comm_Protocol") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "NVDDR2") == 0)
+					Flash_Comm_Protocol = SSD_Components::ONFI_Protocol::NVDDR2;
+				else PRINT_ERROR("Unknown flash communication protocol type specified in the input file")
+			}
+			else if (strcmp(param->name(), "Flash_Parameters") == 0)
+			{
+				Flash_Parameters.XML_deserialize(param);
+			}
+		}
+	}
+	catch (...)
+	{
+		PRINT_ERROR("Error in Device_Parameter_Set!")
+	}
+}

@@ -40,15 +40,4 @@ namespace MQSimEngine {
 }
 
 #define Simulator MQSimEngine::Engine::Instance()
-#define CurrentTimeStamp Simulator->Time()
-#define PRINT_ERROR(MSG) {\
-							std::cerr << "ERROR:" ;\
-							std::cerr << MSG << std::endl; \
-							std::cin.get();\
-							exit(1);\
-						 }
-#define PRINT_MESSAGE(M) std::cout << M << std::endl;
-#define DEBUG(M) //std::cout<<M<<std::endl;
-#define DEBUG2(M) //std::cout<<M<<std::endl;
-#define SIM_TIME_TO_MICROSECONDS_COEFF 1000
 #endif // !ENGINE_H

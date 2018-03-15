@@ -9,9 +9,10 @@
 #include "../ssd/TSU_Base.h"
 #include "../ssd/ONFI_Channel_Base.h"
 #include "../ssd/GC_and_WL_Unit_Page_Level.h"
+#include "Parameter_Set_Base.h"
 #include "Flash_Parameter_Set.h"
 
-class Device_Parameter_Set
+class Device_Parameter_Set : public Parameter_Set_Base
 {
 public:
 	static HostInterfaceType HostInterface_Type;
@@ -44,6 +45,8 @@ public:
 	static unsigned int Chip_No_Per_Channel;
 	static SSD_Components::ONFI_Protocol Flash_Comm_Protocol;
 	static Flash_Parameter_Set Flash_Parameters;
+	void XML_serialize(Utils::XmlWriter& xmlwriter);
+	void XML_deserialize(rapidxml::xml_node<> *node);
 };
 
 #endif // !DEVICE_PARAMETER_SET_H

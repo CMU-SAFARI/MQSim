@@ -169,7 +169,7 @@ namespace NVM
 				PRINT_ERROR("Unhandled command type requested from chip.")
 			}
 
-			//We always assert ready signal, instead of issueing die status read command
+			//In MQSim, flash chips always announce their status using the ready/busy signal; the controller does not issue a die status read command
 			broadcastReadySignal(command);
 		}
 

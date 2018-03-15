@@ -14,6 +14,7 @@ namespace MQSimEngine
 	void Engine::Reset()
 	{
 		_EventList->Clear();
+		_ObjectList.clear();
 		_sim_time = 0;
 		stop = false;
 		started = false;
@@ -39,7 +40,6 @@ namespace MQSimEngine
 	/// This is the main method of simulator which starts simulation process.
 	void Engine::Start_simulation()
 	{
-		Reset();
 		started = true;
 
 		for(std::unordered_map<sim_object_id_type, Sim_Object*>::iterator obj = _ObjectList.begin();

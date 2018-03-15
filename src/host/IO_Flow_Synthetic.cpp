@@ -113,7 +113,7 @@ namespace Host_Components
 		}
 		STAT_generated_request_count++;
 		request->Arrival_time = Simulator->Time();
-		DEBUG2("* Host: Request generated - " << (request->Type == Host_IO_Request_Type::READ ? "Read, " : "Write, ") << "LBA:" << request->Start_LBA << ", Size:" << request->LBA_count << "")
+		DEBUG("* Host: Request generated - " << (request->Type == Host_IO_Request_Type::READ ? "Read, " : "Write, ") << "LBA:" << request->Start_LBA << ", Size:" << request->LBA_count << "")
 
 		return request;
 	}

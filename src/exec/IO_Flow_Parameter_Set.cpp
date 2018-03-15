@@ -5,7 +5,7 @@
 #include <algorithm>
 
 //All serialization and deserialization functions should be replaced by a C++ reflection implementation
-void IO_Flow_Parameter_Set::Serialize(Utils::XmlWriter& xmlwriter)
+void IO_Flow_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 {
 	std::string attr = "Type";
 	std::string val;
@@ -102,145 +102,152 @@ void IO_Flow_Parameter_Set::Serialize(Utils::XmlWriter& xmlwriter)
 	xmlwriter.Write_attribute_string(attr, val);
 }
 
-void IO_Flow_Parameter_Set::Deserialize(rapidxml::xml_node<> *node)
+void IO_Flow_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 {
-	for (auto param = node->first_node(); param; param = param->next_sibling())
+	try
 	{
-		if (strcmp(param->name(), "Device_Level_Data_Caching_Mode") == 0)
+		for (auto param = node->first_node(); param; param = param->next_sibling())
 		{
-			std::string val = param->value();
-			std::transform(val.begin(), val.end(), val.begin(), ::toupper);
-			if(strcmp(val.c_str(), "TURNED_OFF") == 0)
-				Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::TURNED_OFF;
-			else if (strcmp(val.c_str(), "WRITE_CACHE") == 0)
-				Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::WRITE_CACHE;
-			else if (strcmp(val.c_str(), "READ_CACHE") == 0)
-				Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::READ_CACHE;
-			else if (strcmp(val.c_str(), "WRITE_READ_CACHE") == 0)
-				Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::WRITE_READ_CACHE;
-			else PRINT_ERROR("Wrong caching mode definition for input flow")
-		}
-		else if (strcmp(param->name(), "Type") == 0)
-		{
-			std::string val = param->value();
-			std::transform(val.begin(), val.end(), val.begin(), ::toupper);
-			if (strcmp(val.c_str(), "SYNTHETIC") == 0)
-				Type = Flow_Type::SYNTHETIC;
-			else if (strcmp(val.c_str(), "TRACE") == 0)
-				Type = Flow_Type::TRACE;
-			else PRINT_ERROR("Wrong input flow type")
-		}
-		else if (strcmp(param->name(), "Priority_Class") == 0)
-		{
-			std::string val = param->value();
-			std::transform(val.begin(), val.end(), val.begin(), ::toupper);
-			if (strcmp(val.c_str(), "URGENT") == 0)
-				Priority_Class = IO_Flow_Priority_Class::URGENT;
-			else if (strcmp(val.c_str(), "HIGH") == 0)
-				Priority_Class = IO_Flow_Priority_Class::HIGH;
-			else if (strcmp(val.c_str(), "MEDIUM") == 0)
-				Priority_Class = IO_Flow_Priority_Class::MEDIUM;
-			else if (strcmp(val.c_str(), "LOW") == 0)
-				Priority_Class = IO_Flow_Priority_Class::LOW;
-			else PRINT_ERROR("Wrong priority class definition for input flow")
-		}
-		else if (strcmp(param->name(), "Channel_IDs") == 0)
-		{
-			std::set<int> ids;
-			char tmp[1000], *tmp2;
-			strncpy(tmp, param->value(), 1000);
-			std::string id = strtok(tmp, ",");
-			while (1)
+			if (strcmp(param->name(), "Device_Level_Data_Caching_Mode") == 0)
 			{
-				std::string::size_type sz;
-				ids.insert(std::stoi(id, &sz));
-				tmp2 = strtok(NULL, ",");
-				if (tmp2 == NULL)
-					break;
-				else
-					id = tmp2;
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "TURNED_OFF") == 0)
+					Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::TURNED_OFF;
+				else if (strcmp(val.c_str(), "WRITE_CACHE") == 0)
+					Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::WRITE_CACHE;
+				else if (strcmp(val.c_str(), "READ_CACHE") == 0)
+					Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::READ_CACHE;
+				else if (strcmp(val.c_str(), "WRITE_READ_CACHE") == 0)
+					Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::WRITE_READ_CACHE;
+				else PRINT_ERROR("Wrong caching mode definition for input flow")
 			}
-			Channel_No = ids.size();
-			Channel_IDs = new flash_block_ID_type[Channel_No];
-			int i = 0;
-			for (auto it = ids.begin(); it != ids.end(); it++)
-				Channel_IDs[i++] = *it;
-		}
-		else if (strcmp(param->name(), "Chip_IDs") == 0)
-		{
-			std::set<int> ids;
-			char tmp[1000], *tmp2;
-			strncpy(tmp, param->value(), 1000);
-			std::string id = strtok(tmp, ",");
-			while (1)
+			else if (strcmp(param->name(), "Type") == 0)
 			{
-				std::string::size_type sz;
-				ids.insert(std::stoi(id, &sz));
-				tmp2 = strtok(NULL, ",");
-				if (tmp2 == NULL)
-					break;
-				else
-					id = tmp2;
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "SYNTHETIC") == 0)
+					Type = Flow_Type::SYNTHETIC;
+				else if (strcmp(val.c_str(), "TRACE") == 0)
+					Type = Flow_Type::TRACE;
+				else PRINT_ERROR("Wrong input flow type")
 			}
-			Chip_No = ids.size();
-			Chip_IDs = new flash_block_ID_type[Chip_No];
-			int i = 0;
-			for (auto it = ids.begin(); it != ids.end(); it++)
-				Chip_IDs[i++] = *it;
-		}
-		else if (strcmp(param->name(), "Die_IDs") == 0)
-		{
-			std::set<int> ids;
-			char tmp[1000], *tmp2;
-			strncpy(tmp, param->value(), 1000);
-			std::string id = strtok(tmp, ",");
-			while (1)
+			else if (strcmp(param->name(), "Priority_Class") == 0)
 			{
-				std::string::size_type sz;
-				ids.insert(std::stoi(id, &sz));
-				tmp2 = strtok(NULL, ",");
-				if (tmp2 == NULL)
-					break;
-				else
-					id = tmp2;
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "URGENT") == 0)
+					Priority_Class = IO_Flow_Priority_Class::URGENT;
+				else if (strcmp(val.c_str(), "HIGH") == 0)
+					Priority_Class = IO_Flow_Priority_Class::HIGH;
+				else if (strcmp(val.c_str(), "MEDIUM") == 0)
+					Priority_Class = IO_Flow_Priority_Class::MEDIUM;
+				else if (strcmp(val.c_str(), "LOW") == 0)
+					Priority_Class = IO_Flow_Priority_Class::LOW;
+				else PRINT_ERROR("Wrong priority class definition for input flow")
 			}
-			Die_No = ids.size();
-			Die_IDs = new flash_block_ID_type[Die_No];
-			int i = 0;
-			for (auto it = ids.begin(); it != ids.end(); it++)
-				Die_IDs[i++] = *it;
-		}
-		else if (strcmp(param->name(), "Plane_IDs") == 0)
-		{
-			std::set<int> ids;
-			char tmp[1000], *tmp2;
-			strncpy(tmp, param->value(), 1000);
-			std::string id = strtok(tmp, ",");
-			while (1)
+			else if (strcmp(param->name(), "Channel_IDs") == 0)
 			{
-				std::string::size_type sz;
-				ids.insert(std::stoi(id, &sz));
-				tmp2 = strtok(NULL, ",");
-				if (tmp2 == NULL)
-					break;
-				else
-					id = tmp2;
+				std::set<int> ids;
+				char tmp[1000], *tmp2;
+				strncpy(tmp, param->value(), 1000);
+				std::string id = strtok(tmp, ",");
+				while (1)
+				{
+					std::string::size_type sz;
+					ids.insert(std::stoi(id, &sz));
+					tmp2 = strtok(NULL, ",");
+					if (tmp2 == NULL)
+						break;
+					else
+						id = tmp2;
+				}
+				Channel_No = (int)ids.size();
+				Channel_IDs = new flash_block_ID_type[Channel_No];
+				int i = 0;
+				for (auto it = ids.begin(); it != ids.end(); it++)
+					Channel_IDs[i++] = *it;
 			}
-			Plane_No = ids.size();
-			Plane_IDs = new flash_block_ID_type[Plane_No];
-			int i = 0;
-			for (auto it = ids.begin(); it != ids.end(); it++)
-				Plane_IDs[i++] = *it;
+			else if (strcmp(param->name(), "Chip_IDs") == 0)
+			{
+				std::set<int> ids;
+				char tmp[1000], *tmp2;
+				strncpy(tmp, param->value(), 1000);
+				std::string id = strtok(tmp, ",");
+				while (1)
+				{
+					std::string::size_type sz;
+					ids.insert(std::stoi(id, &sz));
+					tmp2 = strtok(NULL, ",");
+					if (tmp2 == NULL)
+						break;
+					else
+						id = tmp2;
+				}
+				Chip_No = (int)ids.size();
+				Chip_IDs = new flash_block_ID_type[Chip_No];
+				int i = 0;
+				for (auto it = ids.begin(); it != ids.end(); it++)
+					Chip_IDs[i++] = *it;
+			}
+			else if (strcmp(param->name(), "Die_IDs") == 0)
+			{
+				std::set<int> ids;
+				char tmp[1000], *tmp2;
+				strncpy(tmp, param->value(), 1000);
+				std::string id = strtok(tmp, ",");
+				while (1)
+				{
+					std::string::size_type sz;
+					ids.insert(std::stoi(id, &sz));
+					tmp2 = strtok(NULL, ",");
+					if (tmp2 == NULL)
+						break;
+					else
+						id = tmp2;
+				}
+				Die_No = (int)ids.size();
+				Die_IDs = new flash_block_ID_type[Die_No];
+				int i = 0;
+				for (auto it = ids.begin(); it != ids.end(); it++)
+					Die_IDs[i++] = *it;
+			}
+			else if (strcmp(param->name(), "Plane_IDs") == 0)
+			{
+				std::set<int> ids;
+				char tmp[1000], *tmp2;
+				strncpy(tmp, param->value(), 1000);
+				std::string id = strtok(tmp, ",");
+				while (1)
+				{
+					std::string::size_type sz;
+					ids.insert(std::stoi(id, &sz));
+					tmp2 = strtok(NULL, ",");
+					if (tmp2 == NULL)
+						break;
+					else
+						id = tmp2;
+				}
+				Plane_No = (int)ids.size();
+				Plane_IDs = new flash_block_ID_type[Plane_No];
+				int i = 0;
+				for (auto it = ids.begin(); it != ids.end(); it++)
+					Plane_IDs[i++] = *it;
+			}
 		}
+	}
+	catch (...)
+	{
+		PRINT_ERROR("Error in IO_Flow_Parameter_Set!")
 	}
 }
 
-void IO_Flow_Parameter_Set_Synthetic::Serialize(Utils::XmlWriter& xmlwriter)
+void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 {
 	std::string tmp;
 	tmp = "IO_Flow_Parameter_Set_Synthetic";
 	xmlwriter.Write_open_tag(tmp);
-	IO_Flow_Parameter_Set::Serialize(xmlwriter);
+	IO_Flow_Parameter_Set::XML_serialize(xmlwriter);
 
 	std::string attr = "Read_Percentage";
 	std::string val = std::to_string(Read_Percentage);
@@ -312,83 +319,89 @@ void IO_Flow_Parameter_Set_Synthetic::Serialize(Utils::XmlWriter& xmlwriter)
 	xmlwriter.Write_close_tag();
 }
 
-void IO_Flow_Parameter_Set_Synthetic::Deserialize(rapidxml::xml_node<> *node)
+void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node)
 {
-	IO_Flow_Parameter_Set::Deserialize(node);
-
-	for (auto param = node->first_node(); param; param = param->next_sibling())
+	IO_Flow_Parameter_Set::XML_deserialize(node);
+	try
 	{
-		if (strcmp(param->name(), "Read_Percentage") == 0)
+		for (auto param = node->first_node(); param; param = param->next_sibling())
 		{
-			std::string val = param->value();
-			Read_Percentage = std::stoi(val);
+			if (strcmp(param->name(), "Read_Percentage") == 0)
+			{
+				std::string val = param->value();
+				Read_Percentage = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Address_Distribution") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "STREAMING") == 0)
+					Address_Distribution = Host_Components::Address_Distribution_Type::STREAMING;
+				else if (strcmp(val.c_str(), "HOTCOLD_RANDOM") == 0)
+					Address_Distribution = Host_Components::Address_Distribution_Type::HOTCOLD_RANDOM;
+				else if (strcmp(val.c_str(), "UNIFORM_RANDOM") == 0)
+					Address_Distribution = Host_Components::Address_Distribution_Type::UNIFORM_RANDOM;
+				else PRINT_ERROR("Wrong address distribution type for input synthetic flow")
+			}
+			else if (strcmp(param->name(), "Percentage_of_Hot_Region") == 0)
+			{
+				std::string val = param->value();
+				Percentage_of_Hot_Region = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Request_Size_Distribution") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "FIXED") == 0)
+					Request_Size_Distribution = Host_Components::Request_Size_Distribution_Type::FIXED;
+				else if (strcmp(val.c_str(), "NORMAL") == 0)
+					Request_Size_Distribution = Host_Components::Request_Size_Distribution_Type::NORMAL;
+				else PRINT_ERROR("Wrong request size distribution type for input synthetic flow")
+			}
+			else if (strcmp(param->name(), "Average_Request_Size") == 0)
+			{
+				std::string val = param->value();
+				Average_Request_Size = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Variance_Request_Size") == 0)
+			{
+				std::string val = param->value();
+				Variance_Request_Size = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Seed") == 0)
+			{
+				std::string val = param->value();
+				Seed = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Average_No_of_Reqs_in_Queue") == 0)
+			{
+				std::string val = param->value();
+				Average_No_of_Reqs_in_Queue = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Stop_Time") == 0)
+			{
+				std::string val = param->value();
+				Stop_Time = std::stoll(val);
+			}
+			else if (strcmp(param->name(), "Total_Requests_To_Generate") == 0)
+			{
+				std::string val = param->value();
+				Total_Requests_To_Generate = std::stoi(val);
+			}
 		}
-		else if (strcmp(param->name(), "Address_Distribution") == 0)
-		{
-			std::string val = param->value();
-			std::transform(val.begin(), val.end(), val.begin(), ::toupper);
-			if (strcmp(val.c_str(), "STREAMING") == 0)
-				Address_Distribution = Host_Components::Address_Distribution_Type::STREAMING;
-			else if (strcmp(val.c_str(), "HOTCOLD_RANDOM") == 0)
-				Address_Distribution = Host_Components::Address_Distribution_Type::HOTCOLD_RANDOM;
-			else if (strcmp(val.c_str(), "UNIFORM_RANDOM") == 0)
-				Address_Distribution = Host_Components::Address_Distribution_Type::UNIFORM_RANDOM;
-			else PRINT_ERROR("Wrong address distribution type for input synthetic flow")
-		}
-		else if (strcmp(param->name(), "Percentage_of_Hot_Region") == 0)
-		{
-			std::string val = param->value();
-			Percentage_of_Hot_Region = std::stod(val);
-		}
-		else if (strcmp(param->name(), "Request_Size_Distribution") == 0)
-		{
-			std::string val = param->value();
-			std::transform(val.begin(), val.end(), val.begin(), ::toupper);
-			if (strcmp(val.c_str(), "FIXED") == 0)
-				Request_Size_Distribution = Host_Components::Request_Size_Distribution_Type::FIXED;
-			else if (strcmp(val.c_str(), "NORMAL") == 0)
-				Request_Size_Distribution = Host_Components::Request_Size_Distribution_Type::NORMAL;
-			else PRINT_ERROR("Wrong request size distribution type for input synthetic flow")
-		}
-		else if (strcmp(param->name(), "Average_Request_Size") == 0)
-		{
-			std::string val = param->value();
-			Average_Request_Size = std::stoi(val);
-		}
-		else if (strcmp(param->name(), "Variance_Request_Size") == 0)
-		{
-			std::string val = param->value();
-			Variance_Request_Size = std::stoi(val);
-		}
-		else if (strcmp(param->name(), "Seed") == 0)
-		{
-			std::string val = param->value();
-			Seed = std::stoi(val);
-		}
-		else if (strcmp(param->name(), "Average_No_of_Reqs_in_Queue") == 0)
-		{
-			std::string val = param->value();
-			Average_No_of_Reqs_in_Queue = std::stoi(val);
-		}
-		else if (strcmp(param->name(), "Stop_Time") == 0)
-		{
-			std::string val = param->value();
-			Stop_Time = std::stoll(val);
-		}
-		else if (strcmp(param->name(), "Total_Requests_To_Generate") == 0)
-		{
-			std::string val = param->value();
-			Total_Requests_To_Generate = std::stoi(val);
-		}
+	}
+	catch (...)
+	{
+		PRINT_ERROR("Error in IO_Flow_Parameter_Set_Synthetic!")
 	}
 }
 
-void IO_Flow_Parameter_Set_Trace_Based::Serialize(Utils::XmlWriter& xmlwriter)
+void IO_Flow_Parameter_Set_Trace_Based::XML_serialize(Utils::XmlWriter& xmlwriter)
 {
 
 	std::string tmp = "IO_Flow_Parameter_Set_Trace_Based";
 	xmlwriter.Write_open_tag(tmp);
-	IO_Flow_Parameter_Set::Serialize(xmlwriter);
+	IO_Flow_Parameter_Set::XML_serialize(xmlwriter);
 
 	std::string attr = "File_Path";
 	std::string val = File_Path;
@@ -402,20 +415,27 @@ void IO_Flow_Parameter_Set_Trace_Based::Serialize(Utils::XmlWriter& xmlwriter)
 	xmlwriter.Write_close_tag();
 }
 
-void IO_Flow_Parameter_Set_Trace_Based::Deserialize(rapidxml::xml_node<> *node)
+void IO_Flow_Parameter_Set_Trace_Based::XML_deserialize(rapidxml::xml_node<> *node)
 {
-	IO_Flow_Parameter_Set::Deserialize(node);
+	IO_Flow_Parameter_Set::XML_deserialize(node);
 
-	for (auto param = node->first_node(); param; param = param->next_sibling())
+	try
 	{
-		if (strcmp(param->name(), "Percentage_To_Be_Executed") == 0)
+		for (auto param = node->first_node(); param; param = param->next_sibling())
 		{
-			std::string val = param->value();
-			Percentage_To_Be_Executed = std::stod(val);
+			if (strcmp(param->name(), "Percentage_To_Be_Executed") == 0)
+			{
+				std::string val = param->value();
+				Percentage_To_Be_Executed = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "File_Path") == 0)
+			{
+				File_Path = param->value();
+			}
 		}
-		else if (strcmp(param->name(), "File_Path") == 0)
-		{
-			File_Path = param->value();
-		}
+	}
+	catch (...)
+	{
+		PRINT_ERROR("Error in IO_Flow_Parameter_Set_Trace_Based!")
 	}
 }

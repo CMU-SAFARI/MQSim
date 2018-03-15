@@ -45,7 +45,6 @@ namespace SSD_Components
 			((Input_Stream_NVMe*)input_streams[stream_id])->Completed_user_requests.pop_front();
 			inform_host_request_completed(stream_id, request);
 		}
-
 	}
 
 	inline void Input_Stream_Manager_NVMe::Handle_new_arrived_request(User_Request* request)
@@ -81,7 +80,7 @@ namespace SSD_Components
 		((Input_Stream_NVMe*)input_streams[request->Stream_id])->Waiting_user_requests.remove(request);
 		((Input_Stream_NVMe*)input_streams[stream_id])->On_the_fly_requests--;
 
-		DEBUG2("** Host Interface: Request #" << request->RequestID << " from stream #" << request->Stream_id << " is finished")
+		DEBUG("** Host Interface: Request #" << request->RequestID << " from stream #" << request->Stream_id << " is finished")
 
 		if (request->Type == UserRequestType::READ)//If this is a read request, then the read data should be written to host memory
 			((Host_Interface_NVMe*)host_interface)->request_fetch_unit->Send_read_data(request);

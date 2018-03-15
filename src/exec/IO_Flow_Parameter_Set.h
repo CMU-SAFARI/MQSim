@@ -5,11 +5,10 @@
 #include "../nvm_chip/flash_memory/FlashTypes.h"
 #include "../ssd/Host_Interface_Defs.h"
 #include "../host/IO_Flow_Synthetic.h"
-#include "../utils/XMLWriter.h"
-#include "../utils/rapidxml/rapidxml.hpp"
+#include "Parameter_Set_Base.h"
 
 enum class Flow_Type { SYNTHETIC, TRACE };
-class IO_Flow_Parameter_Set
+class IO_Flow_Parameter_Set : public Parameter_Set_Base
 {
 public:
 	SSD_Components::Caching_Mode Device_Level_Data_Caching_Mode;
@@ -20,8 +19,8 @@ public:
 	flash_die_ID_type* Die_IDs;//Resource partitioning: which die ids are allocted to this flow
 	flash_plane_ID_type* Plane_IDs;//Resource partitioning: which plane ids are allocated to this flow
 	int Channel_No, Chip_No, Die_No, Plane_No;
-	virtual void Serialize(Utils::XmlWriter& xmlwrite);
-	virtual void Deserialize(rapidxml::xml_node<> *node);
+	void XML_serialize(Utils::XmlWriter& xmlwrite);
+	void XML_deserialize(rapidxml::xml_node<> *node);
 private:
 };
 
@@ -40,8 +39,8 @@ public:
 	sim_time_type Stop_Time;//Defines when to stop generating I/O requests
 	unsigned int Total_Requests_To_Generate;//If Stop_Time is equal to zero, then requst generator considers Total_Requests_To_Generate to decide when to stop generating I/O requests
 	
-	void Serialize(Utils::XmlWriter& xmlwriter);
-	void Deserialize(rapidxml::xml_node<> *node);
+	void XML_serialize(Utils::XmlWriter& xmlwriter);
+	void XML_deserialize(rapidxml::xml_node<> *node);
 };
 
 class IO_Flow_Parameter_Set_Trace_Based : public IO_Flow_Parameter_Set
@@ -50,8 +49,8 @@ public:
 	std::string File_Path;
 	int Percentage_To_Be_Executed;
 	
-	void Serialize(Utils::XmlWriter& xmlwriter);
-	void Deserialize(rapidxml::xml_node<> *node);
+	void XML_serialize(Utils::XmlWriter& xmlwriter);
+	void XML_deserialize(rapidxml::xml_node<> *node);
 };
 
 #endif // !IO_FLOW_PARAMETER_SET_H

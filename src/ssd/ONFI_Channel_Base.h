@@ -12,9 +12,28 @@ namespace SSD_Components
 	public:
 		ONFI_Channel_Base(flash_channel_ID_type channelID, unsigned int chipCount, NVM::FlashMemory::Chip** flashChips, ONFI_Protocol type);
 		flash_channel_ID_type ChannelID;
-		BusChannelStatus Status;
 		NVM::FlashMemory::Chip** Chips;
 		ONFI_Protocol Type;
+		BusChannelStatus GetStatus()
+		{
+			return status;
+		}
+		void SetStatus(BusChannelStatus new_status, NVM::FlashMemory::Chip* target_chip)
+		{
+			if (((status == BusChannelStatus::IDLE && new_status == BusChannelStatus::IDLE)
+				|| (status == BusChannelStatus::BUSY && new_status == BusChannelStatus::BUSY))
+				&& (current_active_chip != target_chip))
+			{
+				PRINT_ERROR("Illegal bus status transition!")
+			}
+			status = new_status;
+			if (status == BusChannelStatus::BUSY)
+				current_active_chip = target_chip;
+			else current_active_chip = NULL;
+		}
+	private:
+		BusChannelStatus status;
+		NVM::FlashMemory::Chip* current_active_chip;
 	};
 }
 

@@ -454,7 +454,7 @@ namespace SSD_Components
 		for (unsigned int stream_id = 0; stream_id < input_stream_no; stream_id++)
 		{
 			dummy_tr->Stream_id = stream_id;
-			for (int translation_page_id = 0; translation_page_id < domains[stream_id]->Total_translation_pages_no; translation_page_id++)
+			for (unsigned int translation_page_id = 0; translation_page_id < domains[stream_id]->Total_translation_pages_no; translation_page_id++)
 			{
 				dummy_tr->LPA = (LPA_type) translation_page_id;
 				allocate_plane_for_translation_write(dummy_tr);

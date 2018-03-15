@@ -202,6 +202,7 @@ namespace SSD_Components
 				
 					per_stream_cache[tr->Stream_id]->Update_data(tr->Stream_id, tr->LPA, content, timestamp, tr->write_sectors_bitmap | slot.State_bitmap_of_existing_sectors);
 					user_request->Sectors_serviced_from_cache += sector_count(tr->write_sectors_bitmap);
+					//DEBUG2("Updating page" << tr->LPA << " in write buffer ")
 				}
 				else
 				{
@@ -214,6 +215,7 @@ namespace SSD_Components
 								tr->Stream_id, sector_count(evicted_slot.State_bitmap_of_existing_sectors) * SECTOR_SIZE_IN_BYTE,
 								evicted_slot.LPA, NULL, evicted_slot.Content, evicted_slot.State_bitmap_of_existing_sectors, evicted_slot.Timestamp));
 							cache_eviction_read_size_in_sectors += sector_count(evicted_slot.State_bitmap_of_existing_sectors);
+							//DEBUG2("Evicting page" << evicted_slot.LPA << " from write buffer ")
 						}
 					}
 					per_stream_cache[tr->Stream_id]->Insert_write_data(tr->Stream_id, tr->LPA, tr->Content, tr->DataTimeStamp, tr->write_sectors_bitmap);
@@ -230,6 +232,7 @@ namespace SSD_Components
 				transfer_info->Related_request = evicted_cache_slots;
 				transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_FINISHED;
 				service_dram_access_request(transfer_info);
+				//DEBUG2("Starting memory transfer for cache eviction!")
 			}
 
 			Memory_Transfer_Info* transfer_info = new Memory_Transfer_Info;
@@ -237,6 +240,7 @@ namespace SSD_Components
 			transfer_info->Related_request = user_request;
 			transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_WRITE_FOR_USERIO_FINISHED;
 			service_dram_access_request(transfer_info);
+			//DEBUG2("Starting memory transfer for cache write!")
 		}
 	}
 
@@ -324,7 +328,7 @@ namespace SSD_Components
 		{
 			transaction->UserIORequest->Transaction_list.remove(transaction);
 			if (transaction->UserIORequest->Transaction_list.size() == 0)
-			 _myInstance->broadcast_user_request_serviced_signal(transaction->UserIORequest);
+				_myInstance->broadcast_user_request_serviced_signal(transaction->UserIORequest);
 			delete transaction;//Transactions of user IO are created in the host interface, but data cache manger handles and consumes them
 		}
 	}

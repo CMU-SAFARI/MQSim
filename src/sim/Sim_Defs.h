@@ -15,4 +15,15 @@ typedef sim_time_type data_timestamp_type;
 #define ONE_SECOND 1000000000
 typedef std::string sim_object_id_type;
 
+#define CurrentTimeStamp Simulator->Time()
+#define PRINT_ERROR(MSG) {\
+							std::cerr << "ERROR:" ;\
+							std::cerr << MSG << std::endl; \
+							std::cin.get();\
+							exit(1);\
+						 }
+#define PRINT_MESSAGE(M) std::cout << M << std::endl;
+#define DEBUG(M) //std::cout<<M<<std::endl;
+#define DEBUG2(M) //std::cout<<M<<std::endl;
+#define SIM_TIME_TO_MICROSECONDS_COEFF 1000
 #endif // !DEFINITIONS_H
