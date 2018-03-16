@@ -199,6 +199,19 @@ void SSD_Device::Perform_preconditioning()
 	this->Cache_manager->Make_warmup();
 	((SSD_Components::FTL*)this->Firmware)->Perform_precondition();
 }
+
 void SSD_Device::Start_simulation() {}
+
 void SSD_Device::Validate_simulation_config() {}
+
 void SSD_Device::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
+
+void SSD_Device::Report_results_in_XML(Utils::XmlWriter& xmlwriter)
+{
+	std::string tmp;
+	tmp = ID();
+	xmlwriter.Write_open_tag(tmp);
+
+
+	xmlwriter.Write_close_tag();
+}

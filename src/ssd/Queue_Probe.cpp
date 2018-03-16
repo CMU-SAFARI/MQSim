@@ -25,6 +25,7 @@ namespace SSD_Components
 		nRequestsEpoch++;
 		setCount(count + 1);
 	}
+
 	void Queue_Probe::DequeueRequest(NVM_Transaction* transaction)
 	{
 		nDepartures++;

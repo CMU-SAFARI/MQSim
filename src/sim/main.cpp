@@ -12,7 +12,6 @@
 using namespace std;
 
 
-
 void command_line_args(char* argv[], string& input_file_path, string& workload_file_path)
 {
 
@@ -217,17 +216,23 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 	return io_scenarios;
 }
 
-void collect_results(Host_System& host)
+void collect_results(SSD_Device& ssd, Host_System& host, const char* output_file_path)
 {
+	Utils::XmlWriter xmlwriter;
+	xmlwriter.Open(output_file_path);
+
+	host.Report_results_in_XML(xmlwriter);
+	ssd.Report_results_in_XML(xmlwriter);
+
 	std::vector<Host_Components::IO_Flow_Base*> IO_flows = host.Get_io_flows();
 	for (int stream_id = 0; stream_id < IO_flows.size(); stream_id++)
 	{
-		cout << "Flow " << IO_flows[0]->ID() << " - total requests generated: " << IO_flows[0]->Get_generated_request_count()
-			<< " total requests serviced:" << IO_flows[0]->Get_serviced_request_count() << endl;
-		cout << "                   - device response time: " << IO_flows[0]->Get_device_response_time() << " (us)"
-			<< " end-to-end request delay:" << IO_flows[0]->Get_end_to_end_request_delay() << " (us)" << endl;
+		cout << "Flow " << IO_flows[stream_id]->ID() << " - total requests generated: " << IO_flows[stream_id]->Get_generated_request_count()
+			<< " total requests serviced:" << IO_flows[stream_id]->Get_serviced_request_count() << endl;
+		cout << "                   - device response time: " << IO_flows[stream_id]->Get_device_response_time() << " (us)"
+			<< " end-to-end request delay:" << IO_flows[stream_id]->Get_end_to_end_request_delay() << " (us)" << endl;
 	}
-	cin.get();
+	//cin.get();
 }
 
 void print_help()
@@ -284,7 +289,8 @@ int main(int argc, char* argv[])
 		PRINT_MESSAGE("Total simulation time: " << duration / 3600 << ":" << (duration % 3600) / 60 << ":" << ((duration % 3600) % 60))
 		PRINT_MESSAGE("")
 
-		collect_results(host);
+		PRINT_MESSAGE("Writing results to output file .......")
+		collect_results(ssd, host, (workload_defs_file_path + "_scenario_" + std::to_string(cntr) + ".xml").c_str());
 	}
 
 	return 0;

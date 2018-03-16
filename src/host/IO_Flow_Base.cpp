@@ -312,4 +312,54 @@ namespace Host_Components
 	{
 		return (uint32_t)(STAT_max_request_delay / SIM_TIME_TO_MICROSECONDS_COEFF);
 	}
+
+	void IO_Flow_Base::Report_results_in_XML(Utils::XmlWriter& xmlwriter)
+	{
+		std::string tmp;
+		tmp = "IO_Flow";
+		xmlwriter.Write_open_tag(tmp);
+
+
+		std::string attr = "Name";
+		std::string val = ID();
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Request_Count";
+		val = std::to_string(STAT_generated_request_count);
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Read_Request_Count";
+		val = std::to_string(STAT_generated_read_request_count);
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Write_Request_Count";
+		val = std::to_string(STAT_generated_write_request_count);
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Device_Response_Time";
+		val = std::to_string(Get_device_response_time());
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Min_Device_Response_Time";
+		val = std::to_string(Get_min_device_response_time());
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Max_Device_Response_Time";
+		val = std::to_string(Get_max_device_response_time());
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "End_to_End_Request_Delay";
+		val = std::to_string(Get_end_to_end_request_delay());
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Min_End_to_End_Request_Delay";
+		val = std::to_string(Get_min_end_to_end_request_delay());
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Max_End_to_End_Request_Delay";
+		val = std::to_string(Get_max_end_to_end_request_delay());
+		xmlwriter.Write_attribute_string(attr, val);
+
+		xmlwriter.Write_close_tag();
+	}
 }

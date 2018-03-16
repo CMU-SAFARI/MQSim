@@ -131,19 +131,13 @@ namespace SSD_Components {
 			if (transaction_list.size() == 1) {
 				Stats::IssuedReadCMD++;
 				dieBKE->ActiveCommand->CommandCode = CMD_READ_PAGE;
-				if (targetChip->ChannelID == 0 && targetChip->ChipID == 3)
-				{
-					DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending read command to chip for LPA: " << transaction_list.front()->LPA)
-				}
+				//DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending read command to chip for LPA: " << transaction_list.front()->LPA)
 			}
 			else
 			{
 				Stats::IssuedMultiplaneReadCMD++;
 				dieBKE->ActiveCommand->CommandCode = CMD_READ_PAGE_MULTIPLANE;
-				if (targetChip->ChannelID == 0 && targetChip->ChipID == 3)
-				{
-					DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending multi-plane read command to chip for LPA: " << transaction_list.front()->LPA)
-				}
+				//DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending multi-plane read command to chip for LPA: " << transaction_list.front()->LPA)
 			}
 
 			for (std::list<NVM_Transaction_Flash*>::iterator it = transaction_list.begin();
@@ -174,19 +168,13 @@ namespace SSD_Components {
 				if (transaction_list.size() == 1) {
 					Stats::IssuedProgramCMD++;
 					dieBKE->ActiveCommand->CommandCode = CMD_PROGRAM_PAGE;
-					if (targetChip->ChannelID == 0 && targetChip->ChipID == 3)
-					{
-						DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending program command to chip for LPA: " << transaction_list.front()->LPA)
-					}
+					//DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending program command to chip for LPA: " << transaction_list.front()->LPA)
 				}
 				else
 				{
 					Stats::IssuedMultiplaneProgramCMD++;
 					dieBKE->ActiveCommand->CommandCode = CMD_PROGRAM_PAGE_MULTIPLANE;
-					if (targetChip->ChannelID == 0 && targetChip->ChipID == 3)
-					{
-						DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending multi-plane program command to chip for LPA: " << transaction_list.front()->LPA)
-					}
+					//DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending multi-plane program command to chip for LPA: " << transaction_list.front()->LPA)
 				}
 
 				sim_time_type data_transfer_time = 0;
@@ -250,10 +238,7 @@ namespace SSD_Components {
 			}
 			break;
 		case TransactionType::ERASE:
-			if (targetChip->ChannelID == 0 && targetChip->ChipID == 3)
-			{
-				DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending erase command to chip")
-			}
+			//DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending erase command to chip")
 			if (transaction_list.size() == 1) {
 				Stats::IssuedEraseCMD++;
 				dieBKE->ActiveCommand->CommandCode = CMD_ERASE_BLOCK;
@@ -305,12 +290,8 @@ namespace SSD_Components {
 		switch ((NVDDR2_SimEventType)ev->Type)
 		{
 		case NVDDR2_SimEventType::READ_CMD_ADDR_TRANSFERRED:
-			if (targetChip->ChannelID == 0 && targetChip->ChipID == 3)
-			{
-				DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << dieBKE->ActiveTransactions.front()->Address.DieID << ": READ_CMD_ADDR_TRANSFERRED ")
-			}
+			//DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << dieBKE->ActiveTransactions.front()->Address.DieID << ": READ_CMD_ADDR_TRANSFERRED ")
 			targetChip->EndCMDXfer(dieBKE->ActiveCommand);
-			//target_channel->Status = BusChannelStatus::IDLE;
 			chipBKE->OngoingDieCMDTransfers.pop();
 			chipBKE->No_of_active_dies++;
 			if (chipBKE->OngoingDieCMDTransfers.size() > 0)
@@ -325,12 +306,8 @@ namespace SSD_Components {
 			}
 			break;
 		case NVDDR2_SimEventType::ERASE_SETUP_COMPLETED:
-			if (targetChip->ChannelID == 0 && targetChip->ChipID == 3)
-			{
-				DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << dieBKE->ActiveTransactions.front()->Address.DieID << ": ERASE_SETUP_COMPLETED ")
-			}
+			//DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << dieBKE->ActiveTransactions.front()->Address.DieID << ": ERASE_SETUP_COMPLETED ")
 			targetChip->EndCMDXfer(dieBKE->ActiveCommand);
-			//target_channel->Status = BusChannelStatus::IDLE;
 			chipBKE->OngoingDieCMDTransfers.pop();
 			chipBKE->No_of_active_dies++;
 			if (chipBKE->OngoingDieCMDTransfers.size() > 0)
@@ -346,12 +323,8 @@ namespace SSD_Components {
 			break;
 		case NVDDR2_SimEventType::PROGRAM_CMD_ADDR_DATA_TRANSFERRED:
 		case NVDDR2_SimEventType::PROGRAM_COPYBACK_CMD_ADDR_TRANSFERRED:
-			if (targetChip->ChannelID == 0 && targetChip->ChipID == 3)
-			{
-				DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << dieBKE->ActiveTransactions.front()->Address.DieID <<  ": PROGRAM_CMD_ADDR_DATA_TRANSFERRED " )
-			}
+			//DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << dieBKE->ActiveTransactions.front()->Address.DieID <<  ": PROGRAM_CMD_ADDR_DATA_TRANSFERRED " )
 			targetChip->EndCMDDataInXfer(dieBKE->ActiveCommand);
-			//target_channel->Status = BusChannelStatus::IDLE;
 			chipBKE->OngoingDieCMDTransfers.pop();
 			chipBKE->No_of_active_dies++;
 			if (chipBKE->OngoingDieCMDTransfers.size() > 0)
@@ -366,10 +339,7 @@ namespace SSD_Components {
 			}
 			break;
 		case NVDDR2_SimEventType::READ_DATA_TRANSFERRED:
-			if (targetChip->ChannelID == 0 && targetChip->ChipID == 3)
-			{
-				DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << dieBKE->ActiveTransactions.front()->Address.DieID << ": READ_DATA_TRANSFERRED ")
-			}
+			//DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << dieBKE->ActiveTransactions.front()->Address.DieID << ": READ_DATA_TRANSFERRED ")
 			targetChip->EndDataOutXfer(dieBKE->ActiveCommand);
 #if 0
 			if (tr->ExecutionMode != ExecutionModeType::COPYBACK)
@@ -459,7 +429,7 @@ namespace SSD_Components {
 			return;
 		}
 
-		//targetChannel->SetStatus(BusChannelStatus::IDLE);
+		//If the execution reaches here, then the bus channel became idle
 		broadcastChannelIdleSignal(channel_id);
 	}
 
@@ -471,42 +441,8 @@ namespace SSD_Components {
 		switch (command->CommandCode)
 		{
 		case CMD_READ_PAGE:
-			if (chip->ChannelID == 0 && chip->ChipID == 3)
-			{
-				DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished simple read command")
-			}
-			chipBKE->No_of_active_dies--;
-			if (chipBKE->No_of_active_dies == 0)//After finishing the last command, the chip state is changed
-				chipBKE->Status = ChipStatus::WAIT_FOR_DATA_OUT;
-
-			for (std::list<NVM_Transaction_Flash*>::iterator it = dieBKE->ActiveTransactions.begin();
-				it != dieBKE->ActiveTransactions.end(); it++)
-			{
-				chipBKE->WaitingReadTXCount++;
-				if (_myInstance->_Channels[chip->ChannelID]->GetStatus() == BusChannelStatus::IDLE)
-					_myInstance->transfer_read_data_from_chip(chipBKE, dieBKE, (*it));
-				else
-				{
-					switch (dieBKE->ActiveTransactions.front()->Source)
-					{
-					case TransactionSourceType::USERIO:
-						_myInstance->WaitingReadTX[chip->ChannelID].push_back((*it));
-						break;
-					case TransactionSourceType::GC:
-						_myInstance->WaitingGCRead_TX[chip->ChannelID].push_back((*it));
-						break;
-					case TransactionSourceType::MAPPING:
-						_myInstance->WaitingMappingRead_TX[chip->ChannelID].push_back((*it));
-						break;
-					}
-				}
-			}
-			break;
 		case CMD_READ_PAGE_MULTIPLANE:
-			if (chip->ChannelID == 0 && chip->ChipID == 3)
-			{
-				DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished multi-plane read command")
-			}
+			//DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished  read command")
 			chipBKE->No_of_active_dies--;
 			if (chipBKE->No_of_active_dies == 0)//After finishing the last command, the chip state is changed
 				chipBKE->Status = ChipStatus::WAIT_FOR_DATA_OUT;
@@ -581,10 +517,7 @@ namespace SSD_Components {
 		case CMD_PROGRAM_PAGE_COPYBACK_MULTIPLANE:
 		case CMD_ERASE_BLOCK:
 		case CMD_ERASE_BLOCK_MULTIPLANE:
-			if (chip->ChannelID == 0 && chip->ChipID == 3)
-			{
-				DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished program/erase command")
-			}
+			//DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished program/erase command")
 			for (std::list<NVM_Transaction_Flash*>::iterator it = dieBKE->ActiveTransactions.begin();
 				it != dieBKE->ActiveTransactions.end(); it++)
 				_myInstance->broadcastTransactionServicedSignal(*it);
@@ -611,10 +544,7 @@ namespace SSD_Components {
 
 	inline void NVM_PHY_ONFI_NVDDR2::transfer_read_data_from_chip(ChipBookKeepingEntry* chipBKE, DieBookKeepingEntry* dieBKE, NVM_Transaction_Flash* tr)
 	{
-		if (tr->Address.ChannelID == 0 && tr->Address.ChipID == 3)
-		{
-			DEBUG2("Chip " << tr->Address.ChannelID << ", " << tr->Address.ChipID << ": transfer read data started for LPA: " << tr->LPA)
-		}
+		//DEBUG2("Chip " << tr->Address.ChannelID << ", " << tr->Address.ChipID << ": transfer read data started for LPA: " << tr->LPA)
 		dieBKE->ActiveTransfer = tr;
 		_Channels[tr->Address.ChannelID]->Chips[tr->Address.ChipID]->StartDataOutXfer();
 		chipBKE->Status = ChipStatus::DATA_OUT;
@@ -668,10 +598,7 @@ namespace SSD_Components {
 
 	inline void NVM_PHY_ONFI_NVDDR2::send_resume_command_to_chip(NVM::FlashMemory::Chip* chip, ChipBookKeepingEntry* chipBKE)
 	{
-		if (chip->ChannelID == 0 && chip->ChipID == 3)
-		{
-			DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": resume command " )
-		}
+		//DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": resume command " )
 		for (unsigned int i = 0; i < die_no_per_chip; i++)
 		{
 			DieBookKeepingEntry *dieBKE = &chipBKE->Die_book_keeping_records[i];

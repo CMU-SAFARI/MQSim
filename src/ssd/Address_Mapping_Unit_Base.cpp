@@ -24,7 +24,7 @@ namespace SSD_Components
 		page_no_per_channel = page_no_per_chip * chip_no_per_channel;
 		total_physical_pages_no = page_no_per_channel * ChannelCount;
 		total_logical_pages_no = (unsigned int)((double)total_physical_pages_no * (1 - overprovisioning_ratio));
-		max_logical_sector_address = (LSA_type)(SectorsPerPage * total_logical_pages_no);
+		max_logical_sector_address = (LSA_type)(SectorsPerPage * total_logical_pages_no - 1);
 	}
 
 	LSA_type Address_Mapping_Unit_Base::Get_max_logical_sector_address()

@@ -22,7 +22,7 @@ namespace SSD_Components
 	public:
 		Data_Cache_Manager_Base(const sim_object_id_type& id, Host_Interface_Base* host_interface, NVM_Firmware* nvm_firmware,
 			unsigned int dram_row_size, unsigned int dram_data_rate, unsigned int dram_busrt_size, sim_time_type dram_tRCD, sim_time_type dram_tCL, sim_time_type dram_tRP,
-			Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, unsigned int stream_count);
+			Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, unsigned int stream_count, unsigned int back_pressure_buffer_depth);
 		void Setup_triggers();
 		void Start_simulation();
 		void Validate_simulation_config();
@@ -49,6 +49,7 @@ namespace SSD_Components
 
 		static void handle_user_request_arrived_signal(User_Request* user_request);
 		virtual void process_new_user_request(User_Request* user_request) = 0;
+		unsigned int back_pressure_buffer_depth, back_pressure_buffer_length;
 	};
 
 

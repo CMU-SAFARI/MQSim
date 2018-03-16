@@ -6,6 +6,7 @@
 #include <list>
 #include "../sim/Sim_Defs.h"
 #include "../sim/Sim_Object.h"
+#include "../sim/Sim_Reporter.h"
 #include "../ssd/SSD_Defs.h"
 #include "../ssd/Host_Interface_Defs.h"
 #include "Host_IO_Request.h"
@@ -36,7 +37,7 @@ namespace Host_Components
 	};
 
 	class PCIe_Root_Complex;
-	class IO_Flow_Base : public MQSimEngine::Sim_Object
+	class IO_Flow_Base : public MQSimEngine::Sim_Object, public MQSimEngine::Sim_Reporter
 	{
 	public:
 		IO_Flow_Base(const sim_object_id_type& name, LSA_type start_lsa_on_device, LSA_type end_lsa_address_on_device, uint16_t io_queue_id,
@@ -58,6 +59,7 @@ namespace Host_Components
 		uint32_t Get_end_to_end_request_delay();//in microseconds
 		uint32_t Get_min_end_to_end_request_delay();//in microseconds
 		uint32_t Get_max_end_to_end_request_delay();//in microseconds
+		void Report_results_in_XML(Utils::XmlWriter& xmlwriter);
 	protected:
 		LSA_type start_lsa_on_device, end_lsa_on_device;
 		uint16_t io_queue_id;
@@ -74,7 +76,6 @@ namespace Host_Components
 		NVMe_Queue_Pair nvme_queue_pair;
 		static unsigned int last_id;
 		int id;
-		std::string stream_name;
 		sim_time_type arrival_time_of_first_request;
 		sim_time_type simulation_start_time_offset;
 		LSA_type address_offset;

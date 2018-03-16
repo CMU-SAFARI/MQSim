@@ -96,7 +96,7 @@ namespace SSD_Components
 		unsigned int dram_row_size, unsigned int dram_data_rate, unsigned int dram_busrt_size, sim_time_type dram_tRCD, sim_time_type dram_tCL, sim_time_type dram_tRP,
 		Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, unsigned int stream_count,
 		unsigned int sector_no_per_page)
-		: Data_Cache_Manager_Base(id, host_interface, firmware, dram_row_size, dram_data_rate, dram_busrt_size, dram_tRCD, dram_tCL, dram_tRP, caching_mode_per_input_stream, sharing_mode, stream_count),
+		: Data_Cache_Manager_Base(id, host_interface, firmware, dram_row_size, dram_data_rate, dram_busrt_size, dram_tRCD, dram_tCL, dram_tRP, caching_mode_per_input_stream, sharing_mode, stream_count, 256),
 		flash_controller(flash_controller), capacity_in_bytes(total_capacity_in_bytes), sector_no_per_page(sector_no_per_page),	memory_channel_is_busy(false)
 	{
 		capacity_in_pages = capacity_in_bytes / (SECTOR_SIZE_IN_BYTE * sector_no_per_page);
@@ -225,28 +225,38 @@ namespace SSD_Components
 				it++;
 				user_request->Transaction_list.erase(temp_it);
 			}
+
 			if (evicted_cache_slots->size() > 0)
 			{
-				Memory_Transfer_Info* transfer_info = new Memory_Transfer_Info;
-				transfer_info->Size = cache_eviction_read_size_in_sectors * SECTOR_SIZE_IN_BYTE;
-				transfer_info->Related_request = evicted_cache_slots;
-				transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_FINISHED;
-				service_dram_access_request(transfer_info);
+				back_pressure_buffer_length += cache_eviction_read_size_in_sectors;
+				Memory_Transfer_Info* read_transfer_info = new Memory_Transfer_Info;
+				read_transfer_info->Size = cache_eviction_read_size_in_sectors * SECTOR_SIZE_IN_BYTE;
+				read_transfer_info->Related_request = evicted_cache_slots;
+				read_transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_FINISHED;
+				service_dram_access_request(read_transfer_info);
 				//DEBUG2("Starting memory transfer for cache eviction!")
 			}
 
-			Memory_Transfer_Info* transfer_info = new Memory_Transfer_Info;
-			transfer_info->Size = user_request->Sectors_serviced_from_cache * SECTOR_SIZE_IN_BYTE;
-			transfer_info->Related_request = user_request;
-			transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_WRITE_FOR_USERIO_FINISHED;
-			service_dram_access_request(transfer_info);
-			//DEBUG2("Starting memory transfer for cache write!")
+			Memory_Transfer_Info* write_transfer_info = new Memory_Transfer_Info;
+			write_transfer_info->Size = user_request->Sectors_serviced_from_cache * SECTOR_SIZE_IN_BYTE;
+			write_transfer_info->Related_request = user_request;
+			write_transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_WRITE_FOR_USERIO_FINISHED;
+			if (back_pressure_buffer_length >= back_pressure_buffer_depth)
+			{
+				waiting_access_request_queue.push(write_transfer_info);
+			}
+			else
+			{
+				service_dram_access_request(write_transfer_info);
+				//DEBUG2("Starting memory transfer for cache write!")
+			}
+
 		}
 	}
 
 	void Data_Cache_Manager_Flash::handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction)
 	{
-		//First check if the transaction source is a user request
+		//First check if the transaction source is a user request or the cache itself
 		if (transaction->Source != TransactionSourceType::USERIO)
 			return;
 
@@ -319,8 +329,16 @@ namespace SSD_Components
 					delete transaction;
 				}
 			}
-			else//A writeback for the cache data, no specific action is required
+			else//A writeback for the cache data
 			{
+				_myInstance->back_pressure_buffer_length -= transaction->Data_and_metadata_size_in_byte / SECTOR_SIZE_IN_BYTE;
+				if (_myInstance->back_pressure_buffer_length <= _myInstance->back_pressure_buffer_depth)
+					if (_myInstance->back_pressure_buffer_depth <= _myInstance->back_pressure_buffer_length)
+					{
+						((Data_Cache_Manager_Flash*)_myInstance)->service_dram_access_request(((Data_Cache_Manager_Flash*)_myInstance)->waiting_access_request_queue.front());
+						((Data_Cache_Manager_Flash*)_myInstance)->waiting_access_request_queue.pop();
+					}
+
 				delete transaction;
 			}
 		}

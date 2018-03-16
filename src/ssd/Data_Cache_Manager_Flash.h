@@ -68,7 +68,8 @@ namespace SSD_Components
 		bool memory_channel_is_busy;
 		
 		void process_new_user_request(User_Request* user_request);
-		std::queue<Memory_Transfer_Info*> dram_access_request_queue;
+		std::queue<Memory_Transfer_Info*> dram_access_request_queue;//The list of DRAM transfers that are waiting to be executed
+		std::queue<Memory_Transfer_Info*> waiting_access_request_queue;//The list of user writes that are waiting for the DRAM space to be free
 		
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
 		void service_dram_access_request(Memory_Transfer_Info* request_info);

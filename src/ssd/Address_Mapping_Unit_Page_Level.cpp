@@ -149,7 +149,7 @@ namespace SSD_Components
 		Pages_no_per_channel = Pages_no_per_chip * ChipNo;
 		Total_physical_pages_no = Pages_no_per_channel * ChannelNo;
 		Total_logical_pages_no = (unsigned int)((double)Total_physical_pages_no * (1 - Overprovisioning_ratio));
-		max_logical_sector_address = (LSA_type)(Sectors_no_per_page * Total_logical_pages_no);
+		max_logical_sector_address = (LSA_type)(Sectors_no_per_page * Total_logical_pages_no - 1);
 
 		GlobalMappingTable = new GMTEntryType[Total_logical_pages_no];
 		for (unsigned int i = 0; i < Total_logical_pages_no; i++)
@@ -164,8 +164,8 @@ namespace SSD_Components
 		else this->CMT = CMT;//The entire CMT space is shared among concurrently running flows (i.e., address mapping domains of all flow)
 
 		Total_translation_pages_no = Total_logical_pages_no / Translation_entries_per_page;
-		GlobalTranslationDirectory = new GTDEntryType[Total_translation_pages_no];
-		for (unsigned int i = 0; i < Total_translation_pages_no; i++)
+		GlobalTranslationDirectory = new GTDEntryType[Total_translation_pages_no + 1];
+		for (unsigned int i = 0; i <= Total_translation_pages_no; i++)
 		{
 			GlobalTranslationDirectory[i].MPPN = (MPPN_type) NO_MPPN;
 			GlobalTranslationDirectory[i].TimeStamp = INVALID_TIME_STAMP;
@@ -969,7 +969,7 @@ namespace SSD_Components
 
 		NVM_Transaction_Flash_RD* readTR = new NVM_Transaction_Flash_RD(TransactionSourceType::MAPPING, stream_id,
 			SECTOR_SIZE_IN_BYTE, INVALID_LPN, NULL, mvpn, ((page_status_type)0x1) << sector_no_per_page, CurrentTimeStamp);
-		convert_ppa_to_address(ppn, readTR->Address);
+		convert_ppa_to_address(ppn, readTR->Address); 
 		readTR->PPA = ppn;
 		domains[stream_id]->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpn));
 		ftl->TSU->Submit_transaction(readTR);

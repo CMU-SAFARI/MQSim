@@ -115,6 +115,10 @@ namespace Host_Components
 		request->Arrival_time = Simulator->Time();
 		DEBUG("* Host: Request generated - " << (request->Type == Host_IO_Request_Type::READ ? "Read, " : "Write, ") << "LBA:" << request->Start_LBA << ", Size:" << request->LBA_count << "")
 
+			if (request->Start_LBA == 1052261349)
+			{
+				int a = 0;
+			}
 		return request;
 	}
 

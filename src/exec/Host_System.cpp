@@ -56,6 +56,7 @@ void Host_System::Attach_ssd_device(SSD_Device* ssd_device)
 	this->PCIe_switch->Attach_ssd_device(ssd_device->Host_interface);
 	this->ssd_device = ssd_device;
 }
+
 const std::vector<Host_Components::IO_Flow_Base*> Host_System::Get_io_flows()
 {
 	return IO_flows;
@@ -91,4 +92,17 @@ void Host_System::Validate_simulation_config()
 	if (!this->PCIe_switch->Is_ssd_connected())
 		PRINT_ERROR("No SSD is connected to the host system")
 }
+
 void Host_System::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
+
+void Host_System::Report_results_in_XML(Utils::XmlWriter& xmlwriter)
+{
+	std::string tmp;
+	tmp = ID();
+	xmlwriter.Write_open_tag(tmp);
+
+	for (auto flow : IO_flows)
+		flow->Report_results_in_XML(xmlwriter);
+
+	xmlwriter.Write_close_tag();
+}

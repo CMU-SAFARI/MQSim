@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "../sim/Sim_Object.h"
+#include "../sim/Sim_Reporter.h"
 #include "../host/PCIe_Root_Complex.h"
 #include "../host/PCIe_Link.h"
 #include "../host/PCIe_Switch.h"
@@ -13,13 +14,14 @@
 #include "Host_Parameter_Set.h"
 #include "SSD_Device.h"
 
-class Host_System : MQSimEngine::Sim_Object
+class Host_System : public MQSimEngine::Sim_Object, public MQSimEngine::Sim_Reporter
 {
 public:
 	Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_Interface_Base* ssd_host_interface);
 	void Start_simulation();
 	void Validate_simulation_config();
 	void Execute_simulator_event(MQSimEngine::Sim_Event* event);
+	void Report_results_in_XML(Utils::XmlWriter& xmlwriter);
 
 	void Attach_ssd_device(SSD_Device* ssd_device);
 	const std::vector<Host_Components::IO_Flow_Base*> Get_io_flows();
