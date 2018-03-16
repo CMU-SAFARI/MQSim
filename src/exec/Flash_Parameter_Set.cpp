@@ -1,6 +1,7 @@
+#include <algorithm>
+#include <string.h>
 #include "../sim/Engine.h"
 #include "Flash_Parameter_Set.h"
-#include <algorithm>
 
 Flash_Technology_Type Flash_Parameter_Set::Flash_Technology = Flash_Technology_Type::MLC;
 NVM::FlashMemory::Command_Suspension_Mode Flash_Parameter_Set::CMD_Suspension_Support = NVM::FlashMemory::Command_Suspension_Mode::ERASE;
