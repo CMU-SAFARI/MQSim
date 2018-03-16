@@ -163,7 +163,7 @@ namespace SSD_Components
 		void allocate_plane_for_translation_write(NVM_Transaction_Flash* transaction);
 		void allocate_page_in_plane_for_translation_write(NVM_Transaction_Flash* transaction, MVPN_type mvpn);
 		bool request_mapping_entry_for_lpn(const stream_id_type streamID, const LPA_type lpn);
-		static void handle_transaction_serviced_signal(NVM_Transaction_Flash* transaction);
+		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
 		void translate_lpa_to_ppa(stream_id_type streamID, NVM_Transaction_Flash* transaction);
 
 		void generate_flash_read_request_for_mapping_data(const stream_id_type streamID, const LPA_type lpn);

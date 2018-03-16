@@ -39,8 +39,9 @@
 				 <CMD_Suspension_Support>ERASE</CMD_Suspension_Support>
 				 <Page_Read_Latency_LSB>75000</Page_Read_Latency_LSB>
 				 <Page_Read_Latency_CSB>75000</Page_Read_Latency_CSB>
+				 <Page_Read_Latency_MSB>75000</Page_Read_Latency_MSB>
 				 <Page_Program_Latency_LSB>750000</Page_Program_Latency_LSB>
-				 <Page_Program_Latency_CSB>75000</Page_Program_Latency_CSB>
+				 <Page_Program_Latency_CSB>750000</Page_Program_Latency_CSB>
 				 <Page_Program_Latency_MSB>750000</Page_Program_Latency_MSB>
 				 <Block_Erase_Latency>3800000</Block_Erase_Latency>
 				 <Block_PE_Cycles_Limit>10000</Block_PE_Cycles_Limit>

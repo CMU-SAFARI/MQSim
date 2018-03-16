@@ -18,6 +18,7 @@ namespace SSD_Components {
 		for (std::vector<TransactionServicedHandlerType>::iterator it = connectedTransactionServicedHandlers.begin();
 			it != connectedTransactionServicedHandlers.end(); it++)
 			(*it)(transaction);
+		delete transaction;//This transaction has been consumed and no more needed
 	}
 
 	void NVM_PHY_ONFI::ConnectToChannelIdleSignal(ChannelIdleHandlerType function)

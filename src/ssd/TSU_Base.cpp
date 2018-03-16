@@ -41,12 +41,12 @@ namespace SSD_Components
 	void TSU_Base::Setup_triggers()
 	{
 		Sim_Object::Setup_triggers();
-		_NVMController->ConnectToTransactionServicedSignal(handle_transaction_serviced_signal);
+		_NVMController->ConnectToTransactionServicedSignal(handle_transaction_serviced_signal_from_PHY);
 		_NVMController->ConnectToChannelIdleSignal(handleChannelIdleSignal);
 		_NVMController->ConnectToChipIdleSignal(handleChipIdleSignal);
 	}
 
-	void TSU_Base::handle_transaction_serviced_signal(NVM_Transaction_Flash* transaction)
+	void TSU_Base::handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction)
 	{
 		//TSU does nothing. The generator of the transaction will handle it.
 	}

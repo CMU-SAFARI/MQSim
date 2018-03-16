@@ -244,7 +244,7 @@ namespace SSD_Components
 	void Address_Mapping_Unit_Page_Level::Setup_triggers()
 	{
 		Sim_Object::Setup_triggers();
-		flash_controller->ConnectToTransactionServicedSignal(handle_transaction_serviced_signal);
+		flash_controller->ConnectToTransactionServicedSignal(handle_transaction_serviced_signal_from_PHY);
 	}
 
 	void Address_Mapping_Unit_Page_Level::Start_simulation() 
@@ -981,7 +981,7 @@ namespace SSD_Components
 		ftl->TSU->Schedule();
 	}
 	
-	inline void Address_Mapping_Unit_Page_Level::handle_transaction_serviced_signal(NVM_Transaction_Flash* transaction)
+	inline void Address_Mapping_Unit_Page_Level::handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction)
 	{
 		//First check if the transaction source is Mapping Module
 		if (transaction->Source != TransactionSourceType::MAPPING)
@@ -1030,7 +1030,6 @@ namespace SSD_Components
 			}
 			_myInstance->ftl->TSU->Schedule();
 		}
-		delete transaction;//This transaction has been generated in the address mapping unit, so it has to be destroyed when address mapping unit receives the results
 	}
 
 

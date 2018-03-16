@@ -321,12 +321,10 @@ namespace SSD_Components
 					transaction->UserIORequest->Transaction_list.remove(transaction);
 					if (transaction->UserIORequest->Transaction_list.size() == 0)
 						_myInstance->broadcast_user_request_serviced_signal(transaction->UserIORequest);
-					delete transaction;//Transactions of user IO are created in the host interface, but data cache manger handles and consumes them
 				}
 				else
 				{
 					((NVM_Transaction_Flash_RD*)transaction)->RelatedWrite = NULL;
-					delete transaction;
 				}
 			}
 			else//A writeback for the cache data
@@ -339,7 +337,6 @@ namespace SSD_Components
 						((Data_Cache_Manager_Flash*)_myInstance)->waiting_access_request_queue.pop();
 					}
 
-				delete transaction;
 			}
 		}
 		else
@@ -347,7 +344,6 @@ namespace SSD_Components
 			transaction->UserIORequest->Transaction_list.remove(transaction);
 			if (transaction->UserIORequest->Transaction_list.size() == 0)
 				_myInstance->broadcast_user_request_serviced_signal(transaction->UserIORequest);
-			delete transaction;//Transactions of user IO are created in the host interface, but data cache manger handles and consumes them
 		}
 	}
 

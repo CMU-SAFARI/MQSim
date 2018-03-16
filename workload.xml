@@ -44,7 +44,7 @@
 		<IO_Flow_Parameter_Set_Synthetic>
 				 <Type>SYNTHETIC</Type>
 				 <Priority_Class>HIGH</Priority_Class>
-				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
+				 <Device_Level_Data_Caching_Mode>WRITE_READ_CACHE</Device_Level_Data_Caching_Mode>
 				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>

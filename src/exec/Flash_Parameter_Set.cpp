@@ -76,6 +76,10 @@ void Flash_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	val = std::to_string(Page_Read_Latency_CSB);
 	xmlwriter.Write_attribute_string(attr, val);
 
+	attr = "Page_Read_Latency_MSB";
+	val = std::to_string(Page_Read_Latency_MSB);
+	xmlwriter.Write_attribute_string(attr, val);
+
 	attr = "Page_Program_Latency_LSB";
 	val = std::to_string(Page_Program_Latency_LSB);
 	xmlwriter.Write_attribute_string(attr, val);

@@ -73,7 +73,7 @@ namespace SSD_Components
 		virtual bool serviceReadTransaction(NVM::FlashMemory::Chip* chip) = 0;
 		virtual bool serviceWriteTransaction(NVM::FlashMemory::Chip* chip) = 0;
 		virtual bool serviceEraseTransaction(NVM::FlashMemory::Chip* chip) = 0;
-		static void handle_transaction_serviced_signal(NVM_Transaction_Flash* transaction);
+		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
 		static void handleChannelIdleSignal(flash_channel_ID_type);
 		static void handleChipIdleSignal(NVM::FlashMemory::Chip* chip);
 	};
