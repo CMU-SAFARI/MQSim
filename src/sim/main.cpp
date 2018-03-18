@@ -9,6 +9,7 @@
 #include "../exec/Host_System.h"
 #include "../utils/rapidxml/rapidxml.hpp"
 
+
 using namespace std;
 
 
@@ -55,10 +56,26 @@ void read_configuration_parameters(const string ssd_config_file_path, Execution_
 	else
 	{
 		//Read input workload parameters
-		string line;
+		string line((std::istreambuf_iterator<char>(ssd_config_file)),
+			std::istreambuf_iterator<char>());
 		ssd_config_file >> line;
 		if (line.compare("USE_INTERNAL_PARAMS") != 0)
 		{
+			rapidxml::xml_document<> doc;    // character type defaults to char
+			char* temp_string = new char[line.length() + 1];
+			strcpy(temp_string, line.c_str());
+			doc.parse<0>(temp_string);
+			rapidxml::xml_node<> *mqsim_config = doc.first_node("Execution_Parameter_Set");
+			if (mqsim_config != NULL)
+			{
+				exec_params = new Execution_Parameter_Set;
+				exec_params->XML_deserialize(mqsim_config);
+			}
+			else
+			{
+				PRINT_MESSAGE("Error in the SSD configuration file!")
+				PRINT_MESSAGE("Using MQSim's default configuration parameters")
+			}
 		}
 		else
 		{
