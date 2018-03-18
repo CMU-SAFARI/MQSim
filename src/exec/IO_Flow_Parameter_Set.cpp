@@ -255,7 +255,6 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 
 
 	attr = "Address_Distribution";
-	val = std::to_string(Read_Percentage);
 	switch (Address_Distribution)
 	{
 	case Host_Components::Address_Distribution_Type::STREAMING:
@@ -407,9 +406,27 @@ void IO_Flow_Parameter_Set_Trace_Based::XML_serialize(Utils::XmlWriter& xmlwrite
 	std::string val = File_Path;
 	xmlwriter.Write_attribute_string(attr, val);
 
-
 	attr = "Percentage_To_Be_Executed";
 	val = std::to_string(Percentage_To_Be_Executed);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Relay_Count";
+	val = std::to_string(Relay_Count);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Time_Unit";
+	switch (Time_Unit)
+	{
+	case Trace_Time_Unit::PICOSECOND:
+		val = "PICOSECOND";
+		break;
+	case Trace_Time_Unit::NANOSECOND:
+		val = "NANOSECOND";
+		break;
+	case Trace_Time_Unit::MICROSECOND:
+		val = "MICROSECOND";
+		break;
+	}
 	xmlwriter.Write_attribute_string(attr, val);
 
 	xmlwriter.Write_close_tag();
@@ -423,7 +440,13 @@ void IO_Flow_Parameter_Set_Trace_Based::XML_deserialize(rapidxml::xml_node<> *no
 	{
 		for (auto param = node->first_node(); param; param = param->next_sibling())
 		{
-			if (strcmp(param->name(), "Percentage_To_Be_Executed") == 0)
+
+			if (strcmp(param->name(), "Relay_Count") == 0)
+			{
+				std::string val = param->value();
+				Relay_Count = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Percentage_To_Be_Executed") == 0)
 			{
 				std::string val = param->value();
 				Percentage_To_Be_Executed = std::stoi(val);
@@ -432,6 +455,19 @@ void IO_Flow_Parameter_Set_Trace_Based::XML_deserialize(rapidxml::xml_node<> *no
 			{
 				File_Path = param->value();
 			}
+			else if (strcmp(param->name(), "Time_Unit") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "PICOSECOND") == 0)
+					Time_Unit = Trace_Time_Unit::PICOSECOND;
+				else if (strcmp(val.c_str(), "NANOSECOND") == 0)
+					Time_Unit = Trace_Time_Unit::NANOSECOND;
+				else if (strcmp(val.c_str(), "MICROSECOND") == 0)
+					Time_Unit = Trace_Time_Unit::MICROSECOND;
+				else PRINT_ERROR("Wrong time unit type for input trace based flow")
+			}
+
 		}
 	}
 	catch (...)

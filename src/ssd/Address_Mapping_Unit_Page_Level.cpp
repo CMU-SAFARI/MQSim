@@ -448,7 +448,7 @@ namespace SSD_Components
 	void Address_Mapping_Unit_Page_Level::prepare_mapping_table()
 	{
 		//Since address translation functions work on flash transactions
-		NVM_Transaction_Flash_WR* dummy_tr = new NVM_Transaction_Flash_WR(TransactionSourceType::MAPPING, 0, 0,
+		NVM_Transaction_Flash_WR* dummy_tr = new NVM_Transaction_Flash_WR(Transaction_Source_Type::MAPPING, 0, 0,
 			INVALID_LPN, 0, NULL, 0, NULL, 0, 0);
 
 		for (unsigned int stream_id = 0; stream_id < input_stream_no; stream_id++)
@@ -934,14 +934,14 @@ namespace SSD_Components
 		MPPN_type mppn = domains[stream_id]->GlobalTranslationDirectory[mvpn].MPPN;
 		if (mppn != NO_PPA)
 		{
-			readTR = new NVM_Transaction_Flash_RD(TransactionSourceType::MAPPING, stream_id, read_size,
+			readTR = new NVM_Transaction_Flash_RD(Transaction_Source_Type::MAPPING, stream_id, read_size,
 				INVALID_LPN, mppn, NULL, mvpn, NULL, readSectorsBitmap, CurrentTimeStamp);
 			convert_ppa_to_address(mppn, readTR->Address);
 			domains[stream_id]->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpn));
 			ftl->TSU->Submit_transaction(readTR);
 		}
 
-		NVM_Transaction_Flash_WR* writeTR = new NVM_Transaction_Flash_WR(TransactionSourceType::MAPPING, stream_id, SECTOR_SIZE_IN_BYTE * sector_no_per_page,
+		NVM_Transaction_Flash_WR* writeTR = new NVM_Transaction_Flash_WR(Transaction_Source_Type::MAPPING, stream_id, SECTOR_SIZE_IN_BYTE * sector_no_per_page,
 			INVALID_LPN, mppn, NULL, mvpn, readTR, (((page_status_type)0x1) << sector_no_per_page) - 1, CurrentTimeStamp);
 		allocate_plane_for_translation_write(writeTR);
 		allocate_page_in_plane_for_translation_write(writeTR, mvpn);		
@@ -967,7 +967,7 @@ namespace SSD_Components
 		if(ppn == NO_PPA)
 			PRINT_ERROR("Reading an unaviable physical flash page in function generate_flash_read_request_for_mapping_data")
 
-		NVM_Transaction_Flash_RD* readTR = new NVM_Transaction_Flash_RD(TransactionSourceType::MAPPING, stream_id,
+		NVM_Transaction_Flash_RD* readTR = new NVM_Transaction_Flash_RD(Transaction_Source_Type::MAPPING, stream_id,
 			SECTOR_SIZE_IN_BYTE, INVALID_LPN, NULL, mvpn, ((page_status_type)0x1) << sector_no_per_page, CurrentTimeStamp);
 		convert_ppa_to_address(ppn, readTR->Address); 
 		readTR->PPA = ppn;
@@ -984,7 +984,7 @@ namespace SSD_Components
 	inline void Address_Mapping_Unit_Page_Level::handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction)
 	{
 		//First check if the transaction source is Mapping Module
-		if (transaction->Source != TransactionSourceType::MAPPING)
+		if (transaction->Source != Transaction_Source_Type::MAPPING)
 			return;
 		if (transaction->Type == TransactionType::WRITE)
 		{

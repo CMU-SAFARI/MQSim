@@ -56,9 +56,9 @@ namespace SSD_Components
 		for (unsigned int i = 0; i < _myInstance->chip_no_per_channel; i++) {
 			NVM::FlashMemory::Chip* chip = _myInstance->_NVMController->GetChip(channelID, _myInstance->LastChip[channelID]);
 			//The TSU does not check if the chip is idle or not since it is possible to suspend a busy chip and issue a new command
-			if (!_myInstance->serviceReadTransaction(chip))
-				if (!_myInstance->serviceWriteTransaction(chip))
-					_myInstance->serviceEraseTransaction(chip);
+			if (!_myInstance->service_read_transaction(chip))
+				if (!_myInstance->service_write_transaction(chip))
+					_myInstance->service_erase_transaction(chip);
 			_myInstance->LastChip[channelID] = (flash_chip_ID_type)(_myInstance->LastChip[channelID] + 1) % _myInstance->chip_no_per_channel;
 
 			//A transaction has been started, so TSU should stop searching for another chip
@@ -71,9 +71,9 @@ namespace SSD_Components
 	{
 		if (_myInstance->_NVMController->GetChannelStatus(chip->ChannelID) == BusChannelStatus::IDLE)
 		{
-			if (!_myInstance->serviceReadTransaction(chip))
-				if (!_myInstance->serviceWriteTransaction(chip))
-					_myInstance->serviceEraseTransaction(chip);
+			if (!_myInstance->service_read_transaction(chip))
+				if (!_myInstance->service_write_transaction(chip))
+					_myInstance->service_erase_transaction(chip);
 		}
 	}
 }

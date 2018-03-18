@@ -3,6 +3,8 @@
 #include "../ssd/Host_Interface_Base.h"
 #include "../ssd/Host_Interface_NVMe.h"
 #include "../host/PCIe_Root_Complex.h"
+#include "../host/IO_Flow_Synthetic.h"
+#include "../host/IO_Flow_Trace_Based.h"
 
 Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_Interface_Base* ssd_host_interface):
 	MQSimEngine::Sim_Object("Host")
@@ -41,7 +43,18 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 			break;
 		}
 		case Flow_Type::TRACE:
+		{
+			IO_Flow_Parameter_Set_Trace_Based * flow_param = (IO_Flow_Parameter_Set_Trace_Based*)parameters->IO_Flow_Definitions[flow_id];
+			io_flow = new Host_Components::IO_Flow_Trace_Based(this->ID() + ".IO_Flow.Trace.No_" + std::to_string(flow_id),
+				address_range_per_flow * flow_id, address_range_per_flow * (flow_id + 1) - 1,
+				FLOW_ID_TO_Q_ID(flow_id), ((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_submission_queue_depth(),
+				((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth(),
+				flow_param->Priority_Class, flow_param->File_Path, flow_param->Time_Unit, flow_param->Relay_Count, flow_param->Percentage_To_Be_Executed,
+				ssd_host_interface->GetType(), this->PCIe_root_complex);
+
+			this->IO_flows.push_back(io_flow);
 			break;
+		}
 		default:
 			throw "The specified IO flow type is not supported.\n";
 		}

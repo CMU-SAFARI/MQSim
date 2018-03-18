@@ -70,9 +70,9 @@ namespace SSD_Components
 		static TSU_Base* _myInstance;
 		std::list<NVM_Transaction_Flash*> incomingTransactionSlots;//Stores the transactions that are received for sheduling
 		std::list<NVM_Transaction_Flash*> transaction_dispatch_slots;//Used to submit transactions to the channel controller
-		virtual bool serviceReadTransaction(NVM::FlashMemory::Chip* chip) = 0;
-		virtual bool serviceWriteTransaction(NVM::FlashMemory::Chip* chip) = 0;
-		virtual bool serviceEraseTransaction(NVM::FlashMemory::Chip* chip) = 0;
+		virtual bool service_read_transaction(NVM::FlashMemory::Chip* chip) = 0;
+		virtual bool service_write_transaction(NVM::FlashMemory::Chip* chip) = 0;
+		virtual bool service_erase_transaction(NVM::FlashMemory::Chip* chip) = 0;
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
 		static void handleChannelIdleSignal(flash_channel_ID_type);
 		static void handleChipIdleSignal(NVM::FlashMemory::Chip* chip);

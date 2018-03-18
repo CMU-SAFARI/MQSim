@@ -16,16 +16,18 @@
 namespace SSD_Components
 {
 	class User_Request;
-	enum class TransactionSourceType { USERIO, GC, MAPPING };
+	enum class Transaction_Source_Type { USERIO, GC, MAPPING };
 	enum class TransactionType { READ, WRITE, ERASE, UNKOWN };
 	class NVM_Transaction_Flash : public NVM_Transaction
 	{
 	public:
-		NVM_Transaction_Flash(TransactionSourceType source, TransactionType type, stream_id_type streamID,
+		NVM_Transaction_Flash(Transaction_Source_Type source, TransactionType type, stream_id_type streamID,
 			unsigned int size_in_byte, LPA_type lpn, PPA_type ppn, User_Request* user_request);
-		NVM_Transaction_Flash(TransactionSourceType source, TransactionType type, stream_id_type streamID,
+		NVM_Transaction_Flash(Transaction_Source_Type source, TransactionType type, stream_id_type streamID,
 			unsigned int size_in_byte, LPA_type lpn, User_Request* user_request);
-		TransactionSourceType Source;
+		NVM_Transaction_Flash(Transaction_Source_Type source, TransactionType type, stream_id_type streamID,
+			NVM::FlashMemory::Physical_Page_Address address, User_Request* user_request);
+		Transaction_Source_Type Source;
 		TransactionType Type;
 		NVM::FlashMemory::Physical_Page_Address Address;
 		unsigned int Data_and_metadata_size_in_byte; //number of bytes contained in the request: bytes in the real page + bytes of metadata

@@ -43,7 +43,7 @@ namespace Host_Components
 			if (Simulator->Time() > stop_time)
 				return NULL;
 		}
-		else if (STAT_generated_request_count >= total_req_count)
+		else if (STAT_generated_request_count >= total_requests_to_be_generated)
 			return NULL;
 		
 		Host_IO_Reqeust* request = new Host_IO_Reqeust;
@@ -115,10 +115,6 @@ namespace Host_Components
 		request->Arrival_time = Simulator->Time();
 		DEBUG("* Host: Request generated - " << (request->Type == Host_IO_Request_Type::READ ? "Read, " : "Write, ") << "LBA:" << request->Start_LBA << ", Size:" << request->LBA_count << "")
 
-			if (request->Start_LBA == 1052261349)
-			{
-				int a = 0;
-			}
 		return request;
 	}
 

@@ -3,6 +3,7 @@
 
 #include <list>
 #include <cstdint>
+#include <queue>
 #include "../nvm_chip/flash_memory/FlashTypes.h"
 #include "../nvm_chip/flash_memory/Physical_Page_Address.h"
 #include "GC_and_WL_Unit_Base.h"
@@ -18,7 +19,7 @@ namespace SSD_Components
 		unsigned int InvalidPageCount;
 		unsigned int EraseCount;
 		static unsigned int PageVectorSize;
-		uint64_t* InvalidPageVector;
+		uint64_t* InvalidPageVector;//A bit sequence that keeps track of valid/invalid status of pages in the block. A "0" means valid, and a "1" means invalid.
 		stream_id_type Stream_id = NO_STREAM;
 		bool HoldsMappingData = false;
 	};
@@ -34,6 +35,7 @@ namespace SSD_Components
 		BlockPoolSlotType** DataWF, **TranslationWF; //The write frontier blocks for data and translation pages
 		unsigned int* BlockEraseCount;
 		bool Ongoing_gc_reqs_count;
+		std::queue<flash_block_ID_type> BlockUsageHistory;//A fifo queue that keeps track of flash blocks based on their usage history
 	};
 
 	class Flash_Block_Manager_Base

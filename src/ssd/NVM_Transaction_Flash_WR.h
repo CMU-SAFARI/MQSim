@@ -11,10 +11,10 @@ namespace SSD_Components
 	class NVM_Transaction_Flash_WR : public NVM_Transaction_Flash
 	{
 	public:
-		NVM_Transaction_Flash_WR(TransactionSourceType source, stream_id_type streamID,
+		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type streamID,
 			unsigned int data_size_in_byte, LPA_type lpn, PPA_type ppn, SSD_Components::User_Request* userIORequest, uint64_t content,
 			NVM_Transaction_Flash_RD* relatedRead, page_status_type write_sectors_bitmap, data_timestamp_type DataTimeStamp);
-		NVM_Transaction_Flash_WR(TransactionSourceType source, stream_id_type streamID, unsigned int data_size_in_byte,
+		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type streamID, unsigned int data_size_in_byte,
 			LPA_type lpn, SSD_Components::User_Request* userIORequest, uint64_t content, page_status_type write_sectors_bitmap, 
 			data_timestamp_type DataTimeStamp);
 		uint64_t Content; //The content of this transaction

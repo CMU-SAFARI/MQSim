@@ -10,6 +10,7 @@ namespace SSD_Components
 {
 	class Flash_Block_Manager : public Flash_Block_Manager_Base
 	{
+		friend class GC_and_WL_Unit_Page_Level;
 	public:
 		Flash_Block_Manager(GC_and_WL_Unit_Base* gc_and_wl_unit, unsigned int MaxAllowedBlockEraseCount, unsigned int TotalStreamNo, 
 			unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,

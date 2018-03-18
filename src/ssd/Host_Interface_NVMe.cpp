@@ -136,7 +136,7 @@ namespace SSD_Components
 		LSA_type lsa = user_request->Start_LBA;
 		unsigned int req_size = user_request->SizeInSectors;
 
-		page_status_type access_status = 0;
+		page_status_type access_status_bitmap = 0;
 		unsigned int hanled_sectors_count = 0;
 		unsigned int transaction_size = 0;
 
@@ -159,20 +159,20 @@ namespace SSD_Components
 			LPA_type lpa = lsa / host_interface->sectors_per_page;
 
 
-			page_status_type temp = ~(0xffffffff << (int)transaction_size);
-			access_status = temp << (int)(lsa % host_interface->sectors_per_page);
+			page_status_type temp = ~(0xffffffffffffffff << (int)transaction_size);
+			access_status_bitmap = temp << (int)(lsa % host_interface->sectors_per_page);
 
 			if (user_request->Type == UserRequestType::READ)
 			{
-				NVM_Transaction_Flash_RD* transaction = new NVM_Transaction_Flash_RD(TransactionSourceType::USERIO, user_request->Stream_id,
-					transaction_size * SECTOR_SIZE_IN_BYTE, lpa, user_request, 0, access_status, CurrentTimeStamp);
+				NVM_Transaction_Flash_RD* transaction = new NVM_Transaction_Flash_RD(Transaction_Source_Type::USERIO, user_request->Stream_id,
+					transaction_size * SECTOR_SIZE_IN_BYTE, lpa, user_request, 0, access_status_bitmap, CurrentTimeStamp);
 				user_request->Transaction_list.push_back(transaction);
 				input_streams[user_request->Stream_id]->STAT_number_of_read_transactions++;
 			}
 			else //user_request->Type == UserRequestType::WRITE
 			{
-				NVM_Transaction_Flash_WR* transaction = new NVM_Transaction_Flash_WR(TransactionSourceType::USERIO, user_request->Stream_id,
-					transaction_size * SECTOR_SIZE_IN_BYTE, lpa, user_request, 0, access_status, CurrentTimeStamp);
+				NVM_Transaction_Flash_WR* transaction = new NVM_Transaction_Flash_WR(Transaction_Source_Type::USERIO, user_request->Stream_id,
+					transaction_size * SECTOR_SIZE_IN_BYTE, lpa, user_request, 0, access_status_bitmap, CurrentTimeStamp);
 				user_request->Transaction_list.push_back(transaction);
 				input_streams[user_request->Stream_id]->STAT_number_of_write_transactions++;
 			}

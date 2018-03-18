@@ -22,8 +22,8 @@ namespace SSD_Components
 			unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int SectorsPerPage);
 		virtual bool GC_is_in_urgent_mode(const NVM::FlashMemory::Chip*) = 0;
-		virtual void CheckGCRequired(const unsigned int BlockPoolSize, const NVM::FlashMemory::Physical_Page_Address& planeAddress) = 0;
-		virtual void CheckWLRequired(const double staticWLFactor, const NVM::FlashMemory::Physical_Page_Address planeAddress) = 0;
+		virtual void Check_gc_required(const unsigned int BlockPoolSize, const NVM::FlashMemory::Physical_Page_Address& planeAddress) = 0;
+		virtual void Check_wl_required(const double staticWLFactor, const NVM::FlashMemory::Physical_Page_Address planeAddress) = 0;
 	protected:
 		FTL* ftl;
 		bool force_gc;

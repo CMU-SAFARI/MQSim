@@ -16,7 +16,9 @@ namespace SSD_Components
 
 
 	void TSU_OutofOrder::Start_simulation() {}
+
 	void TSU_OutofOrder::Validate_simulation_config() {}
+
 	void TSU_OutofOrder::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
 
 	inline void TSU_OutofOrder::Prepare_for_transaction_submit()
@@ -40,13 +42,13 @@ namespace SSD_Components
 			case TransactionType::READ:
 				switch ((*it)->Source)
 				{
-				case TransactionSourceType::USERIO:
+				case Transaction_Source_Type::USERIO:
 					UserReadTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
-				case TransactionSourceType::MAPPING:
+				case Transaction_Source_Type::MAPPING:
 					MappingReadTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
-				case TransactionSourceType::GC:
+				case Transaction_Source_Type::GC:
 					GCReadTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
 				default:
@@ -56,13 +58,13 @@ namespace SSD_Components
 			case TransactionType::WRITE:
 				switch ((*it)->Source)
 				{
-				case TransactionSourceType::USERIO:
+				case Transaction_Source_Type::USERIO:
 					UserWriteTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
-				case TransactionSourceType::MAPPING:
+				case Transaction_Source_Type::MAPPING:
 					MappingWriteTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
-				case TransactionSourceType::GC:
+				case Transaction_Source_Type::GC:
 					GCWriteTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
 				default:
@@ -84,9 +86,9 @@ namespace SSD_Components
 				for (unsigned int i = 0; i < chip_no_per_channel; i++) {
 					NVM::FlashMemory::Chip* chip = _NVMController->GetChip(channelID, LastChip[channelID]);
 					//The TSU does not check if the chip is idle or not since it is possible to suspend a busy chip and issue a new command
-					if (!serviceReadTransaction(chip))
-						if (!serviceWriteTransaction(chip))
-							serviceEraseTransaction(chip);
+					if (!service_read_transaction(chip))
+						if (!service_write_transaction(chip))
+							service_erase_transaction(chip);
 					LastChip[channelID] = (flash_chip_ID_type)(LastChip[channelID] + 1) % chip_no_per_channel;
 					if (_NVMController->GetChannelStatus(chip->ChannelID) != BusChannelStatus::IDLE)
 						break;
@@ -95,7 +97,7 @@ namespace SSD_Components
 		}
 	}
 	
-	bool TSU_OutofOrder::serviceReadTransaction(NVM::FlashMemory::Chip* chip)
+	bool TSU_OutofOrder::service_read_transaction(NVM::FlashMemory::Chip* chip)
 	{
 		FlashTransactionQueue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
 
@@ -210,7 +212,7 @@ namespace SSD_Components
 		return true;
 	}
 
-	bool TSU_OutofOrder::serviceWriteTransaction(NVM::FlashMemory::Chip* chip)
+	bool TSU_OutofOrder::service_write_transaction(NVM::FlashMemory::Chip* chip)
 	{
 		FlashTransactionQueue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
 
@@ -307,10 +309,11 @@ namespace SSD_Components
 		return true;
 	}
 
-	bool TSU_OutofOrder::serviceEraseTransaction(NVM::FlashMemory::Chip* chip)
+	bool TSU_OutofOrder::service_erase_transaction(NVM::FlashMemory::Chip* chip)
 	{
 		if (_NVMController->GetChipStatus(chip) != ChipStatus::IDLE)
 			return false;
+
 		FlashTransactionQueue* source_queue = &GCEraseTRQueue[chip->ChannelID][chip->ChipID];
 		if (source_queue->size() == 0)
 			return false;

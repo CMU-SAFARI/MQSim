@@ -3,8 +3,8 @@
 
 namespace SSD_Components
 {
-	NVM_Transaction_Flash_ER::NVM_Transaction_Flash_ER(TransactionSourceType source, stream_id_type streamID,
-		LPA_type lpn, PPA_type ppn, SSD_Components::User_Request* userIORequest) :
-		NVM_Transaction_Flash(source, TransactionType::ERASE, streamID, 0, lpn, ppn, userIORequest)
+	NVM_Transaction_Flash_ER::NVM_Transaction_Flash_ER(Transaction_Source_Type source, stream_id_type streamID,
+		NVM::FlashMemory::Physical_Page_Address address) :
+		NVM_Transaction_Flash(source, TransactionType::ERASE, streamID, address, NULL)
 	{}
 }

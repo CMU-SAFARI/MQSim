@@ -42,7 +42,7 @@ namespace SSD_Components
 							BlockPoolSlotType::PageVectorSize = pages_no_per_block / 64;
 							planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].InvalidPageVector = new uint64_t[BlockPoolSlotType::PageVectorSize];
 							for (unsigned int i = 0; i < BlockPoolSlotType::PageVectorSize; i++)
-								planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].InvalidPageVector[i] = 0;
+								planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].InvalidPageVector[i] = All_VALID_PAGE;
 							planeManager[channelID][chipID][dieID][planeID].FreeBlockPool.push_back(&planeManager[channelID][chipID][dieID][planeID].Blocks[blockID]);
 						}
 						planeManager[channelID][chipID][dieID][planeID].DataWF = new BlockPoolSlotType*[total_concurrent_streams_no];
@@ -64,18 +64,19 @@ namespace SSD_Components
 
 	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_user_write(const stream_id_type streamID, NVM::FlashMemory::Physical_Page_Address& PageAddress)
 	{
-		PlaneBookKeepingType *plane = &planeManager[PageAddress.ChannelID][PageAddress.ChipID][PageAddress.DieID][PageAddress.PlaneID];
-		plane->FreePagesCount--;
-		plane->ValidPagesCount++;
-		PageAddress.BlockID = plane->DataWF[streamID]->BlockID;
-		PageAddress.PageID = plane->DataWF[streamID]->CurrentPageWriteIndex++;
-		if(plane->DataWF[streamID]->CurrentPageWriteIndex == pages_no_per_block)//The current write frontier block is written to the end
+		PlaneBookKeepingType *plane_record = &planeManager[PageAddress.ChannelID][PageAddress.ChipID][PageAddress.DieID][PageAddress.PlaneID];
+		plane_record->FreePagesCount--;
+		plane_record->ValidPagesCount++;
+		PageAddress.BlockID = plane_record->DataWF[streamID]->BlockID;
+		PageAddress.PageID = plane_record->DataWF[streamID]->CurrentPageWriteIndex++;
+		if(plane_record->DataWF[streamID]->CurrentPageWriteIndex == pages_no_per_block)//The current write frontier block is written to the end
 		{
-			plane->DataWF[streamID] = plane->FreeBlockPool.front();//Assign a new write frontier block
-			plane->FreeBlockPool.pop_front();
-			plane->DataWF[streamID]->Stream_id = streamID;
-			plane->DataWF[streamID]->HoldsMappingData = false;
-			gc_and_wl_unit->CheckGCRequired((unsigned int)plane->FreeBlockPool.size(), PageAddress);
+			plane_record->DataWF[streamID] = plane_record->FreeBlockPool.front();//Assign a new write frontier block
+			plane_record->BlockUsageHistory.push(plane_record->FreeBlockPool.front()->BlockID);
+			plane_record->FreeBlockPool.pop_front();
+			plane_record->DataWF[streamID]->Stream_id = streamID;
+			plane_record->DataWF[streamID]->HoldsMappingData = false;
+			gc_and_wl_unit->Check_gc_required((unsigned int)plane_record->FreeBlockPool.size(), PageAddress);
 		}
 	}
 	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_translation_write(const stream_id_type streamID, NVM::FlashMemory::Physical_Page_Address& PageAddress)
@@ -89,7 +90,7 @@ namespace SSD_Components
 			plane->FreeBlockPool.pop_front();
 			plane->TranslationWF[streamID]->Stream_id = streamID;
 			plane->TranslationWF[streamID]->HoldsMappingData = true;
-			gc_and_wl_unit->CheckGCRequired((unsigned int)plane->FreeBlockPool.size(), PageAddress);
+			gc_and_wl_unit->Check_gc_required((unsigned int)plane->FreeBlockPool.size(), PageAddress);
 		}
 	}
 	void Flash_Block_Manager::Invalidate_page_in_block(const stream_id_type streamID, const NVM::FlashMemory::Physical_Page_Address& PageAddress)
@@ -99,6 +100,7 @@ namespace SSD_Components
 		planeManager[PageAddress.ChannelID][PageAddress.ChipID][PageAddress.DieID][PageAddress.PlaneID].Blocks[PageAddress.BlockID].InvalidPageVector[PageAddress.PageID / 64]
 			|= ((uint64_t)0x1) << (PageAddress.PageID % 64);
 	}
+
 	void Flash_Block_Manager::Add_erased_block_to_pool(const NVM::FlashMemory::Physical_Page_Address& BloackAddress)
 	{
 		PlaneBookKeepingType *plane = &planeManager[BloackAddress.ChannelID][BloackAddress.ChipID][BloackAddress.DieID][BloackAddress.PlaneID];
@@ -122,5 +124,6 @@ namespace SSD_Components
 		return (unsigned int) planeManager[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID].FreeBlockPool.size();
 	}
 	void Flash_Block_Manager::GetWearlevelingBlocks(BlockPoolSlotType*& hotBlock, BlockPoolSlotType*& coldBlock)
-	{}
+	{
+	}
 }

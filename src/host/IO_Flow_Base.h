@@ -42,7 +42,7 @@ namespace Host_Components
 	public:
 		IO_Flow_Base(const sim_object_id_type& name, LSA_type start_lsa_on_device, LSA_type end_lsa_address_on_device, uint16_t io_queue_id,
 			uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class priority_class,
-			sim_time_type stop_time, unsigned int total_req_count,
+			sim_time_type stop_time, unsigned int total_requets_to_be_generated,
 			HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex);
 		IO_Flow_Priority_Class Priority_class() { return priority_class; }
 		virtual Host_IO_Reqeust* Generate_next_request() = 0;
@@ -67,7 +67,7 @@ namespace Host_Components
 		uint16_t nvme_completion_queue_size;
 		IO_Flow_Priority_Class priority_class;
 		sim_time_type stop_time;//The flow stops generating request when simulation time reaches stop_time
-		unsigned int total_req_count;//If stop_time is zero, then the flow stops generating request when the number of generated requests is equal to total_req_count
+		unsigned int total_requests_to_be_generated;//If stop_time is zero, then the flow stops generating request when the number of generated requests is equal to total_req_count
 		HostInterfaceType SSD_device_type;
 		PCIe_Root_Complex* pcie_root_complex;
 

@@ -23,11 +23,11 @@ void Execution_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 	{
 		for (auto param = node->first_node(); param; param = param->next_sibling())
 		{
-			if (strcmp(param->name(), "Host_Configuration") == 0)
+			if (strcmp(param->name(), "Host_Parameter_Set") == 0)
 			{
 				Host_Configuration.XML_deserialize(param);
 			}
-			else if (strcmp(param->name(), "SSD_Device_Configuration") == 0)
+			else if (strcmp(param->name(), "Device_Parameter_Set") == 0)
 			{
 				SSD_Device_Configuration.XML_deserialize(param);
 			}

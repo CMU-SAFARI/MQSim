@@ -15,6 +15,7 @@
 class Device_Parameter_Set : public Parameter_Set_Base
 {
 public:
+	static int Seed;
 	static HostInterfaceType HostInterface_Type;
 	static uint16_t IO_Queue_Depth;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ
 	static uint16_t Queue_Fetch_Size;//Used in NVMe host interface

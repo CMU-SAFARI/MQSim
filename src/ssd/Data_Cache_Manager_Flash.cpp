@@ -211,7 +211,7 @@ namespace SSD_Components
 						DataCacheSlotType evicted_slot = per_stream_cache[tr->Stream_id]->Evict_one_slot();
 						if (evicted_slot.Dirty)
 						{
-							evicted_cache_slots->push_back(new NVM_Transaction_Flash_WR(TransactionSourceType::USERIO,
+							evicted_cache_slots->push_back(new NVM_Transaction_Flash_WR(Transaction_Source_Type::USERIO,
 								tr->Stream_id, sector_count(evicted_slot.State_bitmap_of_existing_sectors) * SECTOR_SIZE_IN_BYTE,
 								evicted_slot.LPA, NULL, evicted_slot.Content, evicted_slot.State_bitmap_of_existing_sectors, evicted_slot.Timestamp));
 							cache_eviction_read_size_in_sectors += sector_count(evicted_slot.State_bitmap_of_existing_sectors);
@@ -257,7 +257,7 @@ namespace SSD_Components
 	void Data_Cache_Manager_Flash::handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction)
 	{
 		//First check if the transaction source is a user request or the cache itself
-		if (transaction->Source != TransactionSourceType::USERIO)
+		if (transaction->Source != Transaction_Source_Type::USERIO)
 			return;
 
 		if (Data_Cache_Manager_Flash::caching_mode_per_input_stream[transaction->Stream_id] != Caching_Mode::TURNED_OFF)
@@ -300,7 +300,7 @@ namespace SSD_Components
 								{
 									Memory_Transfer_Info* transfer_info = new Memory_Transfer_Info;
 									transfer_info->Size = sector_count(evicted_slot.State_bitmap_of_existing_sectors) * SECTOR_SIZE_IN_BYTE;
-									evicted_cache_slots->push_back(new NVM_Transaction_Flash_WR(TransactionSourceType::USERIO,
+									evicted_cache_slots->push_back(new NVM_Transaction_Flash_WR(Transaction_Source_Type::USERIO,
 										transaction->Stream_id, transfer_info->Size, evicted_slot.LPA, NULL, evicted_slot.Content,
 										evicted_slot.State_bitmap_of_existing_sectors, evicted_slot.Timestamp));
 									transfer_info->Related_request = evicted_cache_slots;

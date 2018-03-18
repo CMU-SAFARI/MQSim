@@ -5,6 +5,7 @@
 #include "../nvm_chip/flash_memory/FlashTypes.h"
 #include "../ssd/Host_Interface_Defs.h"
 #include "../host/IO_Flow_Synthetic.h"
+#include "../host/IO_Flow_Trace_Based.h"
 #include "Parameter_Set_Base.h"
 
 enum class Flow_Type { SYNTHETIC, TRACE };
@@ -48,6 +49,8 @@ class IO_Flow_Parameter_Set_Trace_Based : public IO_Flow_Parameter_Set
 public:
 	std::string File_Path;
 	int Percentage_To_Be_Executed;
+	int Relay_Count; 
+	Trace_Time_Unit Time_Unit;
 	
 	void XML_serialize(Utils::XmlWriter& xmlwriter);
 	void XML_deserialize(rapidxml::xml_node<> *node);

@@ -7,10 +7,10 @@ namespace Host_Components
 	//unsigned int InputStreamBase::lastId = 0;
 	IO_Flow_Base::IO_Flow_Base(const sim_object_id_type& name, LSA_type start_lsa_on_device, LSA_type end_lsa_on_device, uint16_t io_queue_id,
 		uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size,
-		IO_Flow_Priority_Class priority_class, sim_time_type stop_time, unsigned int total_req_count,
+		IO_Flow_Priority_Class priority_class, sim_time_type stop_time, unsigned int total_requets_to_be_generated,
 		HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex) :
 		MQSimEngine::Sim_Object(name), start_lsa_on_device(start_lsa_on_device), end_lsa_on_device(end_lsa_on_device), io_queue_id(io_queue_id),
-		priority_class(priority_class), stop_time(stop_time), total_req_count(total_req_count), SSD_device_type(SSD_device_type), pcie_root_complex(pcie_root_complex),
+		priority_class(priority_class), stop_time(stop_time), total_requests_to_be_generated(total_requets_to_be_generated), SSD_device_type(SSD_device_type), pcie_root_complex(pcie_root_complex),
 		STAT_generated_request_count(0), STAT_generated_read_request_count(0), STAT_generated_write_request_count(0),
 		STAT_ignored_request_count(0),
 		STAT_serviced_request_count(0), STAT_serviced_read_request_count(0), STAT_serviced_write_request_count(0),
@@ -181,7 +181,7 @@ namespace Host_Components
 		}
 		else
 		{
-			progress = int(STAT_serviced_request_count / (double)total_req_count * 100);
+			progress = int(STAT_serviced_request_count / (double)total_requests_to_be_generated * 100);
 		}
 		if (progress == next_progress_step)
 		{

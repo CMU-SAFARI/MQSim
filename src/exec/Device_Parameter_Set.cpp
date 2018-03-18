@@ -3,6 +3,7 @@
 
 
 
+int Device_Parameter_Set::Seed = 123;
 HostInterfaceType Device_Parameter_Set::HostInterface_Type = HostInterfaceType::NVME;
 uint16_t Device_Parameter_Set::IO_Queue_Depth = 1024;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ
 uint16_t Device_Parameter_Set::Queue_Fetch_Size = 512;//Used in NVMe host interface
@@ -40,8 +41,12 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	tmp = "Device_Parameter_Set";
 	xmlwriter.Write_open_tag(tmp);
 
-	std::string attr = "HostInterface_Type";
-	std::string val;
+	std::string attr = "Seed";
+	std::string val = std::to_string(Seed);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "HostInterface_Type";
+	val;
 	switch (HostInterface_Type)
 	{
 	case HostInterfaceType::NVME:
@@ -323,7 +328,12 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 	{
 		for (auto param = node->first_node(); param; param = param->next_sibling())
 		{
-			if (strcmp(param->name(), "HostInterface_Type") == 0)
+			if (strcmp(param->name(), "Seed") == 0)
+			{
+				std::string val = param->value();
+				Seed = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "HostInterface_Type") == 0)
 			{
 				std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
@@ -508,7 +518,8 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			else if (strcmp(param->name(), "Preemptible_GC_Enabled") == 0)
 			{
 				std::string val = param->value();
-				Preemptible_GC_Enabled = (val.compare("false") ? false : true);
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				Preemptible_GC_Enabled = (val.compare("FALSE") == 0? false : true);
 			}
 			else if (strcmp(param->name(), "GC_Hard_Threshold") == 0)
 			{
@@ -558,7 +569,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					Flash_Comm_Protocol = SSD_Components::ONFI_Protocol::NVDDR2;
 				else PRINT_ERROR("Unknown flash communication protocol type specified in the input file")
 			}
-			else if (strcmp(param->name(), "Flash_Parameters") == 0)
+			else if (strcmp(param->name(), "Flash_Parameter_Set") == 0)
 			{
 				Flash_Parameters.XML_deserialize(param);
 			}

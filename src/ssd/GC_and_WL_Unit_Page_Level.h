@@ -3,6 +3,9 @@
 
 #include "GC_and_WL_Unit_Base.h"
 #include "NVM_PHY_ONFI.h"
+#include "../utils/RandomGenerator.h"
+#include <queue>
+
 
 namespace SSD_Components
 {
@@ -25,7 +28,7 @@ namespace SSD_Components
 			GC_Block_Selection_Policy_Type BlockSelectionPolicy,
 			bool PreemptibleGCEnabled, double GCHardThreshold,
 			unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
-			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int SectorsPerPage);
+			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int SectorsPerPage, int seed);
 		void Setup_triggers();
 
 		/*This function is used for implementing preemptible GC execution. If for a flash chip the free block
@@ -33,12 +36,18 @@ namespace SSD_Components
 		* GC should go on in non-preemptible mode.*/
 		bool GC_is_in_urgent_mode(const NVM::FlashMemory::Chip*);
 
-		void CheckGCRequired(const unsigned int BlockPoolSize, const NVM::FlashMemory::Physical_Page_Address& planeAddress);
-		void CheckWLRequired(const double staticWLFactor, const NVM::FlashMemory::Physical_Page_Address planeAddress);
+		void Check_gc_required(const unsigned int free_block_pool_size, const NVM::FlashMemory::Physical_Page_Address& plane_address);
+		void Check_wl_required(const double static_wl_factor, const NVM::FlashMemory::Physical_Page_Address plane_address);
 	private:
-		GC_Block_Selection_Policy_Type blockSelectionPolicy;
+		GC_Block_Selection_Policy_Type block_selection_policy;
 		NVM_PHY_ONFI * flash_controller;
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
+
+		//Following variabels are used based on the type of GC block selection policy
+		unsigned int rga_set_size;//The number of random flash blocks that are radnomly selected 
+		Utils::RandomGenerator random_generator;
+		unsigned int random_pp_threshold;
+		std::queue<BlockPoolSlotType*> block_usage_fifo;
 	};
 }
 #endif // !GC_AND_WL_UNIT_PAGE_LEVEL_H

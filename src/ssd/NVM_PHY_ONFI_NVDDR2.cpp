@@ -457,13 +457,13 @@ namespace SSD_Components {
 				{
 					switch (dieBKE->ActiveTransactions.front()->Source)
 					{
-					case TransactionSourceType::USERIO:
+					case Transaction_Source_Type::USERIO:
 						_myInstance->WaitingReadTX[chip->ChannelID].push_back((*it));
 						break;
-					case TransactionSourceType::GC:
+					case Transaction_Source_Type::GC:
 						_myInstance->WaitingGCRead_TX[chip->ChannelID].push_back((*it));
 						break;
-					case TransactionSourceType::MAPPING:
+					case Transaction_Source_Type::MAPPING:
 						_myInstance->WaitingMappingRead_TX[chip->ChannelID].push_back((*it));
 						break;
 					}
