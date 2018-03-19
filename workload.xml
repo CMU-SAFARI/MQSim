@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <MQSim_IO_Scenarios>
-
+	<IO_Scenario>
+		<IO_Flow_Parameter_Set_Trace_Based>
+				 <Type>TRACE</Type>
+				 <Priority_Class>HIGH</Priority_Class>
+				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
+				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
+				 <Chip_IDs>0,1,2,3</Chip_IDs>
+				 <Die_IDs>0,1</Die_IDs>
+				 <Plane_IDs>0,1</Plane_IDs>
+				 <File_Path>D:\MQSim\MQSim\traces\tpcc-small.trace</File_Path>
+				 <Percentage_To_Be_Executed>1</Percentage_To_Be_Executed>
+				 <Relay_Count>1</Relay_Count>
+				 <Time_Unit>NANOSECOND</Time_Unit>
+		</IO_Flow_Parameter_Set_Trace_Based>
+	</IO_Scenario>
 	<IO_Scenario>
 		<IO_Flow_Parameter_Set_Synthetic>
 				 <Type>SYNTHETIC</Type>
@@ -40,20 +54,5 @@
 				 <Stop_Time>1000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
-	</IO_Scenario>
-	<IO_Scenario>
-		<IO_Flow_Parameter_Set_Trace_Based>
-				 <Type>TRACE</Type>
-				 <Priority_Class>HIGH</Priority_Class>
-				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
-				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1,2,3</Chip_IDs>
-				 <Die_IDs>0,1</Die_IDs>
-				 <Plane_IDs>0,1</Plane_IDs>
-				 <File_Path>traces/tpcc-small.trace</File_Path>
-				 <Percentage_To_Be_Executed>100</Percentage_To_Be_Executed>
-				 <Relay_Count>1</Relay_Count>
-				 <Time_Unit>NANOSECOND</Time_Unit>
-		</IO_Flow_Parameter_Set_Trace_Based>
 	</IO_Scenario>
 </MQSim_IO_Scenarios>

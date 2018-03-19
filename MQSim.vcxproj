@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{DF6B928B-78A2-4285-BFF8-8136B4AEDB6A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>MQSimvisualStudio</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <ProjectName>MQSim</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\exec\Device_Parameter_Set.h" />
+    <ClInclude Include="src\exec\Execution_Parameter_Set.h" />
+    <ClInclude Include="src\exec\Flash_Parameter_Set.h" />
+    <ClInclude Include="src\exec\Host_Parameter_Set.h" />
+    <ClInclude Include="src\exec\Host_System.h" />
+    <ClInclude Include="src\exec\IO_Flow_Parameter_Set.h" />
+    <ClInclude Include="src\exec\Parameter_Set_Base.h" />
+    <ClInclude Include="src\exec\SSD_Device.h" />
+    <ClInclude Include="src\host\ASCII_Trace_Definition.h" />
+    <ClInclude Include="src\host\Host_Defs.h" />
+    <ClInclude Include="src\host\Host_IO_Request.h" />
+    <ClInclude Include="src\host\IO_Flow_Base.h" />
+    <ClInclude Include="src\host\IO_Flow_Synthetic.h" />
+    <ClInclude Include="src\host\IO_Flow_Trace_Based.h" />
+    <ClInclude Include="src\host\PCIe_Link.h" />
+    <ClInclude Include="src\host\PCIe_Message.h" />
+    <ClInclude Include="src\host\PCIe_Root_Complex.h" />
+    <ClInclude Include="src\host\PCIe_Switch.h" />
+    <ClInclude Include="src\nvm_chip\flash_memory\Block.h" />
+    <ClInclude Include="src\nvm_chip\flash_memory\Chip.h" />
+    <ClInclude Include="src\nvm_chip\flash_memory\Die.h" />
+    <ClInclude Include="src\nvm_chip\flash_memory\FlashTypes.h" />
+    <ClInclude Include="src\nvm_chip\flash_memory\Flash_Command.h" />
+    <ClInclude Include="src\nvm_chip\flash_memory\Page.h" />
+    <ClInclude Include="src\nvm_chip\flash_memory\Physical_Page_Address.h" />
+    <ClInclude Include="src\nvm_chip\flash_memory\Plane.h" />
+    <ClInclude Include="src\nvm_chip\NVM_Types.h" />
+    <ClInclude Include="src\sim\Engine.h" />
+    <ClInclude Include="src\sim\EventTree.h" />
+    <ClInclude Include="src\sim\Sim_Defs.h" />
+    <ClInclude Include="src\sim\Sim_Event.h" />
+    <ClInclude Include="src\sim\Sim_Object.h" />
+    <ClInclude Include="src\sim\Sim_Reporter.h" />
+    <ClInclude Include="src\ssd\Address_Mapping_Unit_Base.h" />
+    <ClInclude Include="src\ssd\Address_Mapping_Unit_Hybrid.h" />
+    <ClInclude Include="src\ssd\Address_Mapping_Unit_Page_Level.h" />
+    <ClInclude Include="src\ssd\Data_Cache_Manager_Base.h" />
+    <ClInclude Include="src\ssd\Data_Cache_Manager_Flash.h" />
+    <ClInclude Include="src\ssd\FlashTransactionQueue.h" />
+    <ClInclude Include="src\ssd\Flash_Block_Manager.h" />
+    <ClInclude Include="src\ssd\Flash_Block_Manager_Base.h" />
+    <ClInclude Include="src\ssd\FTL.h" />
+    <ClInclude Include="src\ssd\GC_and_WL_Unit_Base.h" />
+    <ClInclude Include="src\ssd\GC_and_WL_Unit_Page_Level.h" />
+    <ClInclude Include="src\ssd\Host_Interface_Base.h" />
+    <ClInclude Include="src\ssd\Host_Interface_Defs.h" />
+    <ClInclude Include="src\ssd\Host_Interface_NVMe.h" />
+    <ClInclude Include="src\ssd\Host_Interface_SATA.h" />
+    <ClInclude Include="src\ssd\NVM_Channel_Base.h" />
+    <ClInclude Include="src\ssd\NVM_Firmware.h" />
+    <ClInclude Include="src\ssd\NVM_PHY_Base.h" />
+    <ClInclude Include="src\ssd\NVM_PHY_ONFI.h" />
+    <ClInclude Include="src\ssd\NVM_PHY_ONFI_NVDDR2.h" />
+    <ClInclude Include="src\ssd\NVM_Transaction.h" />
+    <ClInclude Include="src\ssd\NVM_Transaction_Flash.h" />
+    <ClInclude Include="src\ssd\NVM_Transaction_Flash_ER.h" />
+    <ClInclude Include="src\ssd\NVM_Transaction_Flash_RD.h" />
+    <ClInclude Include="src\ssd\NVM_Transaction_Flash_WR.h" />
+    <ClInclude Include="src\ssd\ONFI_Channel_Base.h" />
+    <ClInclude Include="src\ssd\ONFI_Channel_NVDDR2.h" />
+    <ClInclude Include="src\ssd\Queue_Probe.h" />
+    <ClInclude Include="src\ssd\SSD_Defs.h" />
+    <ClInclude Include="src\ssd\Stats.h" />
+    <ClInclude Include="src\ssd\TSU_Base.h" />
+    <ClInclude Include="src\ssd\TSU_OutofOrder.h" />
+    <ClInclude Include="src\ssd\User_Request.h" />
+    <ClInclude Include="src\utils\CMRRandomGenerator.h" />
+    <ClInclude Include="src\utils\RandomGenerator.h" />
+    <ClInclude Include="src\utils\rapidxml\rapidxml.hpp" />
+    <ClInclude Include="src\utils\rapidxml\rapidxml_iterators.hpp" />
+    <ClInclude Include="src\utils\rapidxml\rapidxml_print.hpp" />
+    <ClInclude Include="src\utils\rapidxml\rapidxml_utils.hpp" />
+    <ClInclude Include="src\utils\StringTools.h" />
+    <ClInclude Include="src\utils\XMLWriter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\exec\Device_Parameter_Set.cpp" />
+    <ClCompile Include="src\exec\Execution_Parameter_Set.cpp" />
+    <ClCompile Include="src\exec\Flash_Parameter_Set.cpp" />
+    <ClCompile Include="src\exec\Host_Parameter_Set.cpp" />
+    <ClCompile Include="src\exec\Host_System.cpp" />
+    <ClCompile Include="src\exec\IO_Flow_Parameter_Set.cpp" />
+    <ClCompile Include="src\exec\SSD_Device.cpp" />
+    <ClCompile Include="src\host\IO_Flow_Base.cpp" />
+    <ClCompile Include="src\host\IO_Flow_Synthetic.cpp" />
+    <ClCompile Include="src\host\IO_Flow_Trace_Based.cpp" />
+    <ClCompile Include="src\host\PCIe_Link.cpp" />
+    <ClCompile Include="src\host\PCIe_Root_Complex.cpp" />
+    <ClCompile Include="src\host\PCIe_Switch.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\nvm_chip\flash_memory\Block.cpp" />
+    <ClCompile Include="src\nvm_chip\flash_memory\Chip.cpp" />
+    <ClCompile Include="src\nvm_chip\flash_memory\Die.cpp" />
+    <ClCompile Include="src\nvm_chip\flash_memory\Physical_Page_Address.cpp" />
+    <ClCompile Include="src\nvm_chip\flash_memory\Plane.cpp" />
+    <ClCompile Include="src\sim\Engine.cpp" />
+    <ClCompile Include="src\sim\EventTree.cpp" />
+    <ClCompile Include="src\ssd\Address_Mapping_Unit_Base.cpp" />
+    <ClCompile Include="src\ssd\Address_Mapping_Unit_Hybrid.cpp" />
+    <ClCompile Include="src\ssd\Address_Mapping_Unit_Page_Level.cpp" />
+    <ClCompile Include="src\ssd\Data_Cache_Manager_Base.cpp" />
+    <ClCompile Include="src\ssd\Data_Cache_Manager_Flash.cpp" />
+    <ClCompile Include="src\ssd\FlashTransactionQueue.cpp" />
+    <ClCompile Include="src\ssd\Flash_Block_Manager.cpp" />
+    <ClCompile Include="src\ssd\Flash_Block_Manager_Base.cpp" />
+    <ClCompile Include="src\ssd\FTL.cpp" />
+    <ClCompile Include="src\ssd\GC_and_WL_Unit_Base.cpp" />
+    <ClCompile Include="src\ssd\GC_and_WL_Unit_Page_Level.cpp" />
+    <ClCompile Include="src\ssd\Host_Interface_Base.cpp" />
+    <ClCompile Include="src\ssd\Host_Interface_NVMe.cpp" />
+    <ClCompile Include="src\ssd\NVM_Firmware.cpp" />
+    <ClCompile Include="src\ssd\NVM_PHY_Base.cpp" />
+    <ClCompile Include="src\ssd\NVM_PHY_ONFI.cpp" />
+    <ClCompile Include="src\ssd\NVM_PHY_ONFI_NVDDR2.cpp" />
+    <ClCompile Include="src\ssd\NVM_Transaction_Flash.cpp" />
+    <ClCompile Include="src\ssd\NVM_Transaction_Flash_ER.cpp" />
+    <ClCompile Include="src\ssd\NVM_Transaction_Flash_RD.cpp" />
+    <ClCompile Include="src\ssd\NVM_Transaction_Flash_WR.cpp" />
+    <ClCompile Include="src\ssd\ONFI_Channel_Base.cpp" />
+    <ClCompile Include="src\ssd\ONFI_Channel_NVDDR2.cpp" />
+    <ClCompile Include="src\ssd\Queue_Probe.cpp" />
+    <ClCompile Include="src\ssd\Stats.cpp" />
+    <ClCompile Include="src\ssd\TSU_Base.cpp" />
+    <ClCompile Include="src\ssd\TSU_OutofOrder.cpp" />
+    <ClCompile Include="src\ssd\User_Request.cpp" />
+    <ClCompile Include="src\utils\CMRRandomGenerator.cpp" />
+    <ClCompile Include="src\utils\RandomGenerator.cpp" />
+    <ClCompile Include="src\utils\StringTools.cpp" />
+    <ClCompile Include="src\utils\XMLWriter.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
