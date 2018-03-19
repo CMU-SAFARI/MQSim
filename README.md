@@ -22,7 +22,7 @@ Example command line execution:
 
 $MQSim.exe -i ./ssdconfig.xml -w ./workload.xml
 
-## SSD Configuratoin
+## MQSim Configuratoin for Execution
 
 You can specify your preferred SSD configuration in XML format. If the specified SSD configuration (i.e., ssdconfig.xml in our example) does not exist, MQSim will create a sample XML file for you. Here is the definition of configuration parameters:
 
@@ -61,3 +61,42 @@ You can specify your preferred SSD configuration in XML format. If the specified
 26. Channel_Transfer_Rate: the transfer rate of flash channels in the SSD back end in MT/s unit. Range = {all positive integer values}.
 27. Chip_No_Per_Channel: number of flash chips attached to each channel in the SSD back end. Range = {all positive integer values}.
 28. Flash_Comm_Protocol: the ONFI protocol used for data transfer over flash channels in the SSD back end. Range = {NVDDR2}.
+
+### NAND Flash
+
+1. Flash_Technology: Range = {SLC, MLC, TLC}.
+2. CMD_Suspension_Support: type of suspend command support by flash chips. Range = {NONE, PROGRAM, PROGRAM_ERASE, ERASE}.
+3. Page_Read_Latency_LSB: the latency of reading LSB bits of flash memory cells in nanoseconds. Range = {all positive integer values}.
+4. Page_Read_Latency_CSB: the latency of reading CSB bits of flash memory cells in nanoseconds. Range = {all positive integer values}.
+5. Page_Read_Latency_MSB: the latency of reading MSB bits of flash memory cells in nanoseconds. Range = {all positive integer values}.
+6  Page_Program_Latency_LSB: the latency of programming LSB bits of flash memory cells in nanoseconds. Range = {all positive integer values}.
+7. Page_Program_Latency_CSB: the latency of programming CSB bits of flash memory cells in nanoseconds. Range = {all positive integer values}.
+8. Page_Program_Latency_MSB: the latency of programming MSB bits of flash memory cells in nanoseconds. Range = {all positive integer values}.
+9. Block_Erase_Latency: the latency of erasing a flash block in nanoseconds. Range = {all positive integer values}.
+10. Block_PE_Cycles_Limit: the PE limit of each flash block. Range = {all positive integer values}.
+11. Suspend_Erase_Time: the time taken to suspend an ongoing erase operation, in nanoseconds. Range = {all positive integer values}.
+12. Suspend_Program_Time: the time taken to suspend an ongoing program operation, in nanoseconds. Range = {all positive integer values}.
+13. Die_No_Per_Chip: number of dies in each flash chip. Range = {all positive integer values}.
+14. Plane_No_Per_Die: number of planes in each die. Range = {all positive integer values}.
+15. Block_No_Per_Plane: number of flash blocks in each plane. Range = {all positive integer values}.
+16. Page_No_Per_Block: number of physical pages in each flash block. Range = {all positive integer values}.
+17. Page_Capacity: size of each physical flash page in bytes. Range = {all positive integer values}.
+18. Page_Metadat_Capacity: size of metadata area of each physical flash page in bytes. Range = {all positive integer values}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
