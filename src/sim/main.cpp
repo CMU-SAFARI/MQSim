@@ -238,8 +238,13 @@ void collect_results(SSD_Device& ssd, Host_System& host, const char* output_file
 	Utils::XmlWriter xmlwriter;
 	xmlwriter.Open(output_file_path);
 
-	host.Report_results_in_XML(xmlwriter);
-	ssd.Report_results_in_XML(xmlwriter);
+	std::string tmp("MQSim_Results");
+	xmlwriter.Write_open_tag(tmp);
+	
+	host.Report_results_in_XML("", xmlwriter);
+	ssd.Report_results_in_XML("", xmlwriter);
+
+	xmlwriter.Write_close_tag();
 
 	std::vector<Host_Components::IO_Flow_Base*> IO_flows = host.Get_io_flows();
 	for (int stream_id = 0; stream_id < IO_flows.size(); stream_id++)
