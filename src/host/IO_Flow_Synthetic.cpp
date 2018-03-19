@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdexcept>
 #include "../sim/Engine.h"
 #include "IO_Flow_Synthetic.h"
 
@@ -23,7 +24,7 @@ namespace Host_Components
 		random_request_type_generator = new Utils::RandomGenerator(seed++);
 		random_address_generator = new Utils::RandomGenerator(seed++);
 		if (start_lsa_on_device > end_lsa_on_device)
-			throw "Problem in IO Flow Synthetic, the start LBA address is greater than the end LBA address";
+			throw std::logic_error("Problem in IO Flow Synthetic, the start LBA address is greater than the end LBA address");
 		if (address_distribution == Address_Distribution_Type::HOTCOLD_RANDOM)
 		{
 			random_hot_address_generator = new Utils::RandomGenerator(seed++);
@@ -72,7 +73,7 @@ namespace Host_Components
 			break;
 		}
 		default:
-			throw "Uknown distribution type for requset size.\n";
+			throw std::invalid_argument("Uknown distribution type for requset size.");
 		}
 
 		switch (address_distribution)

@@ -3,7 +3,7 @@
 
 namespace NVM
 {
-	enum class NVM_Type {Flash};
+	enum class NVM_Type {FLASH};
 }
 
 #endif // ! NVM_TYPES_H

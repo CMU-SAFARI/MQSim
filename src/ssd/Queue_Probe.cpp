@@ -32,7 +32,7 @@ namespace SSD_Components
 		nDeparturesEpoch++;
 
 		if (transaction == NULL)
-			throw "Object can not be null if accurateTimingEnabled=ture";
+			throw std::logic_error("Object can not be null if accurateTimingEnabled=ture");
 		sim_time_type et = currentObjectsInQueue[transaction];
 		currentObjectsInQueue.erase(transaction);
 		sim_time_type tc = Simulator->Time() - et;

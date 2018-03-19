@@ -9,6 +9,7 @@
 #include "../ssd/TSU_Base.h"
 #include "../ssd/ONFI_Channel_Base.h"
 #include "../ssd/GC_and_WL_Unit_Page_Level.h"
+#include "../nvm_chip/NVM_Types.h"
 #include "Parameter_Set_Base.h"
 #include "Flash_Parameter_Set.h"
 
@@ -16,6 +17,7 @@ class Device_Parameter_Set : public Parameter_Set_Base
 {
 public:
 	static int Seed;
+	static NVM::NVM_Type Memory_Type;
 	static HostInterfaceType HostInterface_Type;
 	static uint16_t IO_Queue_Depth;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ
 	static uint16_t Queue_Fetch_Size;//Used in NVMe host interface

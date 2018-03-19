@@ -62,19 +62,26 @@ namespace Host_Components
 		trace_file.open(trace_file_path, std::ios::in);
 		if(!trace_file.is_open())
 			PRINT_ERROR("Error while opening input trace file!")
+
+		PRINT_MESSAGE("Investigating input trace file: " << trace_file_path)
 		std::string trace_line;
 		char* pEnd;
-		sim_time_type last_request_arrival_time;
+		sim_time_type last_request_arrival_time = 0;
 		while (std::getline(trace_file, trace_line))
 		{
 			current_trace_line.clear();
-			Utils::tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
+			Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
 			if (current_trace_line.size() != ASCIIItemsPerLine)
 				break;
 			total_requests_in_file++;
+			sim_time_type prev_time = last_request_arrival_time;
 			last_request_arrival_time = std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10);
+			if(last_request_arrival_time < prev_time)
+				PRINT_ERROR("Unexpected request arrival time: " << last_request_arrival_time << "\nMQSim expects request arrival times to be monotonic increasing in the input trace!")
 		}
 		trace_file.close();
+		PRINT_MESSAGE("Trace file: " << trace_file_path << " seems healthy")
+
 		if (total_replay_no == 1)
 			total_requests_to_be_generated = (int) (((double)percentage_to_be_simulated / 100) * total_requests_in_file);
 		else
@@ -83,7 +90,7 @@ namespace Host_Components
 		trace_file.open(trace_file_path);
 		current_trace_line.clear();
 		std::getline(trace_file, trace_line);
-		Utils::tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
+		Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
 		Simulator->Register_sim_event(std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10), this);
 	}
 
@@ -103,7 +110,7 @@ namespace Host_Components
 			if (std::getline(trace_file, trace_line))
 			{
 				current_trace_line.clear();
-				Utils::tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
+				Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
 			}
 			else
 			{
@@ -113,7 +120,7 @@ namespace Host_Components
 				time_offset = Simulator->Time();
 				std::getline(trace_file, trace_line);
 				current_trace_line.clear();
-				Utils::tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
+				Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
 				PRINT_MESSAGE("* Replay ound "<< replay_counter << "of "<< total_replay_no << " started  for" << ID())
 			}
 			char* pEnd;

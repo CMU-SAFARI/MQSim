@@ -7,6 +7,7 @@ namespace Utils
 		std::fstream checkFile(fileName);
 		return checkFile.is_open();
 	}
+	
 	bool XmlWriter::Open(const std::string strFile) {
 
 		outFile.open(strFile);
@@ -21,11 +22,13 @@ namespace Utils
 
 		return false;
 	}
+	
 	void XmlWriter::Close() {
 		if (outFile.is_open()) {
 			outFile.close();
 		}
 	}
+	
 	void XmlWriter::Write_open_tag(const std::string openTag) {
 		if (outFile.is_open()) {
 			for (int i = 0; i < indent; i++) {
@@ -41,6 +44,20 @@ namespace Utils
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
+	
+	void XmlWriter::Write_attribute_string(const std::string attribute_name, const std::string attribute_value)
+	{
+		if (outFile.is_open()) {
+			for (int i = 0; i < indent + 1; i++)
+				outFile << "\t";
+
+			outFile << " <" << attribute_name + ">" + attribute_value + "</" << attribute_name + ">\n";
+		}
+		else {
+			PRINT_ERROR("The XML output file is closed. Unable to write to file");
+		}
+	}
+	
 	void XmlWriter::Write_close_tag() {
 		if (outFile.is_open()) {
 			indent -= 1;
@@ -55,6 +72,7 @@ namespace Utils
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
+	
 	void XmlWriter::Write_start_element_tag(const std::string elementTag) {
 		if (outFile.is_open()) {
 			for (int i = 0; i < indent; i++) {
@@ -70,9 +88,11 @@ namespace Utils
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
+
 	void XmlWriter::Write_end_element_tag() {
 		if (outFile.is_open()) {
-			outFile << "</" << tempElementTag[openElements - 1] << ">\n";
+			outFile << "/>\n";
+			//outFile << "</" << tempElementTag[openElements - 1] << ">\n";
 			tempElementTag.resize(openElements - 1);
 			openElements -= 1;
 		}
@@ -80,6 +100,7 @@ namespace Utils
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
+
 	void XmlWriter::Write_attribute(const std::string outAttribute) {
 		if (outFile.is_open()) {
 			outFile << " " << outAttribute;
@@ -88,18 +109,18 @@ namespace Utils
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
-	void XmlWriter::Write_attribute_string(const std::string attribute_name, const std::string attribute_value)
+
+	void XmlWriter::Write_attribute_string_inline(const std::string attribute_name, const std::string attribute_value)
 	{
 		if (outFile.is_open()) {
-			for (int i = 0; i < indent + 1; i++)
-				outFile << "\t";
-			
-			outFile << " <" << attribute_name + ">" + attribute_value + "</" << attribute_name + ">\n";
+			outFile << " ";
+			outFile << attribute_name + "=\"" + attribute_value + "\"";
 		}
 		else {
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
+
 	void XmlWriter::Write_string(const std::string outString) {
 		if (outFile.is_open()) {
 			outFile << ">" << outString;

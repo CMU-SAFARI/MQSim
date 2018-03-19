@@ -36,7 +36,7 @@ namespace Host_Components
 				switch (io_queue_id)//id = 0: admin queues, id = 1 to 8, normal I/O queues
 				{
 				case 0:
-					throw "I/O queue id 0 is reserved for NVMe admin queues and should not be used for I/O flows";
+					throw std::logic_error("I/O queue id 0 is reserved for NVMe admin queues and should not be used for I/O flows");
 					/*
 					nvme_queue_pair.Submission_queue_memory_base_address = SUBMISSION_QUEUE_MEMORY_0;
 					nvme_queue_pair.Submission_tail_register_address_on_device = SUBMISSION_QUEUE_REGISTER_0;
@@ -205,7 +205,7 @@ namespace Host_Components
 		Submission_Queue_Entry* sqe = new Submission_Queue_Entry;
 		Host_IO_Reqeust* request = enqueued_requests[(uint16_t)((address - nvme_queue_pair.Submission_queue_memory_base_address) / sizeof(Submission_Queue_Entry))];
 		if (request == NULL)
-			throw this->ID() + std::string(": Request to access a submission queue entry that does not exist.\n");
+			throw std::invalid_argument(this->ID() + ": Request to access a submission queue entry that does not exist.");
 		sqe->Command_Identifier = request->IO_queue_info;
 		if (request->Type == Host_IO_Request_Type::READ)
 		{
@@ -313,10 +313,9 @@ namespace Host_Components
 		return (uint32_t)(STAT_max_request_delay / SIM_TIME_TO_MICROSECONDS_COEFF);
 	}
 
-	void IO_Flow_Base::Report_results_in_XML(Utils::XmlWriter& xmlwriter)
+	void IO_Flow_Base::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
 	{
-		std::string tmp;
-		tmp = "IO_Flow";
+		std::string tmp = name_prefix + ".IO_Flow";
 		xmlwriter.Write_open_tag(tmp);
 
 

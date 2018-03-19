@@ -4,6 +4,7 @@
 
 
 int Device_Parameter_Set::Seed = 123;
+NVM::NVM_Type Device_Parameter_Set::Memory_Type = NVM::NVM_Type::FLASH;
 HostInterfaceType Device_Parameter_Set::HostInterface_Type = HostInterfaceType::NVME;
 uint16_t Device_Parameter_Set::IO_Queue_Depth = 1024;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ
 uint16_t Device_Parameter_Set::Queue_Fetch_Size = 512;//Used in NVMe host interface
@@ -43,6 +44,18 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 
 	std::string attr = "Seed";
 	std::string val = std::to_string(Seed);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Memory_Type";
+	val;
+	switch (Memory_Type)
+	{
+	case NVM::NVM_Type::FLASH:
+		val = "FLASH";
+		break;
+	default:
+		break;
+	}
 	xmlwriter.Write_attribute_string(attr, val);
 
 	attr = "HostInterface_Type";
@@ -333,6 +346,14 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::string val = param->value();
 				Seed = std::stoi(val);
 			}
+			else if (strcmp(param->name(), "Memory_Type") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "FLASH") == 0)
+					Memory_Type = NVM::NVM_Type::FLASH;
+				else PRINT_ERROR("Unknown NVM type specified in the SSD configuration file")
+			}
 			else if (strcmp(param->name(), "HostInterface_Type") == 0)
 			{
 				std::string val = param->value();
@@ -341,7 +362,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					HostInterface_Type = HostInterfaceType::NVME;
 				else if (strcmp(val.c_str(), "SATA") == 0)
 					HostInterface_Type = HostInterfaceType::SATA;
-				else PRINT_ERROR("Unknown host interface type specified in the input file")
+				else PRINT_ERROR("Unknown host interface type specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "IO_Queue_Depth") == 0)
 			{
@@ -361,7 +382,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					Data_Cache_Sharing_Mode = SSD_Components::Cache_Sharing_Mode::SHARED;
 				else if (strcmp(val.c_str(), "EQUAL_PARTITIONING") == 0)
 					Data_Cache_Sharing_Mode = SSD_Components::Cache_Sharing_Mode::EQUAL_PARTITIONING;
-				else PRINT_ERROR("Unknown data cache sharing mode specified in the input file")
+				else PRINT_ERROR("Unknown data cache sharing mode specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "Data_Cache_Capacity") == 0)
 			{
@@ -406,7 +427,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					Address_Mapping = SSD_Components::Flash_Address_Mapping_Type::PAGE_LEVEL;
 				else if (strcmp(val.c_str(), "HYBRID") == 0)
 					Address_Mapping = SSD_Components::Flash_Address_Mapping_Type::HYBRID;
-				else PRINT_ERROR("Unknown address mapping type specified in the input file")
+				else PRINT_ERROR("Unknown address mapping type specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "CMT_Capacity") == 0)
 			{
@@ -421,7 +442,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					CMT_Sharing_Mode = SSD_Components::CMT_Sharing_Mode::SHARED;
 				else if (strcmp(val.c_str(), "EQUAL_SIZE_PARTITIONING") == 0)
 					CMT_Sharing_Mode = SSD_Components::CMT_Sharing_Mode::EQUAL_SIZE_PARTITIONING;
-				else PRINT_ERROR("Unknown CMT sharing mode specified in the input file")
+				else PRINT_ERROR("Unknown CMT sharing mode specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "Plane_Allocation_Scheme") == 0)
 			{
@@ -477,7 +498,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::WPDC;
 				else if (strcmp(val.c_str(), "F") == 0)
 					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::F;
-				else PRINT_ERROR("Unknown plane allocation scheme type specified in the input file")
+				else PRINT_ERROR("Unknown plane allocation scheme type specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "Transaction_Scheduling_Policy") == 0)
 			{
@@ -485,7 +506,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "OUT_OF_ORDER") == 0)
 					Transaction_Scheduling_Policy = SSD_Components::Flash_Scheduling_Type::OUT_OF_ORDER;
-				else PRINT_ERROR("Unknown transaction scheduling type specified in the input file")
+				else PRINT_ERROR("Unknown transaction scheduling type specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "Overprovisioning_Ratio") == 0)
 			{
@@ -513,7 +534,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::RANDOM_PP;
 				else if (strcmp(val.c_str(), "FIFO") == 0)
 					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::FIFO;
-				else PRINT_ERROR("Unknown GC block selection policy specified in the input file")
+				else PRINT_ERROR("Unknown GC block selection policy specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "Preemptible_GC_Enabled") == 0)
 			{
@@ -567,7 +588,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "NVDDR2") == 0)
 					Flash_Comm_Protocol = SSD_Components::ONFI_Protocol::NVDDR2;
-				else PRINT_ERROR("Unknown flash communication protocol type specified in the input file")
+				else PRINT_ERROR("Unknown flash communication protocol type specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "Flash_Parameter_Set") == 0)
 			{

@@ -1,3 +1,4 @@
+#include <string>
 #include "TSU_Base.h"
 
 namespace SSD_Components
@@ -29,12 +30,22 @@ namespace SSD_Components
 		{
 			LastChip[channelID] = 0;
 			UserReadTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];
-			UserWriteTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];;
-			GCReadTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];;
-			GCWriteTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];;
-			GCEraseTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];;
-			MappingReadTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];;
-			MappingWriteTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];;
+			UserWriteTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];
+			GCReadTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];
+			GCWriteTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];
+			GCEraseTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];
+			MappingReadTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];
+			MappingWriteTRQueue[channelID] = new FlashTransactionQueue[chip_no_per_channel];
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+			{
+				UserReadTRQueue[channelID][chip_cntr].Set_id("User_Read_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				UserWriteTRQueue[channelID][chip_cntr].Set_id("User_Write_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				GCReadTRQueue[channelID][chip_cntr].Set_id("GC_Read_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				MappingReadTRQueue[channelID][chip_cntr].Set_id("Mapping_Read_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				MappingWriteTRQueue[channelID][chip_cntr].Set_id("Mapping_Write_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				GCWriteTRQueue[channelID][chip_cntr].Set_id("GC_Write_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				GCEraseTRQueue[channelID][chip_cntr].Set_id("GC_Erase_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+			}
 		}
 	}
 
@@ -75,5 +86,36 @@ namespace SSD_Components
 				if (!_myInstance->service_write_transaction(chip))
 					_myInstance->service_erase_transaction(chip);
 		}
+	}
+
+	void TSU_Base::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
+	{
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				UserReadTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".User_Read_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				UserWriteTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".User_Write_TR_Queue", xmlwriter);
+		
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				MappingReadTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".Mapping_Read_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				MappingWriteTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".Mapping_Write_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				GCReadTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".GC_Read_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				GCWriteTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".GC_Write_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				GCEraseTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".GC_Erase_TR_Queue", xmlwriter);
 	}
 }

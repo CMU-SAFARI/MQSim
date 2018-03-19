@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdexcept>
 #include "Data_Cache_Manager_Flash.h"
 #include "NVM_Transaction_Flash_RD.h"
 #include "NVM_Transaction_Flash_WR.h"
@@ -42,9 +43,9 @@ namespace SSD_Components
 	{
 		LPA_type key = LPN_TO_UNIQUE_KEY(stream_id, lpn);
 		if (slots.find(key) != slots.end())
-			throw "Duplicate lpn insertion into data cache!";
+			throw std::logic_error("Duplicate lpn insertion into data cache!");
 		if (slots.size() >= capacity_in_pages)
-			throw "Data cache overfull!";
+			throw std::logic_error("Data cache overfull!");
 
 		DataCacheSlotType* cache_slot = new DataCacheSlotType();
 		cache_slot->LPA = lpn;
@@ -61,9 +62,9 @@ namespace SSD_Components
 	{
 		LPA_type key = LPN_TO_UNIQUE_KEY(stream_id, lpn);
 		if (slots.find(key) != slots.end())
-			throw "Duplicate lpn insertion into data cache!";
+			throw std::logic_error("Duplicate lpn insertion into data cache!!");
 		if (slots.size() >= capacity_in_pages)
-			throw "Data cache overfull!";
+			throw std::logic_error("Data cache overfull!");
 
 		DataCacheSlotType* cache_slot = new DataCacheSlotType();
 		cache_slot->LPA = lpn;
@@ -259,6 +260,15 @@ namespace SSD_Components
 		//First check if the transaction source is a user request or the cache itself
 		if (transaction->Source != Transaction_Source_Type::USERIO)
 			return;
+
+		/* This is an update read (a read that is generated for a write request that partially updates page data).
+		*  An update read transaction is issued in Address Mapping Unit, but is consumed in data cache manager.*/
+		if (transaction->Type == TransactionType::READ)
+			if (((NVM_Transaction_Flash_RD*)transaction)->RelatedWrite != NULL)
+			{
+				((NVM_Transaction_Flash_RD*)transaction)->RelatedWrite->RelatedRead = NULL;
+				return;
+			}
 
 		if (Data_Cache_Manager_Flash::caching_mode_per_input_stream[transaction->Stream_id] != Caching_Mode::TURNED_OFF)
 		{

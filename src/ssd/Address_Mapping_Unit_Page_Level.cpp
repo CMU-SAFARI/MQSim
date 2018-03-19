@@ -1,5 +1,6 @@
 #include <cmath>
 #include <assert.h>
+#include <stdexcept>
 
 #include "Address_Mapping_Unit_Page_Level.h"
 #include "Stats.h"
@@ -35,6 +36,14 @@ namespace SSD_Components
 		lruList.splice(lruList.begin(), lruList, it->second->listPtr);
 		return it->second->PPA;
 	}
+	page_status_type Cached_Mapping_Table::Get_bitmap_vector_of_written_sectors(const stream_id_type streamID, const LPA_type lpn)
+	{
+		LPA_type key = LPN_TO_UNIQUE_KEY(streamID, lpn);
+		auto it = addressMap.find(key);
+		assert(it != addressMap.end());
+		assert(it->second->Status == CMTEntryStatus::VALID);
+		return it->second->WrittenStateBitmap;
+	}
 	void Cached_Mapping_Table::Update_mapping_info(const stream_id_type streamID, const LPA_type lpa, const PPA_type ppa, const page_status_type pageWriteState)
 	{
 		LPA_type key = LPN_TO_UNIQUE_KEY(streamID, lpa);
@@ -52,7 +61,7 @@ namespace SSD_Components
 		LPA_type key = LPN_TO_UNIQUE_KEY(streamID, lpa);
 		auto it = addressMap.find(key);
 		if (it == addressMap.end())
-			throw "No slot is reserved!";
+			throw std::logic_error("No slot is reserved!");
 
 		it->second->Status = CMTEntryStatus::VALID;
 
@@ -60,14 +69,6 @@ namespace SSD_Components
 		it->second->WrittenStateBitmap = pageWriteState;
 		it->second->Dirty = false;
 		DEBUG("Address mapping table insert entry - Stream ID:" << streamID << ", LPA:" << lpa << ", PPA:" << ppa)
-	}
-	page_status_type Cached_Mapping_Table::Get_bitmap_vector_of_written_sectors(const stream_id_type streamID, const LPA_type lpn)
-	{
-		LPA_type key = LPN_TO_UNIQUE_KEY(streamID, lpn);
-		auto it = addressMap.find(key);
-		assert(it != addressMap.end());
-		assert(it->second->Status == CMTEntryStatus::VALID);
-		return it->second->WrittenStateBitmap;
 	}
 	bool Cached_Mapping_Table::Is_slot_reserved_for_lpn_and_waiting(const stream_id_type streamID, const LPA_type lpn)
 	{
@@ -86,9 +87,9 @@ namespace SSD_Components
 	{
 		LPA_type key = LPN_TO_UNIQUE_KEY(streamID, lpn);
 		if (addressMap.find(key) != addressMap.end())
-			throw "Duplicate lpa insertion into CMT!";
+			throw std::logic_error("Duplicate lpa insertion into CMT!");
 		if (addressMap.size() >= capacity)
-			throw "CMT overfull!";
+			throw std::logic_error("CMT overfull!");
 
 		CMTSlotType* cmtEnt = new CMTSlotType();
 		cmtEnt->Dirty = false;
@@ -111,7 +112,7 @@ namespace SSD_Components
 		LPA_type key = LPN_TO_UNIQUE_KEY(streamID, lpn);
 		auto it = addressMap.find(key);
 		if (it == addressMap.end())
-			throw "The requested slot does not exist!";
+			throw std::logic_error("The requested slot does not exist!");
 
 		return it->second->Dirty;
 	}
@@ -120,7 +121,7 @@ namespace SSD_Components
 		LPA_type key = LPN_TO_UNIQUE_KEY(streamID, lpn);
 		auto it = addressMap.find(key);
 		if (it == addressMap.end())
-			throw "The requested slot does not exist!";
+			throw std::logic_error("The requested slot does not exist!");
 
 		it->second->Dirty = false;
 	}
@@ -156,7 +157,7 @@ namespace SSD_Components
 		{
 			GlobalMappingTable[i].PPA = NO_PPA;
 			GlobalMappingTable[i].WrittenStateBitmap = UNWRITTEN_LOGICAL_PAGE;
-			GlobalMappingTable[i].TimeStamp = INVALID_TIME_STAMP;
+			GlobalMappingTable[i].TimeStamp = 0;
 		}
 
 		if (CMT == NULL)//If CMT is NULL, then each address mapping domain should create its own CMT
@@ -265,8 +266,13 @@ namespace SSD_Components
 		ftl->TSU->Prepare_for_transaction_submit();
 		for (std::list<NVM_Transaction*>::const_iterator it = transactionList.begin();
 			it != transactionList.end(); it++)
-			if(((NVM_Transaction_Flash*)(*it))->Physical_address_determined)
+			if (((NVM_Transaction_Flash*)(*it))->Physical_address_determined)
+			{
 				ftl->TSU->Submit_transaction(static_cast<NVM_Transaction_Flash*>(*it));
+				if (((NVM_Transaction_Flash*)(*it))->Type == TransactionType::WRITE)
+					if (((NVM_Transaction_Flash_WR*)(*it))->RelatedRead != NULL)
+						_myInstance->ftl->TSU->Submit_transaction(((NVM_Transaction_Flash_WR*)(*it))->RelatedRead);
+			}
 		ftl->TSU->Schedule();
 	}
 
@@ -565,6 +571,29 @@ namespace SSD_Components
 		}
 		else//This is a write transaction
 		{
+			if (ppa != NO_PPA)//check if an update read is required
+			{
+				page_status_type previous_status = domains[streamID]->CMT->Get_bitmap_vector_of_written_sectors(streamID, transaction->LPA);
+				page_status_type status_intersection = previous_status & ((NVM_Transaction_Flash_WR*)transaction)->write_sectors_bitmap;
+				if (status_intersection != previous_status)
+				{
+					page_status_type read_pages_bitmap = status_intersection ^ previous_status;
+					unsigned int transaction_size = 0;
+					uint64_t mask = 0x0000000000000001;
+					page_status_type temp = read_pages_bitmap;
+					for (uint64_t i = 0; i < 64; i++)
+					{
+						if ((temp & mask) != 0)
+							transaction_size++;
+						mask <<= 1;
+					}
+					NVM_Transaction_Flash_RD* update_read = new NVM_Transaction_Flash_RD(Transaction_Source_Type::USERIO,
+						transaction->Stream_id, transaction_size * SECTOR_SIZE_IN_BYTE, transaction->LPA,
+						transaction->UserIORequest, 0, read_pages_bitmap, domains[streamID]->GlobalMappingTable[transaction->LPA].TimeStamp);
+					((NVM_Transaction_Flash_WR*)transaction)->RelatedRead = update_read;
+					update_read->RelatedWrite = ((NVM_Transaction_Flash_WR*)transaction);
+				}
+			}
 			allocate_plane_for_user_write((NVM_Transaction_Flash_WR*)transaction);
 			allocate_page_in_plane_for_user_write((NVM_Transaction_Flash_WR*)transaction);
 		}
@@ -806,7 +835,7 @@ namespace SSD_Components
 					domain->GlobalMappingTable[lpn].PPA = evictedItem.PPA;
 					domain->GlobalMappingTable[lpn].WrittenStateBitmap = evictedItem.WrittenStateBitmap;
 					if (domain->GlobalMappingTable[lpn].TimeStamp > CurrentTimeStamp)
-						throw "Unexpected situation occured in handling GMT!";
+						throw std::logic_error("Unexpected situation occured in handling GMT!");
 					domain->GlobalMappingTable[lpn].TimeStamp = CurrentTimeStamp;
 					generate_flash_writeback_request_for_mapping_data(stream_id, lpn);
 				}
@@ -840,7 +869,7 @@ namespace SSD_Components
 						domain->GlobalMappingTable[lpn].PPA = evictedItem.PPA;
 						domain->GlobalMappingTable[lpn].WrittenStateBitmap = evictedItem.WrittenStateBitmap;
 						if (domain->GlobalMappingTable[lpn].TimeStamp > CurrentTimeStamp)
-							throw "Unexpected situation occured in handling GMT!";
+							throw std::logic_error("Unexpected situation occured in handling GMT!");
 						domain->GlobalMappingTable[lpn].TimeStamp = CurrentTimeStamp;
 						generate_flash_writeback_request_for_mapping_data(stream_id, lpn);
 					}
@@ -867,7 +896,7 @@ namespace SSD_Components
 					domain->GlobalMappingTable[lpn].PPA = evictedItem.PPA;
 					domain->GlobalMappingTable[lpn].WrittenStateBitmap = evictedItem.WrittenStateBitmap;
 					if (domain->GlobalMappingTable[lpn].TimeStamp > CurrentTimeStamp)
-						throw "Unexpected situation occured in handling GMT!";
+						throw std::logic_error("Unexpected situation occured in handling GMT!");
 					domain->GlobalMappingTable[lpn].TimeStamp = CurrentTimeStamp;
 					generate_flash_writeback_request_for_mapping_data(stream_id, lpn);
 				}
@@ -893,7 +922,7 @@ namespace SSD_Components
 				domain->GlobalMappingTable[lpn].PPA = evictedItem.PPA;
 				domain->GlobalMappingTable[lpn].WrittenStateBitmap = evictedItem.WrittenStateBitmap;
 				if (domain->GlobalMappingTable[lpn].TimeStamp > CurrentTimeStamp)
-					throw "Unexpected situation occured in handling GMT!";
+					throw std::logic_error("Unexpected situation occured in handling GMT!");
 				domain->GlobalMappingTable[lpn].TimeStamp = CurrentTimeStamp;
 				generate_flash_writeback_request_for_mapping_data(stream_id, lpn);
 			}
@@ -993,7 +1022,7 @@ namespace SSD_Components
 		else
 		{
 			/*If this is a read for an MVP that is required for merging unchanged mapping enries
-			* (that are stored on flash) with those updated entries that are evicted from CMT*/
+			* (stored on flash) with those updated entries that are evicted from CMT*/
 			if (((NVM_Transaction_Flash_RD*)transaction)->RelatedWrite != NULL)
 				((NVM_Transaction_Flash_RD*)transaction)->RelatedWrite->RelatedRead = NULL;
 
@@ -1022,6 +1051,8 @@ namespace SSD_Components
 					{
 						_myInstance->translate_lpa_to_ppa(transaction->Stream_id, it2->second);
 						_myInstance->ftl->TSU->Submit_transaction(it2->second);
+						if (((NVM_Transaction_Flash_WR*)it2->second)->RelatedRead != NULL)
+							_myInstance->ftl->TSU->Submit_transaction(((NVM_Transaction_Flash_WR*)it2->second)->RelatedRead);
 						_myInstance->domains[transaction->Stream_id]->Waiting_unmapped_program_transactions.erase(it2++);
 					}
 				}

@@ -5,6 +5,7 @@
 #include "../sim/Sim_Defs.h"
 #include "../sim/Sim_Object.h"
 #include "../nvm_chip/flash_memory/Chip.h"
+#include "../sim/Sim_Reporter.h"
 #include "FTL.h"
 #include "NVM_PHY_ONFI_NVDDR2.h"
 #include "FlashTransactionQueue.h"
@@ -45,6 +46,7 @@ namespace SSD_Components
 		* be mixes of reads, writes, and erases.
 		*/
 		virtual void Schedule() = 0;
+		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 
 	protected:
 		FTL* ftl;

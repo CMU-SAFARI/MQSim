@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "../sim/Engine.h"
 #include "Host_Interface_NVMe.h"
 #include "NVM_Transaction_Flash_RD.h"
@@ -240,7 +241,7 @@ namespace SSD_Components
 			((Input_Stream_Manager_NVMe*)(hi->input_stream_manager))->Completion_queue_head_pointer_update(7, (uint16_t)val);
 			break;
 		default:
-			throw "Unknown register is written";
+			throw std::invalid_argument("Unknown register is written!");
 		}
 	}
 	
@@ -274,7 +275,7 @@ namespace SSD_Components
 				new_reqeust->Size_in_byte = new_reqeust->SizeInSectors * SECTOR_SIZE_IN_BYTE;
 				break;
 			default:
-				throw "NVMe command is not supported!";
+				throw std::invalid_argument("NVMe command is not supported!");
 			}
 			((Input_Stream_Manager_NVMe*)(hi->input_stream_manager))->Handle_new_arrived_request(new_reqeust);
 			break;
@@ -363,9 +364,9 @@ namespace SSD_Components
 	{
 		Host_Interface_Base::Validate_simulation_config();
 		if (this->input_stream_manager == NULL)
-			throw "Input stream manager is not set for Host Interface";
+			throw std::logic_error("Input stream manager is not set for Host Interface");
 		if (this->request_fetch_unit == NULL)
-			throw "Request fetch unit is not set for Host Interface";
+			throw std::logic_error("Request fetch unit is not set for Host Interface");
 	}
 	
 	void Host_Interface_NVMe::Start_simulation() {}

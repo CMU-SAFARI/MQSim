@@ -1,5 +1,6 @@
 #include "RandomGenerator.h"
 #include <math.h>
+#include <stdexcept>
 
 namespace Utils
 {
@@ -81,7 +82,7 @@ namespace Utils
 	double RandomGenerator::HyperExponential(double x, double s)
 	{
 		if (s < x)
-			throw "HyperExponential : Mean must be greater than standard deviation.";
+			throw std::logic_error("RandomGenerator::HyperExponential: Mean must be greater than standard deviation.");
 
 		double cv, z, p;
 		cv = s / x;

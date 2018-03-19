@@ -21,7 +21,7 @@ public:
 	void Start_simulation();
 	void Validate_simulation_config();
 	void Execute_simulator_event(MQSimEngine::Sim_Event* event);
-	void Report_results_in_XML(Utils::XmlWriter& xmlwriter);
+	void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 
 	void Attach_ssd_device(SSD_Device* ssd_device);
 	const std::vector<Host_Components::IO_Flow_Base*> Get_io_flows();

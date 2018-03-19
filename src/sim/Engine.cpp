@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "Engine.h"
 
 namespace MQSimEngine
@@ -25,7 +26,7 @@ namespace MQSimEngine
 	void Engine::AddObject(Sim_Object* obj)
 	{
 		if (_ObjectList.find(obj->ID()) != _ObjectList.end())
-			throw "Duplicate object key: " + obj->ID();
+			throw std::invalid_argument("Duplicate object key: " + obj->ID());
 		_ObjectList.insert(std::pair<sim_object_id_type, Sim_Object*>(obj->ID(), obj));
 	}
 
@@ -33,7 +34,7 @@ namespace MQSimEngine
 	{
 		std::unordered_map<sim_object_id_type, Sim_Object*>::iterator it = _ObjectList.find(obj->ID());
 		if (it == _ObjectList.end())
-			throw "Removing an unregistered object.";
+			throw std::invalid_argument("Removing an unregistered object.");
 		_ObjectList.erase(it);
 	}
 
@@ -105,7 +106,7 @@ namespace MQSimEngine
 	Sim_Event* Engine::Register_sim_event(sim_time_type fireTime, Sim_Object* targetObject, void* parameters, int type)
 	{
 		Sim_Event* ev = new Sim_Event(fireTime, targetObject, parameters, type);
-		DEBUG("RegisterEvent " << fireTime << " " << targetObject)
+		DEBUG2("RegisterEvent " << fireTime << " " << targetObject)
 		_EventList->Insert_sim_event(ev);
 		return ev;
 	}

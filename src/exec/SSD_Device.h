@@ -13,6 +13,7 @@
 #include "../ssd/NVM_PHY_Base.h"
 #include "../ssd/NVM_Channel_Base.h"
 #include "../host/PCIe_Switch.h"
+#include "../nvm_chip/NVM_Types.h"
 #include "Device_Parameter_Set.h"
 #include "IO_Flow_Parameter_Set.h"
 
@@ -27,13 +28,13 @@ class SSD_Device : public MQSimEngine::Sim_Object, public MQSimEngine::Sim_Repor
 {
 public:
 	SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Parameter_Set*>* io_flows);
-	//Memory_Type Memory_Type;
+	NVM::NVM_Type Memory_Type;
 	SSD_Components::Host_Interface_Base *Host_interface;
 	SSD_Components::Data_Cache_Manager_Base *Cache_manager;
 	SSD_Components::NVM_Firmware* Firmware;
 	SSD_Components::NVM_PHY_Base* PHY;
 	std::vector<SSD_Components::NVM_Channel_Base*> Channels;
-	void Report_results_in_XML(Utils::XmlWriter& xmlwriter);
+	void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 
 	void Attach_to_host(Host_Components::PCIe_Switch* pcie_switch);
 	void Perform_preconditioning();

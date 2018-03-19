@@ -45,7 +45,7 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 		case Flow_Type::TRACE:
 		{
 			IO_Flow_Parameter_Set_Trace_Based * flow_param = (IO_Flow_Parameter_Set_Trace_Based*)parameters->IO_Flow_Definitions[flow_id];
-			io_flow = new Host_Components::IO_Flow_Trace_Based(this->ID() + ".IO_Flow.Trace.No_" + std::to_string(flow_id),
+			io_flow = new Host_Components::IO_Flow_Trace_Based(this->ID() + ".IO_Flow.Trace." + flow_param->File_Path,
 				address_range_per_flow * flow_id, address_range_per_flow * (flow_id + 1) - 1,
 				FLOW_ID_TO_Q_ID(flow_id), ((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_submission_queue_depth(),
 				((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth(),
@@ -108,14 +108,14 @@ void Host_System::Validate_simulation_config()
 
 void Host_System::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
 
-void Host_System::Report_results_in_XML(Utils::XmlWriter& xmlwriter)
+void Host_System::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
 {
 	std::string tmp;
 	tmp = ID();
 	xmlwriter.Write_open_tag(tmp);
 
 	for (auto flow : IO_flows)
-		flow->Report_results_in_XML(xmlwriter);
+		flow->Report_results_in_XML("Host", xmlwriter);
 
 	xmlwriter.Write_close_tag();
 }

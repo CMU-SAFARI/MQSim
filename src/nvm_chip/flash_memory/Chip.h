@@ -9,6 +9,7 @@
 #include "Die.h"
 #include "Flash_Command.h"
 #include <vector>
+#include <stdexcept>
 
 namespace NVM
 {
@@ -107,7 +108,7 @@ namespace NVM
 				case CMD_ERASE_BLOCK_MULTIPLANE:
 					return _eraseLatency + _RBSignalDelayErase;
 				default:
-					throw "Unsupported command for flash chip.";
+					throw std::invalid_argument("Unsupported command for flash chip.");
 				}
 			}
 			void Suspend(flash_die_ID_type dieID);

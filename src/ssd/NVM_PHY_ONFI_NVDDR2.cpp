@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "../sim/Engine.h"
 #include "NVM_PHY_ONFI_NVDDR2.h"
 #include "Stats.h"
@@ -272,7 +273,7 @@ namespace SSD_Components {
 				chipBKE->Expected_command_exec_finish_time = dieBKE->ExpectedFinishTime;
 			break;
 		default:
-			throw "Unhandled event specified!";
+			throw std::invalid_argument("NVM_PHY_ONFI_NVDDR2: Unhandled event specified!");
 		}
 
 		target_channel->SetStatus(BusChannelStatus::BUSY, targetChip);

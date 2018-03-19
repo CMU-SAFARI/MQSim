@@ -59,7 +59,7 @@ namespace Host_Components
 		uint32_t Get_end_to_end_request_delay();//in microseconds
 		uint32_t Get_min_end_to_end_request_delay();//in microseconds
 		uint32_t Get_max_end_to_end_request_delay();//in microseconds
-		void Report_results_in_XML(Utils::XmlWriter& xmlwriter);
+		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 	protected:
 		LSA_type start_lsa_on_device, end_lsa_on_device;
 		uint16_t io_queue_id;
