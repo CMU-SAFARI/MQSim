@@ -13,9 +13,10 @@ Run following commands:
 
 ## Usage in Windows
 
-1. Open MQSim.sln solution file in MS Visual Studio 17 or later.
+1. Open the MQSim.sln solution file in MS Visual Studio 2017 or later.
 2. Set the Solution Configuration to Release (typically it is set to Debug by default).
-3. You can run the generated executable file, i.e., MQSim.exe, either in command line mode or via clicking the MS Visual Studio run button.
+3. Compile the solution.
+4. You can run the generated executable file, i.e., MQSim.exe, either in the command line mode or via clicking the MS Visual Studio run button.
 You need to specify the path to two files 1) SSD configuration, and 2) workload definition.
 
 Example command line execution:
@@ -24,22 +25,22 @@ $MQSim.exe -i ./ssdconfig.xml -w ./workload.xml
 
 ## MQSim Configuratoin for Execution
 
-You can specify your preferred SSD configuration in XML format. If the specified SSD configuration (i.e., ssdconfig.xml in our example) does not exist, MQSim will create a sample XML file for you. Here is the definition of configuration parameters:
+You can specify your preferred SSD configuration in the XML format. If the SSD configuration file specified in the command line (i.e., ssdconfig.xml in the above example) does not exist, MQSim will create a sample XML file in the specified path. Here is the definition of the configuration parameters in the XML file:
 
 ### Host
 1. PCIe_Lane_Bandwidth: the PCIe bandwidth per lane in GB/s. Range = {all positive double precision values}.
-2. PCIe_Lane_Count: the number of PCIe lanes. Range = {all positive integers}.
+2. PCIe_Lane_Count: the number of PCIe lanes. Range = {all positive integer values}.
 
 ### SSD Device
-1. Seed: the seed value that is used for random number generation. Range = {all positive integers}.
+1. Seed: the seed value that is used for random number generation. Range = {all positive integer values}.
 2. HostInterface_Type: type of host interface. Range = {NVME, SATA}.
-3. IO_Queue_Depth: the length of the host-side IO queue. If the host interface is set to NVME, then this value will be the capacity of each IO Submission Queue and IO Completion Queue. If host interface is set to SATA, then this value will be the capacity of the Native Command Queue (NCQ). Range = {all positive integers}
-4. Queue_Fetch_Size: the value of the QueueFetchSize as described in FAST 2018 paper.
-5. Data_Cache_Sharing_Mode: sharing mode of data cache (buffer) among the concurrently running IO flows when NVMe host interface is used. Range = {SHARED, EQUAL_PARTITIONING}.
-6. Data_Cache_Capacity: size of the in-DRAM data cache in bytes. Range = {all positive integers}
-7. Data_Cache_DRAM_Row_Size: size of DRAM rows in bytes. Range = {all positive power of two numbers}.
+3. IO_Queue_Depth: the length of the host-side IO queue. If the host interface is set to NVME, then IO_Queue_Depth defines the capacity of the IO Submission and IO Completion Queues. If the host interface is set to SATA, then IO_Queue_Depth defines the capacity of the Native Command Queue (NCQ). Range = {all positive integer values}
+4. Queue_Fetch_Size: the value of the QueueFetchSize paramter as described in FAST 2018 paper. Range = {all positive integer values}
+5. Data_Cache_Sharing_Mode: the sharing mode of the DRAM data cache (buffer) among the concurrently running IO flows when an NVMe host interface is used. Range = {SHARED, EQUAL_PARTITIONING}.
+6. Data_Cache_Capacity: size of the DRAM data cache in bytes. Range = {all positive integers}
+7. Data_Cache_DRAM_Row_Size: size of the DRAM rows in bytes. Range = {all positive power of two numbers}.
 8. Data_Cache_DRAM_Data_Rate: DRAM data transfer rate in MT/s. Range = {all positive integer values}.
-9. Data_Cache_DRAM_Data_Busrt_Size: the number of bytes that are transferred in one burst (it depends on the number of DRAM chips). Range = {all positive integer values}.
+9. Data_Cache_DRAM_Data_Busrt_Size: the number of bytes that are transferred in one DRAM burst (it depends on the number of DRAM chips). Range = {all positive integer values}.
 10. Data_Cache_DRAM_tRCD: tRCD parameter to access DRAM in the data cache, the is nanoseconds unit. Range = {all positive integer values}.
 10. Data_Cache_DRAM_tCL: tCL parameter to access DRAM in the data cache, the is nanoseconds unit. Range = {all positive integer values}.
 10. Data_Cache_DRAM_tRP: tRP parameter to access DRAM in the data cache, the is nanoseconds unit. Range = {all positive integer values}.
@@ -84,7 +85,8 @@ You can specify your preferred SSD configuration in XML format. If the specified
 18. Page_Metadat_Capacity: size of metadata area of each physical flash page in bytes. Range = {all positive integer values}.
 
 
-
+## MQSim Workload Definition
+You can define your preferred set of workloads in XML format. If the specified workload definition file (i.e., workload.xml in our example above) does not exist, MQSim will create a sample XML file for you. Here is the definition of workload definition paramters:
 
 
 
