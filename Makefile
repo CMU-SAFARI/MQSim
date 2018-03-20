@@ -1,19 +1,17 @@
 CC        := g++
 LD        := g++
-CC_FLAGS := -std=c++11
+CC_FLAGS := -std=c++11 -O3 -g
 
 MODULES   := exec host nvm_chip nvm_chip/flash_memory sim ssd utils
-SRC_DIR   := $(addprefix src/,$(MODULES))
-BUILD_DIR := $(addprefix build/,$(MODULES))
+SRC_DIR   := $(addprefix src/,$(MODULES)) src
+BUILD_DIR := $(addprefix build/,$(MODULES)) build
 
 SRC       := $(foreach sdir,$(SRC_DIR),$(wildcard $(sdir)/*.cpp))
-#SRC       := $(SRC) src/Main.cpp
+SRC       := src/main.cpp $(SRC)
 OBJ       := $(patsubst src/%.cpp,build/%.o,$(SRC))
 INCLUDES  := $(addprefix -I,$(SRC_DIR))
 
 vpath %.cpp $(SRC_DIR)
-
-$(info $(SRC))
 
 define make-goal
 $1/%.o: %.cpp
