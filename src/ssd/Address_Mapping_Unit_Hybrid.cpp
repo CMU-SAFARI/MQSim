@@ -16,18 +16,30 @@ namespace SSD_Components
 	void Address_Mapping_Unit_Hybrid::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
 
 	void Address_Mapping_Unit_Hybrid::Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transaction_list) {}
-	bool Address_Mapping_Unit_Hybrid::Get_bitmap_vector_of_written_sectors_of_lpn(const stream_id_type streamID, const LPA_type lpn, page_status_type& pageState) { return false; }
+	void Address_Mapping_Unit_Hybrid::Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state) {}
+	void Address_Mapping_Unit_Hybrid::Get_translation_mapping_info_for_gc(const stream_id_type stream_id, const MVPN_type mvpn, MPPN_type& mppa, sim_time_type& timestamp) {}
 	bool Address_Mapping_Unit_Hybrid::Check_address_range(const stream_id_type streamID, const LPA_type lsn, const unsigned int size) { return false; }
 
-	PPA_type Address_Mapping_Unit_Hybrid::Online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap) { return 0; }
+	PPA_type Address_Mapping_Unit_Hybrid::online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap) { return 0; }
 
 	bool Address_Mapping_Unit_Hybrid::check_and_translate(NVM_Transaction_Flash* transaction) { return true; }
-	NVM::FlashMemory::Physical_Page_Address Address_Mapping_Unit_Hybrid::convert_ppa_to_address(const PPA_type ppn) \
+	NVM::FlashMemory::Physical_Page_Address Address_Mapping_Unit_Hybrid::Convert_ppa_to_address(const PPA_type ppa)
 	{
 		NVM::FlashMemory::Physical_Page_Address pa;
 		return pa;
 	}
-	void Address_Mapping_Unit_Hybrid::convert_ppa_to_address(const PPA_type ppn, NVM::FlashMemory::Physical_Page_Address& address) {}
-	PPA_type Address_Mapping_Unit_Hybrid::convert_ppa_to_address(const NVM::FlashMemory::Physical_Page_Address& pageAddress) { return 0; }
+	LSA_type Address_Mapping_Unit_Hybrid::Get_logical_sectors_count_allocated_to_stream(stream_id_type stream_id)
+	{
+		return 0;
+	}
+	void Address_Mapping_Unit_Hybrid::Convert_ppa_to_address(const PPA_type ppa, NVM::FlashMemory::Physical_Page_Address& address) {}
+	PPA_type Address_Mapping_Unit_Hybrid::Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress) { return 0; }
 	void Address_Mapping_Unit_Hybrid::prepare_mapping_table() {}
+	void Address_Mapping_Unit_Hybrid::Allocate_new_page_for_gc(NVM_Transaction_Flash_WR* transaction, bool is_translation_page) {}
+	void Address_Mapping_Unit_Hybrid::Lock_lpa(stream_id_type stream_id, LPA_type lpa) {}
+	void Address_Mapping_Unit_Hybrid::Unlock_lpa(stream_id_type stream_id, LPA_type lpa) {}
+	void Address_Mapping_Unit_Hybrid::Lock_mvpn(stream_id_type stream_id, MVPN_type mpvn) {}
+	void Address_Mapping_Unit_Hybrid::Unlock_mvpn(stream_id_type stream_id, MVPN_type mpvn) {}
+	bool Address_Mapping_Unit_Hybrid::Is_lpa_locked(stream_id_type stream_id, LPA_type lpa) { return false; }
+	bool Address_Mapping_Unit_Hybrid::Is_mvpn_locked(stream_id_type stream_id, MVPN_type mvpn) { return false; }
 }

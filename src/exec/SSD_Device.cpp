@@ -65,10 +65,10 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 			SSD_Components::ONFI_Channel_NVDDR2** channels = new SSD_Components::ONFI_Channel_NVDDR2*[parameters->Flash_Channel_Count];
 			for (unsigned int channel_cntr = 0; channel_cntr < parameters->Flash_Channel_Count; channel_cntr++)
 			{
-				NVM::FlashMemory::Chip** chips = new NVM::FlashMemory::Chip*[parameters->Chip_No_Per_Channel];
+				NVM::FlashMemory::Flash_Chip** chips = new NVM::FlashMemory::Flash_Chip*[parameters->Chip_No_Per_Channel];
 				for (unsigned int chip_cntr = 0; chip_cntr < parameters->Chip_No_Per_Channel; chip_cntr++)
 				{
-					chips[chip_cntr] = new NVM::FlashMemory::Chip(device->ID() + ".Channel." + std::to_string(channel_cntr) + ".Chip." + std::to_string(chip_cntr),
+					chips[chip_cntr] = new NVM::FlashMemory::Flash_Chip(device->ID() + ".Channel." + std::to_string(channel_cntr) + ".Chip." + std::to_string(chip_cntr),
 						channel_cntr, chip_cntr, parameters->Flash_Parameters.Flash_Technology, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 						parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
 						read_latencies, write_latencies, parameters->Flash_Parameters.Block_Erase_Latency,
@@ -114,7 +114,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 			tsu = new SSD_Components::TSU_OutofOrder(ftl->ID() + ".TSU", ftl, static_cast<SSD_Components::NVM_PHY_ONFI_NVDDR2*>(device->PHY),
 				parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel,
 				parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
-				parameters->Prefered_suspend_write_time_for_read, parameters->Prefered_suspend_erase_time_for_read, parameters->Prefered_suspend_erase_time_for_write,
+				parameters->Preferred_suspend_write_time_for_read, parameters->Preferred_suspend_erase_time_for_read, parameters->Preferred_suspend_erase_time_for_write,
 				erase_suspension, program_suspension);
 			break;
 		default:
@@ -134,13 +134,38 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 
 		//Step 7: create Address_Mapping_Unit
 		SSD_Components::Address_Mapping_Unit_Base* amu;
+		std::vector<std::vector<flash_channel_ID_type>> flow_channel_id_assignments;
+		std::vector<std::vector<flash_chip_ID_type>> flow_chip_id_assignments;
+		std::vector<std::vector<flash_die_ID_type>> flow_die_id_assignments;
+		std::vector<std::vector<flash_plane_ID_type>> flow_plane_id_assignments;
+		for (int i = 0; i < io_flows->size(); i++)
+		{
+			std::vector<flash_channel_ID_type> channel_ids;
+			flow_channel_id_assignments.push_back(channel_ids);
+			for (int j = 0; j < (*io_flows)[i]->Channel_No; j++)
+				flow_channel_id_assignments[i].push_back((*io_flows)[i]->Channel_IDs[j]);
+			std::vector<flash_chip_ID_type> chip_ids;
+			flow_chip_id_assignments.push_back(chip_ids);
+			for (int j = 0; j < (*io_flows)[i]->Chip_No; j++)
+				flow_chip_id_assignments[i].push_back((*io_flows)[i]->Chip_IDs[j]);
+			std::vector<flash_die_ID_type> die_ids;
+			flow_die_id_assignments.push_back(die_ids);
+			for (int j = 0; j < (*io_flows)[i]->Die_No; j++)
+				flow_die_id_assignments[i].push_back((*io_flows)[i]->Die_IDs[j]);
+			std::vector<flash_plane_ID_type> plane_ids;
+			flow_plane_id_assignments.push_back(plane_ids);
+			for (int j = 0; j < (*io_flows)[i]->Plane_No; j++)
+				flow_plane_id_assignments[i].push_back((*io_flows)[i]->Plane_IDs[j]);
+		}
 		switch (parameters->Address_Mapping)
 		{
 		case SSD_Components::Flash_Address_Mapping_Type::PAGE_LEVEL:
 			amu = new SSD_Components::Address_Mapping_Unit_Page_Level(ftl->ID() + ".AddressMappingUnit", ftl, (SSD_Components::NVM_PHY_ONFI*) device->PHY,
 				fbm, parameters->CMT_Capacity, parameters->Plane_Allocation_Scheme, (unsigned int)io_flows->size(),
 				parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip,
-				parameters->Flash_Parameters.Plane_No_Per_Die, parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
+				parameters->Flash_Parameters.Plane_No_Per_Die,
+				flow_channel_id_assignments, flow_chip_id_assignments, flow_die_id_assignments, flow_plane_id_assignments,
+				parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
 				parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Parameters.Page_Capacity, parameters->Overprovisioning_Ratio,
 				parameters->CMT_Sharing_Mode);
 			break;
@@ -156,14 +181,20 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		}
 		Simulator->AddObject(amu);
 		ftl->Address_Mapping_Unit = amu;
+		LSA_type total_logical_sectors_in_SSD = 0;
+		for (stream_id_type stream_id = 0; stream_id < io_flows->size(); stream_id++)
+			total_logical_sectors_in_SSD += amu->Get_logical_sectors_count_allocated_to_stream(stream_id);
 
 		//Step 8: create GC_and_WL_unit
 		SSD_Components::GC_and_WL_Unit_Base* gcwl;
-		gcwl = new SSD_Components::GC_and_WL_Unit_Page_Level(ftl, fbm, parameters->GC_Exect_Threshold, parameters->GC_Block_Selection_Policy,
-			parameters->Preemptible_GC_Enabled, parameters->GC_Hard_Threshold, parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel,
+		gcwl = new SSD_Components::GC_and_WL_Unit_Page_Level(ftl->ID() + ".GCandWLUnit", amu, fbm, tsu, (SSD_Components::NVM_PHY_ONFI*)device->PHY,
+			parameters->GC_Block_Selection_Policy, parameters->GC_Exec_Threshold, parameters->Preemptible_GC_Enabled, parameters->GC_Hard_Threshold,
+			parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel,
 			parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 			parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
-			parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Seed++);
+			parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Use_Copyback_for_GC, 
+			parameters->Seed++);
+		Simulator->AddObject(gcwl);
 		fbm->Set_GC_and_WL_Unit(gcwl);
 		ftl->GC_and_WL_Unit = gcwl;
 
@@ -176,7 +207,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 			parameters->Data_Cache_Capacity, parameters->Data_Cache_DRAM_Row_Size, parameters->Data_Cache_DRAM_Data_Rate,
 			parameters->Data_Cache_DRAM_Data_Busrt_Size, parameters->Data_Cache_DRAM_tRCD, parameters->Data_Cache_DRAM_tCL, parameters->Data_Cache_DRAM_tRP,
 			caching_modes, parameters->Data_Cache_Sharing_Mode, (unsigned int)io_flows->size(),
-			parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE);
+			parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Channel_Count * parameters->Chip_No_Per_Channel * parameters->Flash_Parameters.Die_No_Per_Chip * parameters->Flash_Parameters.Plane_No_Per_Die * parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE);
 		Simulator->AddObject(dcm);
 		ftl->Data_cache_manager = dcm;
 		device->Cache_manager = dcm;
@@ -186,7 +217,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		{
 		case HostInterfaceType::NVME:
 			device->Host_interface = new SSD_Components::Host_Interface_NVMe(device->ID() + ".HostInterface",
-				amu->Get_max_logical_sector_address(), parameters->IO_Queue_Depth, parameters->IO_Queue_Depth,
+				total_logical_sectors_in_SSD, parameters->IO_Queue_Depth, parameters->IO_Queue_Depth,
 				(unsigned int)io_flows->size(), parameters->Queue_Fetch_Size, parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, dcm);
 			break;
 		case HostInterfaceType::SATA:

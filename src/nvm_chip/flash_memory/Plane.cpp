@@ -5,7 +5,7 @@ namespace NVM
 	namespace FlashMemory
 	{
 		Plane::Plane(unsigned int BlocksNoPerPlane, unsigned int PagesNoPerBlock) :
-			ReadCount(0), ProgamCount(0), EraseCount(0)
+			ReadCount(0), ProgamCount(0), Erase_count(0)
 		{
 			HealthyBlockNo = BlocksNoPerPlane;
 			Blocks = new Block*[BlocksNoPerPlane];

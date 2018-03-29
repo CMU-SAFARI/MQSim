@@ -25,10 +25,8 @@ namespace SSD_Components
 
 	}
 
-
 	void FTL::Start_simulation() {}
 	void FTL::Execute_simulator_event(MQSimEngine::Sim_Event*) {}
-
 	void FTL::handle_user_request(User_Request* user_request)
 	{
 	}

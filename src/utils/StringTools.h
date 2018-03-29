@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <fstream>
 
 namespace Utils
 {
@@ -11,7 +12,7 @@ namespace Utils
 	public:
 		static void Tokenize(const std::string& str, char delimiter, std::vector<std::string>& output_tokens_list)
 		{
-			int size = str.size();
+			int size = (int) str.size();
 			int start = 0, end = 0;
 			while (end < size)
 			{
@@ -24,6 +25,12 @@ namespace Utils
 			}
 			if (str[end - 1] != delimiter)
 				output_tokens_list.push_back(std::string(str.substr(start, end - start)));
+		}
+
+		static void Remove_cr(std::string& str)//remove carriage return in linux
+		{
+			if (str[str.size() - 1] == '\r')
+				str.erase(str.size() - 1, 1);
 		}
 	};
 }

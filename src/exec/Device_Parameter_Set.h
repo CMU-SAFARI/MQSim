@@ -35,13 +35,14 @@ public:
 	static SSD_Components::Flash_Plane_Allocation_Scheme_Type Plane_Allocation_Scheme;
 	static SSD_Components::Flash_Scheduling_Type Transaction_Scheduling_Policy;
 	static double Overprovisioning_Ratio;//The ratio of spare space with respect to the whole available storage space of SSD
-	static double GC_Exect_Threshold;//The threshold for the ratio of free pages that used to trigger GC
+	static double GC_Exec_Threshold;//The threshold for the ratio of free pages that used to trigger GC
 	static SSD_Components::GC_Block_Selection_Policy_Type GC_Block_Selection_Policy;
+	static bool Use_Copyback_for_GC;
 	static bool Preemptible_GC_Enabled;
 	static double GC_Hard_Threshold;//The hard gc execution threshold, used to stop preemptible gc execution
-	static sim_time_type Prefered_suspend_erase_time_for_read;//in nano-seconds, if the remaining time of the ongoing erase is smaller than Prefered_suspend_erase_time_for_read, then the ongoing erase operation will be suspended
-	static sim_time_type Prefered_suspend_erase_time_for_write;//in nano-seconds, if the remaining time of the ongoing erase is smaller than Prefered_suspend_erase_time_for_write, then the ongoing erase operation will be suspended
-	static sim_time_type Prefered_suspend_write_time_for_read;//in nano-seconds, if the remaining time of the ongoing write is smaller than Prefered_suspend_write_time_for_read, then the ongoing erase operation will be suspended
+	static sim_time_type Preferred_suspend_erase_time_for_read;//in nano-seconds, if the remaining time of the ongoing erase is smaller than Prefered_suspend_erase_time_for_read, then the ongoing erase operation will be suspended
+	static sim_time_type Preferred_suspend_erase_time_for_write;//in nano-seconds, if the remaining time of the ongoing erase is smaller than Prefered_suspend_erase_time_for_write, then the ongoing erase operation will be suspended
+	static sim_time_type Preferred_suspend_write_time_for_read;//in nano-seconds, if the remaining time of the ongoing write is smaller than Prefered_suspend_write_time_for_read, then the ongoing erase operation will be suspended
 	static unsigned int Flash_Channel_Count;
 	static unsigned int Flash_Channel_Width;//Channel width in byte
 	static unsigned int Channel_Transfer_Rate;//MT/s

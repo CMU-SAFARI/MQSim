@@ -159,14 +159,13 @@ namespace SSD_Components
 			}
 			LPA_type lpa = lsa / host_interface->sectors_per_page;
 
-
 			page_status_type temp = ~(0xffffffffffffffff << (int)transaction_size);
 			access_status_bitmap = temp << (int)(lsa % host_interface->sectors_per_page);
 
 			if (user_request->Type == UserRequestType::READ)
 			{
 				NVM_Transaction_Flash_RD* transaction = new NVM_Transaction_Flash_RD(Transaction_Source_Type::USERIO, user_request->Stream_id,
-					transaction_size * SECTOR_SIZE_IN_BYTE, lpa, user_request, 0, access_status_bitmap, CurrentTimeStamp);
+					transaction_size * SECTOR_SIZE_IN_BYTE, lpa, NO_PPA, user_request, 0, access_status_bitmap, CurrentTimeStamp);
 				user_request->Transaction_list.push_back(transaction);
 				input_streams[user_request->Stream_id]->STAT_number_of_read_transactions++;
 			}

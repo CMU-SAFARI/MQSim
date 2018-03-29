@@ -12,8 +12,8 @@
 			 <Data_Cache_Sharing_Mode>SHARED</Data_Cache_Sharing_Mode>
 			 <Data_Cache_Capacity>536870912</Data_Cache_Capacity>
 			 <Data_Cache_DRAM_Row_Size>8192</Data_Cache_DRAM_Row_Size>
-			 <Data_Cache_DRAM_Data_Rate>800</Data_Cache_DRAM_Data_Rate>
-			 <Data_Cache_DRAM_Data_Busrt_Size>4</Data_Cache_DRAM_Data_Busrt_Size>
+			 <Data_Cache_DRAM_Data_Rate>100</Data_Cache_DRAM_Data_Rate>
+			 <Data_Cache_DRAM_Data_Busrt_Size>1</Data_Cache_DRAM_Data_Busrt_Size>
 			 <Data_Cache_DRAM_tRCD>13</Data_Cache_DRAM_tRCD>
 			 <Data_Cache_DRAM_tCL>13</Data_Cache_DRAM_tCL>
 			 <Data_Cache_DRAM_tRP>13</Data_Cache_DRAM_tRP>
@@ -42,9 +42,9 @@
 				 <Page_Read_Latency_LSB>75000</Page_Read_Latency_LSB>
 				 <Page_Read_Latency_CSB>75000</Page_Read_Latency_CSB>
 				 <Page_Read_Latency_MSB>75000</Page_Read_Latency_MSB>
-				 <Page_Program_Latency_LSB>750000</Page_Program_Latency_LSB>
-				 <Page_Program_Latency_CSB>750000</Page_Program_Latency_CSB>
-				 <Page_Program_Latency_MSB>750000</Page_Program_Latency_MSB>
+				 <Page_Program_Latency_LSB>75000</Page_Program_Latency_LSB>
+				 <Page_Program_Latency_CSB>75000</Page_Program_Latency_CSB>
+				 <Page_Program_Latency_MSB>75000</Page_Program_Latency_MSB>
 				 <Block_Erase_Latency>3800000</Block_Erase_Latency>
 				 <Block_PE_Cycles_Limit>10000</Block_PE_Cycles_Limit>
 				 <Suspend_Erase_Time>700000</Suspend_Erase_Time>

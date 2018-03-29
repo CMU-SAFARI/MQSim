@@ -1,10 +1,10 @@
-#ifndef CHIP_H
-#define CHIP_H
+#ifndef FLASH_CHIP_H
+#define FLASH_CHIP_H
 
-#include "../../sim/Sim_Object.h"
 #include "../../sim/Sim_Defs.h"
 #include "../../sim/Sim_Event.h"
 #include "../../sim/Engine.h"
+#include "../NVM_Chip.h"
 #include "FlashTypes.h"
 #include "Die.h"
 #include "Flash_Command.h"
@@ -15,18 +15,18 @@ namespace NVM
 {
 	namespace FlashMemory
 	{
-		class Chip : public MQSimEngine::Sim_Object
+		class Flash_Chip : public NVM_Chip
 		{
 			enum class Internal_Status { IDLE, BUSY };
 			enum class Chip_Sim_Event_Type { COMMAND_FINISHED };
 		public:
-			Chip(const sim_object_id_type&, flash_channel_ID_type channelID, flash_chip_ID_type localChipID,
+			Flash_Chip(const sim_object_id_type&, flash_channel_ID_type channelID, flash_chip_ID_type localChipID,
 				Flash_Technology_Type flash_technology, 
 				unsigned int dieNo, unsigned int PlaneNoPerDie, unsigned int Block_no_per_plane, unsigned int Page_no_per_block,
 				sim_time_type *readLatency, sim_time_type *programLatency, sim_time_type eraseLatency,
 				sim_time_type suspendProgramLatency, sim_time_type suspendEraseLatency,
 				sim_time_type commProtocolDelayRead = 20, sim_time_type commProtocolDelayWrite = 0, sim_time_type commProtocolDelayErase = 0);
-			~Chip();
+			~Flash_Chip();
 			flash_channel_ID_type ChannelID;
 			flash_chip_ID_type ChipID;         //Flashchip position in its related channel
 
@@ -49,7 +49,7 @@ namespace NVM
 					STAT_totalOverlappedXferExecTime += (Simulator->Time() - lastTransferStart);
 				this->Dies[command->Address[0].DieID]->STAT_TotalXferTime += (Simulator->Time() - lastTransferStart);
 
-				startCommandExecution(command);
+				start_command_execution(command);
 
 				this->lastTransferStart = INVALID_TIME;
 			}
@@ -60,7 +60,7 @@ namespace NVM
 					STAT_totalOverlappedXferExecTime += (Simulator->Time() - lastTransferStart);
 				this->Dies[command->Address[0].DieID]->STAT_TotalXferTime += (Simulator->Time() - lastTransferStart);
 
-				startCommandExecution(command);
+				start_command_execution(command);
 
 				this->lastTransferStart = INVALID_TIME;
 			}
@@ -73,12 +73,13 @@ namespace NVM
 
 				this->lastTransferStart = INVALID_TIME;
 			}
+			void Change_memory_status_preconditioning(const NVM_Memory_Address* address, const void* status_info);
 			void Start_simulation();
 			void Validate_simulation_config();
 			void Setup_triggers();
 			void Execute_simulator_event(MQSimEngine::Sim_Event*);
-			typedef void(*ChipReadySignalHandlerType) (Chip* targetChip, Flash_Command* command);
-			void ConnectToChipReadySignal(ChipReadySignalHandlerType);
+			typedef void(*ChipReadySignalHandlerType) (Flash_Chip* targetChip, Flash_Command* command);
+			void Connect_to_chip_ready_signal(ChipReadySignalHandlerType);
 			sim_time_type Get_command_execution_latency(command_code_type CMDCode, flash_page_ID_type pageID)
 			{
 				int latencyType = 0;
@@ -134,12 +135,12 @@ namespace NVM
 			unsigned long STAT_totalSuspensionCount, STAT_totalResumeCount;
 			sim_time_type STAT_totalExecTime, STAT_totalXferTime, STAT_totalOverlappedXferExecTime;
 
-			void startCommandExecution(Flash_Command* command);
-			void finishCommandExecution(Flash_Command* command);
-			void broadcastReadySignal(Flash_Command* command);
+			void start_command_execution(Flash_Command* command);
+			void finish_command_execution(Flash_Command* command);
+			void broadcast_ready_signal(Flash_Command* command);
 			std::vector<ChipReadySignalHandlerType> connectedReadyHandlers;
 		};
 	}
 }
 
-#endif // !CHIP_H
+#endif // !FLASH_CHIP_H

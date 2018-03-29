@@ -24,4 +24,30 @@ namespace SSD_Components
 	unsigned long Stats::TotalMappingWriteRequests = 0;
 	unsigned long Stats::MappingReadRequests[MAX_SUPPORT_STREAMS] = { 0 };
 	unsigned long Stats::MappingWriteRequests[MAX_SUPPORT_STREAMS] = { 0 };
+	unsigned int***** Stats::Block_erase_histogram;
+
+	void Stats::Init_stats(unsigned int channel_no, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die, 
+		unsigned int block_no_per_plane, unsigned int page_no_per_block, unsigned int max_allowed_block_erase_count)
+	{
+		Block_erase_histogram = new unsigned int ****[channel_no];
+		for (unsigned int channel_cntr = 0; channel_cntr < channel_no; channel_cntr++)
+		{
+			Block_erase_histogram[channel_cntr] = new unsigned int***[chip_no_per_channel];
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+			{
+				Block_erase_histogram[channel_cntr][chip_cntr] = new unsigned int**[die_no_per_chip];
+				for (unsigned int die_cntr = 0; die_cntr < die_no_per_chip; die_cntr++)
+				{
+					Block_erase_histogram[channel_cntr][chip_cntr][die_cntr] = new unsigned int*[plane_no_per_die];
+					for (unsigned int plane_cntr = 0; plane_cntr < plane_no_per_die; plane_cntr++)
+					{
+						Block_erase_histogram[channel_cntr][chip_cntr][die_cntr][plane_no_per_die] = new unsigned int[max_allowed_block_erase_count];
+						Block_erase_histogram[channel_cntr][chip_cntr][die_cntr][plane_no_per_die][0] = block_no_per_plane * page_no_per_block; //At the start of the simulation all pages have zero erase count
+						for (unsigned int i = 1; i < max_allowed_block_erase_count; ++i)
+							Block_erase_histogram[channel_cntr][chip_cntr][die_cntr][plane_cntr][i] = 0;
+					}
+				}
+			}
+		}
+	}
 }

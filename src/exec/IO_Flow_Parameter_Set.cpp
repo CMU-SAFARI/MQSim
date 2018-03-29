@@ -9,7 +9,7 @@ void IO_Flow_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 {
 	std::string attr = "Type";
 	std::string val;
-	switch (Type)
+	/*switch (Type)
 	{
 	case Flow_Type::SYNTHETIC:
 		val = "SYNTHETIC";
@@ -20,7 +20,7 @@ void IO_Flow_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	default:
 		break;
 	}
-	xmlwriter.Write_attribute_string(attr, val);
+	xmlwriter.Write_attribute_string(attr, val);*/
 
 	attr = "Priority_Class";
 	switch (Priority_Class)
@@ -124,13 +124,13 @@ void IO_Flow_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			}
 			else if (strcmp(param->name(), "Type") == 0)
 			{
-				std::string val = param->value();
+				/*std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "SYNTHETIC") == 0)
 					Type = Flow_Type::SYNTHETIC;
 				else if (strcmp(val.c_str(), "TRACE") == 0)
 					Type = Flow_Type::TRACE;
-				else PRINT_ERROR("Wrong input flow type")
+				else PRINT_ERROR("Wrong input flow type")*/
 			}
 			else if (strcmp(param->name(), "Priority_Class") == 0)
 			{

@@ -22,13 +22,14 @@ SSD_Components::CMT_Sharing_Mode Device_Parameter_Set::CMT_Sharing_Mode = SSD_Co
 SSD_Components::Flash_Plane_Allocation_Scheme_Type Device_Parameter_Set::Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::CWDP;
 SSD_Components::Flash_Scheduling_Type Device_Parameter_Set::Transaction_Scheduling_Policy = SSD_Components::Flash_Scheduling_Type::OUT_OF_ORDER;
 double Device_Parameter_Set::Overprovisioning_Ratio = 0.02;//The ratio of spare space with respect to the whole available storage space of SSD
-double Device_Parameter_Set::GC_Exect_Threshold = 0.05;//The threshold for the ratio of free pages that used to trigger GC
+double Device_Parameter_Set::GC_Exec_Threshold = 0.05;//The threshold for the ratio of free pages that used to trigger GC
 SSD_Components::GC_Block_Selection_Policy_Type Device_Parameter_Set::GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::RGA;
+bool Device_Parameter_Set::Use_Copyback_for_GC = true;
 bool Device_Parameter_Set::Preemptible_GC_Enabled = true;
 double Device_Parameter_Set::GC_Hard_Threshold = 0.005;//The hard gc execution threshold, used to stop preemptible gc execution
-sim_time_type Device_Parameter_Set::Prefered_suspend_erase_time_for_read = 700000;//in nano-seconds
-sim_time_type Device_Parameter_Set::Prefered_suspend_erase_time_for_write = 700000;//in nano-seconds
-sim_time_type Device_Parameter_Set::Prefered_suspend_write_time_for_read = 100000;//in nano-seconds
+sim_time_type Device_Parameter_Set::Preferred_suspend_erase_time_for_read = 700000;//in nano-seconds
+sim_time_type Device_Parameter_Set::Preferred_suspend_erase_time_for_write = 700000;//in nano-seconds
+sim_time_type Device_Parameter_Set::Preferred_suspend_write_time_for_read = 100000;//in nano-seconds
 unsigned int Device_Parameter_Set::Flash_Channel_Count = 8;
 unsigned int Device_Parameter_Set::Flash_Channel_Width = 1;//Channel width in byte
 unsigned int Device_Parameter_Set::Channel_Transfer_Rate = 300;//MT/s
@@ -253,8 +254,8 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	val = std::to_string(Overprovisioning_Ratio);
 	xmlwriter.Write_attribute_string(attr, val);
 
-	attr = "GC_Exect_Threshold";
-	val = std::to_string(GC_Exect_Threshold);
+	attr = "GC_Exec_Threshold";
+	val = std::to_string(GC_Exec_Threshold);
 	xmlwriter.Write_attribute_string(attr, val);
 
 	attr = "GC_Block_Selection_Policy";
@@ -282,6 +283,10 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 		break;
 	}
 	xmlwriter.Write_attribute_string(attr, val);
+	
+	attr = "Use_Copyback_for_GC";
+	val = (Use_Copyback_for_GC ? "true" : "false");
+	xmlwriter.Write_attribute_string(attr, val);
 
 	attr = "Preemptible_GC_Enabled";
 	val = (Preemptible_GC_Enabled ? "true" : "false");
@@ -291,16 +296,16 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	val = std::to_string(GC_Hard_Threshold);
 	xmlwriter.Write_attribute_string(attr, val);
 
-	attr = "Prefered_suspend_erase_time_for_read";
-	val = std::to_string(Prefered_suspend_erase_time_for_read);
+	attr = "Preferred_suspend_erase_time_for_read";
+	val = std::to_string(Preferred_suspend_erase_time_for_read);
 	xmlwriter.Write_attribute_string(attr, val);
 
-	attr = "Prefered_suspend_erase_time_for_write";
-	val = std::to_string(Prefered_suspend_erase_time_for_write);
+	attr = "Preferred_suspend_erase_time_for_write";
+	val = std::to_string(Preferred_suspend_erase_time_for_write);
 	xmlwriter.Write_attribute_string(attr, val);
 
-	attr = "Prefered_suspend_write_time_for_read";
-	val = std::to_string(Prefered_suspend_write_time_for_read);
+	attr = "Preferred_suspend_write_time_for_read";
+	val = std::to_string(Preferred_suspend_write_time_for_read);
 	xmlwriter.Write_attribute_string(attr, val);
 
 	attr = "Flash_Channel_Count";
@@ -513,10 +518,10 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::string val = param->value();
 				Overprovisioning_Ratio = std::stod(val);
 			}
-			else if (strcmp(param->name(), "GC_Exect_Threshold") == 0)
+			else if (strcmp(param->name(), "GC_Exec_Threshold") == 0)
 			{
 				std::string val = param->value();
-				GC_Exect_Threshold = std::stod(val);
+				GC_Exec_Threshold = std::stod(val);
 			}
 			else if (strcmp(param->name(), "GC_Block_Selection_Policy") == 0)
 			{
@@ -536,6 +541,12 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::FIFO;
 				else PRINT_ERROR("Unknown GC block selection policy specified in the SSD configuration file")
 			}
+			else if (strcmp(param->name(), "Use_Copyback_for_GC") == 0)
+			{
+					std::string val = param->value();
+					std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+					Use_Copyback_for_GC = (val.compare("FALSE") == 0 ? false : true);
+			}
 			else if (strcmp(param->name(), "Preemptible_GC_Enabled") == 0)
 			{
 				std::string val = param->value();
@@ -550,17 +561,17 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			else if (strcmp(param->name(), "Prefered_suspend_erase_time_for_read") == 0)
 			{
 				std::string val = param->value();
-				Prefered_suspend_erase_time_for_read = std::stoull(val);
+				Preferred_suspend_erase_time_for_read = std::stoull(val);
 			}
-			else if (strcmp(param->name(), "Prefered_suspend_erase_time_for_write") == 0)
+			else if (strcmp(param->name(), "Preferred_suspend_erase_time_for_write") == 0)
 			{
 				std::string val = param->value();
-				Prefered_suspend_erase_time_for_write = std::stoull(val);
+				Preferred_suspend_erase_time_for_write = std::stoull(val);
 			}
-			else if (strcmp(param->name(), "Prefered_suspend_write_time_for_read") == 0)
+			else if (strcmp(param->name(), "Preferred_suspend_write_time_for_read") == 0)
 			{
 				std::string val = param->value();
-				Prefered_suspend_write_time_for_read = std::stoull(val);
+				Preferred_suspend_write_time_for_read = std::stoull(val);
 			}
 			else if (strcmp(param->name(), "Flash_Channel_Count") == 0)
 			{

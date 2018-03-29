@@ -28,6 +28,7 @@ private:
 class IO_Flow_Parameter_Set_Synthetic : public IO_Flow_Parameter_Set
 {
 public:
+	IO_Flow_Parameter_Set_Synthetic() { this->Type = Flow_Type::SYNTHETIC; }
 	char Read_Percentage;
 	Host_Components::Address_Distribution_Type Address_Distribution;
 	char Percentage_of_Hot_Region;//This parameters used if the address distribution type is hot/cold (i.e., (100-H)% of the whole I/O requests are going to a H% hot region of the storage space)
@@ -47,6 +48,7 @@ public:
 class IO_Flow_Parameter_Set_Trace_Based : public IO_Flow_Parameter_Set
 {
 public:
+	IO_Flow_Parameter_Set_Trace_Based() { this->Type = Flow_Type::TRACE; }
 	std::string File_Path;
 	int Percentage_To_Be_Executed;
 	int Relay_Count; 

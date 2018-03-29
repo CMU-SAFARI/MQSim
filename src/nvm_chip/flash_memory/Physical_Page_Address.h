@@ -1,13 +1,14 @@
 #ifndef PHYSICAL_PAGE_ADDRESS_H
 #define PHYSICAL_PAGE_ADDRESS_H
 
+#include "../NVM_Memory_Address.h"
 #include "FlashTypes.h"
 
 namespace NVM
 {
 	namespace FlashMemory
 	{
-		class Physical_Page_Address
+		class Physical_Page_Address : public NVM_Memory_Address
 		{
 		private:
 			static bool block_address_constraint_for_multiplane;//Block address of the commands to neighbor planes must be identical for multiplane command execution
@@ -19,8 +20,8 @@ namespace NVM
 			flash_block_ID_type BlockID;
 			flash_page_ID_type PageID;
 
-			Physical_Page_Address(flash_channel_ID_type channel_id = 0, flash_chip_ID_type chip_id = 0, flash_die_ID_type die_id = 0,
-				flash_plane_ID_type plane_id = 0, flash_block_ID_type block_id = 0, flash_page_ID_type page_id = 0)
+			Physical_Page_Address(const flash_channel_ID_type channel_id = 0, const flash_chip_ID_type chip_id = 0, const flash_die_ID_type die_id = 0,
+				const flash_plane_ID_type plane_id = 0, const flash_block_ID_type block_id = 0, const flash_page_ID_type page_id = 0)
 			{
 				ChannelID = channel_id;
 				ChipID = chip_id;
@@ -40,7 +41,7 @@ namespace NVM
 				PageID = addressToCopy.PageID;
 			}
 
-			static void SetBlockAddressConstraint(bool BAConstraint)
+			static void SetBlockAddressConstraint(const bool BAConstraint)
 			{
 				block_address_constraint_for_multiplane = BAConstraint;
 			}

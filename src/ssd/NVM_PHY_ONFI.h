@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "../nvm_chip/flash_memory/Flash_Command.h"
-#include "../nvm_chip/flash_memory/Chip.h"
+#include "../nvm_chip/flash_memory/Flash_Chip.h"
 #include "NVM_Transaction_Flash.h"
 #include "NVM_Transaction_Flash_RD.h"
 #include "NVM_Transaction_Flash_WR.h"
@@ -26,18 +26,19 @@ namespace SSD_Components
 
 
 		virtual BusChannelStatus GetChannelStatus(flash_channel_ID_type) = 0;
-		virtual NVM::FlashMemory::Chip* GetChip(flash_channel_ID_type channelID, flash_chip_ID_type chipID) = 0;
-		virtual bool HasSuspendedCommand(NVM::FlashMemory::Chip* chip) = 0;
-		virtual ChipStatus GetChipStatus(NVM::FlashMemory::Chip* chip) = 0;
-		virtual sim_time_type ExpectedFinishTime(NVM::FlashMemory::Chip* chip) = 0;
+		virtual NVM::FlashMemory::Flash_Chip* GetChip(flash_channel_ID_type channelID, flash_chip_ID_type chipID) = 0;
+		virtual bool HasSuspendedCommand(NVM::FlashMemory::Flash_Chip* chip) = 0;
+		virtual ChipStatus GetChipStatus(NVM::FlashMemory::Flash_Chip* chip) = 0;
+		virtual sim_time_type ExpectedFinishTime(NVM::FlashMemory::Flash_Chip* chip) = 0;
 		/// Provides communication between controller and NVM chips for a simple read/write/erase command.
 		virtual void Send_command_to_chip(std::list<NVM_Transaction_Flash*>& transactionList) = 0;
+		virtual void Change_flash_page_status_for_preconditioning(const NVM::FlashMemory::Physical_Page_Address& page_address, const LPA_type lpa) = 0;
 
 		typedef void(*TransactionServicedHandlerType) (NVM_Transaction_Flash*);
 		void ConnectToTransactionServicedSignal(TransactionServicedHandlerType);
 		typedef void(*ChannelIdleHandlerType) (flash_channel_ID_type);
 		void ConnectToChannelIdleSignal(ChannelIdleHandlerType);
-		typedef void(*ChipIdleHandlerType) (NVM::FlashMemory::Chip*);
+		typedef void(*ChipIdleHandlerType) (NVM::FlashMemory::Flash_Chip*);
 		void ConnectToChipIdleSignal(ChipIdleHandlerType);
 	protected:
 		unsigned int channel_count;
@@ -49,7 +50,7 @@ namespace SSD_Components
 		std::vector<ChannelIdleHandlerType> connectedChannelIdleHandlers;
 		void broadcastChannelIdleSignal(flash_channel_ID_type);
 		std::vector<ChipIdleHandlerType> connectedChipIdleHandlers;
-		void broadcastChipIdleSignal(NVM::FlashMemory::Chip* chip);
+		void broadcastChipIdleSignal(NVM::FlashMemory::Flash_Chip* chip);
 	};
 }
 

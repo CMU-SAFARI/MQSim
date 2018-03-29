@@ -15,6 +15,9 @@ namespace SSD_Components
 	class FTL;
 	class Flash_Block_Manager_Base;
 
+	typedef uint32_t MVPN_type;
+	typedef uint32_t MPPN_type;
+
 	enum class Flash_Address_Mapping_Type {PAGE_LEVEL, HYBRID};
 	enum class Flash_Plane_Allocation_Scheme_Type
 	{
@@ -30,26 +33,33 @@ namespace SSD_Components
 	{
 	public:
 		Address_Mapping_Unit_Base(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI* FlashController, Flash_Block_Manager_Base* BlockManager,
-			unsigned int input_stream_no,
+			unsigned int no_of_input_streams,
 			unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int SectorsPerPage, unsigned int PageSizeInBytes,
 			double Overprovisioning_ratio, bool fold_large_addresses = true);
 
 		virtual void Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transactionList) = 0;
-		virtual bool Get_bitmap_vector_of_written_sectors_of_lpn(const stream_id_type streamID, const LPA_type lpn, page_status_type& pageState) = 0;
+		virtual void Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state) = 0;
+		virtual void Get_translation_mapping_info_for_gc(const stream_id_type stream_id, const MVPN_type mvpn, MPPN_type& mppa, sim_time_type& timestamp) = 0;
 		virtual bool Check_address_range(const stream_id_type streamID, const LPA_type lsn, const unsigned int size) = 0;
-
-		/* Used in the standalone execution mode in which the HostInterface first preprocesses
-		*  the input trace/synthetic requests and asks for creating a mapping entry for each
-		*  read LPA that is not preceded by a write.
-		*/
-		virtual PPA_type Online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap) = 0;
-		LSA_type Get_max_logical_sector_address();
+		virtual void Allocate_new_page_for_gc(NVM_Transaction_Flash_WR* transaction, bool is_translation_page) = 0;
+		unsigned int Get_no_of_input_streams() { return no_of_input_streams; }
+		
+		virtual LSA_type Get_logical_sectors_count_allocated_to_stream(stream_id_type stream_id) = 0;
+		virtual NVM::FlashMemory::Physical_Page_Address Convert_ppa_to_address(const PPA_type ppa) = 0;
+		virtual void Convert_ppa_to_address(const PPA_type ppa, NVM::FlashMemory::Physical_Page_Address& address) = 0;
+		virtual PPA_type Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress) = 0;
+		virtual void Lock_lpa(stream_id_type stream_id, LPA_type lpa) = 0;
+		virtual void Unlock_lpa(stream_id_type stream_id, LPA_type lpa) = 0;
+		virtual void Lock_mvpn(stream_id_type stream_id, MVPN_type mvpn) = 0;
+		virtual void Unlock_mvpn(stream_id_type stream_id, MVPN_type mvpn) = 0;
+		virtual bool Is_lpa_locked(stream_id_type stream_id, LPA_type lpa) = 0;
+		virtual bool Is_mvpn_locked(stream_id_type stream_id, MVPN_type mvpn) = 0;
 	protected:
 		FTL* ftl;
 		NVM_PHY_ONFI* flash_controller;
 		Flash_Block_Manager_Base* BlockManager;
-		unsigned int input_stream_no;
+		unsigned int no_of_input_streams;
 		LSA_type max_logical_sector_address;
 		unsigned int total_logical_pages_no = 0;
 
@@ -71,10 +81,8 @@ namespace SSD_Components
 		bool lpnTablePopulated;
 
 		virtual bool check_and_translate(NVM_Transaction_Flash* transaction) = 0;
-		virtual NVM::FlashMemory::Physical_Page_Address convert_ppa_to_address(const PPA_type ppn) = 0;
-		virtual void convert_ppa_to_address(const PPA_type ppn, NVM::FlashMemory::Physical_Page_Address& address) = 0;
-		virtual PPA_type convert_ppa_to_address(const NVM::FlashMemory::Physical_Page_Address& pageAddress) = 0;
 		virtual void prepare_mapping_table() = 0;
+		virtual PPA_type online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap) = 0;
 	};
 }
 

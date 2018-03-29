@@ -2,6 +2,7 @@
 #define NVM_TRANSACTION_FLASH_WR
 
 #include "../nvm_chip/flash_memory/FlashTypes.h"
+#include "../nvm_chip/NVM_Types.h"
 #include "NVM_Transaction_Flash.h"
 #include "NVM_Transaction_Flash_RD.h"
 
@@ -11,13 +12,16 @@ namespace SSD_Components
 	class NVM_Transaction_Flash_WR : public NVM_Transaction_Flash
 	{
 	public:
-		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type streamID,
-			unsigned int data_size_in_byte, LPA_type lpn, PPA_type ppn, SSD_Components::User_Request* userIORequest, uint64_t content,
-			NVM_Transaction_Flash_RD* relatedRead, page_status_type write_sectors_bitmap, data_timestamp_type DataTimeStamp);
-		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type streamID, unsigned int data_size_in_byte,
-			LPA_type lpn, SSD_Components::User_Request* userIORequest, uint64_t content, page_status_type write_sectors_bitmap, 
-			data_timestamp_type DataTimeStamp);
-		uint64_t Content; //The content of this transaction
+		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type stream_id,
+			unsigned int data_size_in_byte, LPA_type lpa, PPA_type ppa, SSD_Components::User_Request* user_io_request, NVM::memory_content_type content,
+			NVM_Transaction_Flash_RD* related_read, page_status_type write_sectors_bitmap, data_timestamp_type data_timestamp);
+		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type stream_id,
+			unsigned int data_size_in_byte, LPA_type lpa, PPA_type ppa, const NVM::FlashMemory::Physical_Page_Address& address, SSD_Components::User_Request* user_io_request, NVM::memory_content_type content,
+			NVM_Transaction_Flash_RD* related_read, page_status_type write_sectors_bitmap, data_timestamp_type data_timestamp);
+		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type stream_id,
+			unsigned int data_size_in_byte, LPA_type lpa, SSD_Components::User_Request* user_io_request, NVM::memory_content_type content,
+			page_status_type write_sectors_bitmap, data_timestamp_type data_timestamp);
+		NVM::memory_content_type Content; //The content of this transaction
 		NVM_Transaction_Flash_RD* RelatedRead; //If this write request must be preceded by a read (for partial page write), this variable is used to point to the corresponding read request
 		page_status_type write_sectors_bitmap;
 		data_timestamp_type DataTimeStamp;

@@ -19,16 +19,26 @@ namespace SSD_Components
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
 
 		void Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transactionList);
-		bool Get_bitmap_vector_of_written_sectors_of_lpn(const stream_id_type streamID, const LPA_type lpn, page_status_type& pageState);
+		void Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state);
+		void Get_translation_mapping_info_for_gc(const stream_id_type stream_id, const MVPN_type mvpn, MPPN_type& mppa, sim_time_type& timestamp);
 		bool Check_address_range(const stream_id_type streamID, const LPA_type lsn, const unsigned int size);
+		void Allocate_new_page_for_gc(NVM_Transaction_Flash_WR* transaction, bool is_translation_page);
 
-		PPA_type Online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap);
+		LSA_type Get_logical_sectors_count_allocated_to_stream(stream_id_type stream_id);
+		NVM::FlashMemory::Physical_Page_Address Convert_ppa_to_address(const PPA_type ppa);
+		void Convert_ppa_to_address(const PPA_type ppn, NVM::FlashMemory::Physical_Page_Address& address);
+		PPA_type Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress);
+
+		void Lock_lpa(stream_id_type stream_id, LPA_type lpa);
+		void Unlock_lpa(stream_id_type stream_id, LPA_type lpa);
+		void Lock_mvpn(stream_id_type stream_id, MVPN_type mpvn);
+		void Unlock_mvpn(stream_id_type stream_id, MVPN_type mpvn);
+		bool Is_lpa_locked(stream_id_type stream_id, LPA_type lpa);
+		bool Is_mvpn_locked(stream_id_type stream_id, MVPN_type mvpn);
 	private:
 		bool check_and_translate(NVM_Transaction_Flash* transaction);
-		NVM::FlashMemory::Physical_Page_Address convert_ppa_to_address(const PPA_type ppn);
-		void convert_ppa_to_address(const PPA_type ppn, NVM::FlashMemory::Physical_Page_Address& address);
-		PPA_type convert_ppa_to_address(const NVM::FlashMemory::Physical_Page_Address& pageAddress);
 		void prepare_mapping_table();
+		PPA_type online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap);
 	};
 }
 

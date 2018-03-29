@@ -26,7 +26,7 @@ typedef uint64_t data_cache_content_type;
 #define LPN_TO_UNIQUE_KEY(S,L) ((((LPA_type)S)<<56)|L)
 
 
-inline unsigned int sector_count(const page_status_type page_status)
+inline unsigned int count_sector_no_from_status_bitmap(const page_status_type page_status)
 {
 	unsigned int size = 0;
 	for (int i = 0; i < 64; i++)

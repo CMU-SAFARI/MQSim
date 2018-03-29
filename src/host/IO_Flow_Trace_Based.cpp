@@ -69,6 +69,7 @@ namespace Host_Components
 		sim_time_type last_request_arrival_time = 0;
 		while (std::getline(trace_file, trace_line))
 		{
+			Utils::Helper_Functions::Remove_cr(trace_line);
 			current_trace_line.clear();
 			Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
 			if (current_trace_line.size() != ASCIIItemsPerLine)
@@ -90,6 +91,7 @@ namespace Host_Components
 		trace_file.open(trace_file_path);
 		current_trace_line.clear();
 		std::getline(trace_file, trace_line);
+		Utils::Helper_Functions::Remove_cr(trace_line);
 		Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
 		Simulator->Register_sim_event(std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10), this);
 	}
@@ -109,6 +111,7 @@ namespace Host_Components
 			std::string trace_line;
 			if (std::getline(trace_file, trace_line))
 			{
+				Utils::Helper_Functions::Remove_cr(trace_line);
 				current_trace_line.clear();
 				Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
 			}
@@ -119,6 +122,7 @@ namespace Host_Components
 				replay_counter++;
 				time_offset = Simulator->Time();
 				std::getline(trace_file, trace_line);
+				Utils::Helper_Functions::Remove_cr(trace_line);
 				current_trace_line.clear();
 				Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
 				PRINT_MESSAGE("* Replay ound "<< replay_counter << "of "<< total_replay_no << " started  for" << ID())

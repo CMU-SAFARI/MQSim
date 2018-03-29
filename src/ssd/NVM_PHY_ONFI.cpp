@@ -38,7 +38,7 @@ namespace SSD_Components {
 		connectedChipIdleHandlers.push_back(function);
 	}
 
-	void NVM_PHY_ONFI::broadcastChipIdleSignal(NVM::FlashMemory::Chip* chip)
+	void NVM_PHY_ONFI::broadcastChipIdleSignal(NVM::FlashMemory::Flash_Chip* chip)
 	{
 		for (std::vector<ChipIdleHandlerType>::iterator it = connectedChipIdleHandlers.begin();
 			it != connectedChipIdleHandlers.end(); it++)

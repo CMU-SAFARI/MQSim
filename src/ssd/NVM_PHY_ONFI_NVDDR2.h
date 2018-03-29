@@ -93,19 +93,20 @@ namespace SSD_Components
 		void Start_simulation();
 
 		void Send_command_to_chip(std::list<NVM_Transaction_Flash*>& transactionList);
+		void Change_flash_page_status_for_preconditioning(const NVM::FlashMemory::Physical_Page_Address& page_address, const LPA_type lpa);
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
 		BusChannelStatus GetChannelStatus(flash_channel_ID_type channelID);
-		NVM::FlashMemory::Chip* GetChip(flash_channel_ID_type channelID, flash_chip_ID_type chipID);
-		bool HasSuspendedCommand(NVM::FlashMemory::Chip* chip);
-		ChipStatus GetChipStatus(NVM::FlashMemory::Chip* chip);
-		sim_time_type ExpectedFinishTime(NVM::FlashMemory::Chip* chip);
+		NVM::FlashMemory::Flash_Chip* GetChip(flash_channel_ID_type channelID, flash_chip_ID_type chipID);
+		bool HasSuspendedCommand(NVM::FlashMemory::Flash_Chip* chip);
+		ChipStatus GetChipStatus(NVM::FlashMemory::Flash_Chip* chip);
+		sim_time_type ExpectedFinishTime(NVM::FlashMemory::Flash_Chip* chip);
 	private:
 		void transfer_read_data_from_chip(ChipBookKeepingEntry* chipBKE, DieBookKeepingEntry* dieBKE, NVM_Transaction_Flash* tr);
-		void perform_interleaved_cmd_data_transfer(NVM::FlashMemory::Chip* chip, DieBookKeepingEntry* bookKeepingEntry);
-		void send_resume_command_to_chip(NVM::FlashMemory::Chip* chip, ChipBookKeepingEntry* chipBKE);
-		static void handle_ready_signal_from_chip(NVM::FlashMemory::Chip* chip, NVM::FlashMemory::Flash_Command* command);
+		void perform_interleaved_cmd_data_transfer(NVM::FlashMemory::Flash_Chip* chip, DieBookKeepingEntry* bookKeepingEntry);
+		void send_resume_command_to_chip(NVM::FlashMemory::Flash_Chip* chip, ChipBookKeepingEntry* chipBKE);
+		static void handle_ready_signal_from_chip(NVM::FlashMemory::Flash_Chip* chip, NVM::FlashMemory::Flash_Command* command);
 
-		static NVM_PHY_ONFI_NVDDR2* _myInstance;
+		static NVM_PHY_ONFI_NVDDR2* _my_instance;
 		ONFI_Channel_NVDDR2** _Channels;
 		ChipBookKeepingEntry** bookKeepingTable;
 		FlashTransactionQueue *WaitingReadTX, *WaitingGCRead_TX, *WaitingMappingRead_TX;

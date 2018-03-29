@@ -246,7 +246,7 @@ void collect_results(SSD_Device& ssd, Host_System& host, const char* output_file
 	xmlwriter.Write_close_tag();
 
 	std::vector<Host_Components::IO_Flow_Base*> IO_flows = host.Get_io_flows();
-	for (int stream_id = 0; stream_id < IO_flows.size(); stream_id++)
+	for (unsigned int stream_id = 0; stream_id < IO_flows.size(); stream_id++)
 	{
 		cout << "Flow " << IO_flows[stream_id]->ID() << " - total requests generated: " << IO_flows[stream_id]->Get_generated_request_count()
 			<< " total requests serviced:" << IO_flows[stream_id]->Get_serviced_request_count() << endl;
@@ -308,10 +308,10 @@ int main(int argc, char* argv[])
 		PRINT_MESSAGE("MQSim finished at " << dt)
 		uint64_t duration = (uint64_t)difftime(end_time, start_time);
 		PRINT_MESSAGE("Total simulation time: " << duration / 3600 << ":" << (duration % 3600) / 60 << ":" << ((duration % 3600) % 60))
-		PRINT_MESSAGE("")
+		PRINT_MESSAGE("");
 
-		PRINT_MESSAGE("Writing results to output file .......")
-		collect_results(ssd, host, (workload_defs_file_path + "_scenario_" + std::to_string(cntr) + ".xml").c_str());
+		PRINT_MESSAGE("Writing results to output file .......");
+		collect_results(ssd, host, (workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of(".")) + "_scenario_" + std::to_string(cntr) + ".xml").c_str());
 	}
 
 	return 0;

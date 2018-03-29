@@ -1,19 +1,19 @@
 #include "../../sim/Sim_Defs.h"
 #include "../../sim/Engine.h"
-#include "Chip.h"
+#include "Flash_Chip.h"
 
 
 namespace NVM
 {
 	namespace FlashMemory
 	{
-		Chip::Chip(const sim_object_id_type& id, flash_channel_ID_type channelID, flash_chip_ID_type localChipID,
+		Flash_Chip::Flash_Chip(const sim_object_id_type& id, flash_channel_ID_type channelID, flash_chip_ID_type localChipID,
 			Flash_Technology_Type flash_technology, 
 			unsigned int dieNo, unsigned int PlaneNoPerDie, unsigned int Block_no_per_plane, unsigned int Page_no_per_block,
 			sim_time_type* readLatency, sim_time_type* programLatency, sim_time_type eraseLatency,
 			sim_time_type suspendProgramLatency, sim_time_type suspendEraseLatency,
 			sim_time_type commProtocolDelayRead, sim_time_type commProtocolDelayWrite, sim_time_type commProtocolDelayErase)
-			: Sim_Object(id), ChannelID(channelID), ChipID(localChipID), flash_technology(flash_technology),
+			: NVM_Chip(id), ChannelID(channelID), ChipID(localChipID), flash_technology(flash_technology),
 			status(Internal_Status::IDLE), die_no(dieNo), plane_no_in_die(PlaneNoPerDie), block_no_in_plane(Block_no_per_plane), page_no_per_block(Page_no_per_block),
 			_RBSignalDelayRead(commProtocolDelayRead), _RBSignalDelayWrite(commProtocolDelayWrite), _RBSignalDelayErase(commProtocolDelayErase),
 			lastTransferStart(INVALID_TIME), executionStartTime(INVALID_TIME), expectedFinishTime(INVALID_TIME),
@@ -38,21 +38,21 @@ namespace NVM
 				Dies[dieID] = new Die(PlaneNoPerDie, Block_no_per_plane, Page_no_per_block);
 		}
 
-		Chip::~Chip()
+		Flash_Chip::~Flash_Chip()
 		{
 			for (unsigned int dieID = 0; dieID < die_no; dieID++)
 				delete Dies[dieID];
 			delete[] Dies;
 		}
 
-		void Chip::ConnectToChipReadySignal(ChipReadySignalHandlerType function)
+		void Flash_Chip::Connect_to_chip_ready_signal(ChipReadySignalHandlerType function)
 		{
 			connectedReadyHandlers.push_back(function);
 		}
 		
-		void Chip::Start_simulation() {}
+		void Flash_Chip::Start_simulation() {}
 
-		void Chip::Validate_simulation_config()
+		void Flash_Chip::Validate_simulation_config()
 		{
 			if (Dies == NULL || die_no == 0)
 				PRINT_ERROR("FlashChip (" + ID() + ") has no Die")
@@ -63,9 +63,16 @@ namespace NVM
 			}
 		}
 		
-		void Chip::Setup_triggers() { MQSimEngine::Sim_Object::Setup_triggers(); }
+		void Flash_Chip::Change_memory_status_preconditioning(const NVM_Memory_Address* address, const void* status_info)
+		{
+			Physical_Page_Address* flash_address = (Physical_Page_Address*)address;
+
+			Dies[flash_address->DieID]->Planes[flash_address->PlaneID]->Blocks[flash_address->BlockID]->Pages[flash_address->PageID].Metadata.LPA = *(LPA_type*)status_info;
+		}
 		
-		void Chip::Execute_simulator_event(MQSimEngine::Sim_Event* ev)
+		void Flash_Chip::Setup_triggers() { MQSimEngine::Sim_Object::Setup_triggers(); }
+		
+		void Flash_Chip::Execute_simulator_event(MQSimEngine::Sim_Event* ev)
 		{
 			Chip_Sim_Event_Type eventType = (Chip_Sim_Event_Type)ev->Type;
 			Flash_Command* command = (Flash_Command*)ev->Parameters;
@@ -73,12 +80,12 @@ namespace NVM
 			switch (eventType)
 			{
 			case Chip_Sim_Event_Type::COMMAND_FINISHED:
-				finishCommandExecution(command);
+				finish_command_execution(command);
 				break;
 			}
 		}
 
-		void Chip::startCommandExecution(Flash_Command* command)
+		void Flash_Chip::start_command_execution(Flash_Command* command)
 		{
 			Die* targetDie = Dies[command->Address[0].DieID];
 
@@ -106,7 +113,7 @@ namespace NVM
 			DEBUG("Command execution started on channel: " << this->ChannelID << " chip: " << this->ChipID)
 		}
 
-		void Chip::finishCommandExecution(Flash_Command* command)
+		void Flash_Chip::finish_command_execution(Flash_Command* command)
 		{
 			Die* targetDie = Dies[command->Address[0].DieID];
 
@@ -135,6 +142,7 @@ namespace NVM
 				{
 					STAT_readCount++;
 					targetDie->Planes[command->Address[planeCntr].PlaneID]->ReadCount++;
+					targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID]->Pages[command->Address[planeCntr].PageID].Read_metadata(command->Meta_data[planeCntr]);
 				}
 				break;
 			case CMD_PROGRAM_PAGE:
@@ -146,6 +154,7 @@ namespace NVM
 				{
 					STAT_progamCount++;
 					targetDie->Planes[command->Address[planeCntr].PlaneID]->ProgamCount++;
+					targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID]->Pages[command->Address[planeCntr].PageID].Write_metadata(command->Meta_data[planeCntr]);
 				}
 				break;
 			case CMD_ERASE_BLOCK:
@@ -154,14 +163,14 @@ namespace NVM
 				for (unsigned int planeCntr = 0; planeCntr < command->Address.size(); planeCntr++)
 				{
 					STAT_eraseCount++;
-					targetDie->Planes[command->Address[planeCntr].PlaneID]->EraseCount++;
-					/*Block* targetBlock = targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID];
-					for (int i = 0; i < page_no_per_block; i++)
+					targetDie->Planes[command->Address[planeCntr].PlaneID]->Erase_count++;
+					Block* targetBlock = targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID];
+					for (unsigned int i = 0; i < page_no_per_block; i++)
 					{
-						targetBlock->Pages[i].Metadata.SourceStreamID = NO_STREAM;
-						targetBlock->Pages[i].Metadata.Status = FREE_PAGE;
-						targetBlock->Pages[i].Metadata.LPA = INVALID_LPN;
-					}*/
+						//targetBlock->Pages[i].Metadata.SourceStreamID = NO_STREAM;
+						//targetBlock->Pages[i].Metadata.Status = FREE_PAGE;
+						targetBlock->Pages[i].Metadata.LPA = NO_LPA;
+					}
 				}
 				break;
 			}
@@ -170,17 +179,17 @@ namespace NVM
 			}
 
 			//In MQSim, flash chips always announce their status using the ready/busy signal; the controller does not issue a die status read command
-			broadcastReadySignal(command);
+			broadcast_ready_signal(command);
 		}
 
-		void Chip::broadcastReadySignal(Flash_Command* command)
+		void Flash_Chip::broadcast_ready_signal(Flash_Command* command)
 		{
 			for (std::vector<ChipReadySignalHandlerType>::iterator it = connectedReadyHandlers.begin();
 				it != connectedReadyHandlers.end(); it++)
 				(*it)(this, command);
 		}
 
-		void Chip::Suspend(flash_die_ID_type dieID)
+		void Flash_Chip::Suspend(flash_die_ID_type dieID)
 		{
 			STAT_totalExecTime += Simulator->Time() - executionStartTime;
 
@@ -209,7 +218,7 @@ namespace NVM
 			expectedFinishTime = INVALID_TIME;
 		}
 
-		void Chip::Resume(flash_die_ID_type dieID)
+		void Flash_Chip::Resume(flash_die_ID_type dieID)
 		{
 			Die* targetDie = Dies[dieID];
 			if (!targetDie->Suspended)
@@ -235,12 +244,12 @@ namespace NVM
 			executionStartTime = Simulator->Time();
 		}
 
-		sim_time_type Chip::GetSuspendProgramTime()
+		sim_time_type Flash_Chip::GetSuspendProgramTime()
 		{
 			return _suspendProgramLatency;
 		}
 	
-		sim_time_type Chip::GetSuspendEraseTime()
+		sim_time_type Flash_Chip::GetSuspendEraseTime()
 		{
 			return _suspendEraseLatency;
 		}

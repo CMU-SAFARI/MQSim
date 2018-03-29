@@ -4,7 +4,7 @@
 #include <list>
 #include "../sim/Sim_Defs.h"
 #include "../sim/Sim_Object.h"
-#include "../nvm_chip/flash_memory/Chip.h"
+#include "../nvm_chip/flash_memory/Flash_Chip.h"
 #include "../sim/Sim_Reporter.h"
 #include "FTL.h"
 #include "NVM_PHY_ONFI_NVDDR2.h"
@@ -69,15 +69,17 @@ namespace SSD_Components
 		FlashTransactionQueue** MappingReadTRQueue;
 		FlashTransactionQueue** MappingWriteTRQueue;
 
-		static TSU_Base* _myInstance;
-		std::list<NVM_Transaction_Flash*> incomingTransactionSlots;//Stores the transactions that are received for sheduling
+		static TSU_Base* _my_instance;
+		std::list<NVM_Transaction_Flash*> transaction_receive_slots;//Stores the transactions that are received for sheduling
 		std::list<NVM_Transaction_Flash*> transaction_dispatch_slots;//Used to submit transactions to the channel controller
-		virtual bool service_read_transaction(NVM::FlashMemory::Chip* chip) = 0;
-		virtual bool service_write_transaction(NVM::FlashMemory::Chip* chip) = 0;
-		virtual bool service_erase_transaction(NVM::FlashMemory::Chip* chip) = 0;
+		virtual bool service_read_transaction(NVM::FlashMemory::Flash_Chip* chip) = 0;
+		virtual bool service_write_transaction(NVM::FlashMemory::Flash_Chip* chip) = 0;
+		virtual bool service_erase_transaction(NVM::FlashMemory::Flash_Chip* chip) = 0;
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
-		static void handleChannelIdleSignal(flash_channel_ID_type);
-		static void handleChipIdleSignal(NVM::FlashMemory::Chip* chip);
+		static void handle_channel_idle_signal(flash_channel_ID_type);
+		static void handle_chip_idle_signal(NVM::FlashMemory::Flash_Chip* chip);
+
+		int opened_scheduling_reqs;
 	};
 }
 

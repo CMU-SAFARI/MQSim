@@ -1,6 +1,7 @@
 
 #include "../nvm_chip/flash_memory/Physical_Page_Address.h"
 #include "Flash_Block_Manager.h"
+#include "Stats.h"
 
 namespace SSD_Components
 {
@@ -11,50 +12,52 @@ namespace SSD_Components
 		channel_count(ChannelCount), chip_no_per_channel(ChipNoPerChannel), die_no_per_chip(DieNoPerChip), plane_no_per_die(PlaneNoPerDie),
 		block_no_per_plane(Block_no_per_plane), pages_no_per_block(Page_no_per_block)
 	{
-		planeManager = new PlaneBookKeepingType***[channel_count];
+		plane_manager = new PlaneBookKeepingType***[channel_count];
 		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
 		{
-			planeManager[channelID] = new PlaneBookKeepingType**[chip_no_per_channel];
+			plane_manager[channelID] = new PlaneBookKeepingType**[chip_no_per_channel];
 			for (unsigned int chipID = 0; chipID < chip_no_per_channel; chipID++)
 			{
-				planeManager[channelID][chipID] = new PlaneBookKeepingType*[die_no_per_chip];
+				plane_manager[channelID][chipID] = new PlaneBookKeepingType*[die_no_per_chip];
 				for (unsigned int dieID = 0; dieID < die_no_per_chip; dieID++)
 				{
-					planeManager[channelID][chipID][dieID] = new PlaneBookKeepingType[plane_no_per_die];
+					plane_manager[channelID][chipID][dieID] = new PlaneBookKeepingType[plane_no_per_die];
 					for (unsigned int planeID = 0; planeID < plane_no_per_die; planeID++)
 					{
-						planeManager[channelID][chipID][dieID][planeID].TotalPagesCount = block_no_per_plane * pages_no_per_block;
-						planeManager[channelID][chipID][dieID][planeID].FreePagesCount = block_no_per_plane * pages_no_per_block;
-						planeManager[channelID][chipID][dieID][planeID].ValidPagesCount = 0;
-						planeManager[channelID][chipID][dieID][planeID].InvalidPagesCount = 0;
-						planeManager[channelID][chipID][dieID][planeID].BlockEraseCount = new unsigned int[max_allowed_block_erase_count];
-						planeManager[channelID][chipID][dieID][planeID].BlockEraseCount[0] = block_no_per_plane * pages_no_per_block; //At the start of the simulation all pages have zero erase count
-						for (unsigned int i = 1; i < max_allowed_block_erase_count; ++i)
-							planeManager[channelID][chipID][dieID][planeID].BlockEraseCount[i] = 0;
-						planeManager[channelID][chipID][dieID][planeID].Blocks = new BlockPoolSlotType[block_no_per_plane];
+						plane_manager[channelID][chipID][dieID][planeID].Total_pages_count = block_no_per_plane * pages_no_per_block;
+						plane_manager[channelID][chipID][dieID][planeID].Free_pages_count = block_no_per_plane * pages_no_per_block;
+						plane_manager[channelID][chipID][dieID][planeID].Valid_pages_count = 0;
+						plane_manager[channelID][chipID][dieID][planeID].Invalid_pages_count = 0;
+						plane_manager[channelID][chipID][dieID][planeID].Ongoing_erase_operations.clear();
+						plane_manager[channelID][chipID][dieID][planeID].Blocks = new BlockPoolSlotType[block_no_per_plane];
 						for (unsigned int blockID = 0; blockID < block_no_per_plane; blockID++)
 						{
-							planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].BlockID = blockID;
-							planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].CurrentPageWriteIndex = 0;
-							planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].InvalidPageCount = 0;
-							planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].EraseCount = 0;
-							planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].HoldsMappingData = false;
-							BlockPoolSlotType::PageVectorSize = pages_no_per_block / 64;
-							planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].InvalidPageVector = new uint64_t[BlockPoolSlotType::PageVectorSize];
-							for (unsigned int i = 0; i < BlockPoolSlotType::PageVectorSize; i++)
-								planeManager[channelID][chipID][dieID][planeID].Blocks[blockID].InvalidPageVector[i] = All_VALID_PAGE;
-							planeManager[channelID][chipID][dieID][planeID].FreeBlockPool.push_back(&planeManager[channelID][chipID][dieID][planeID].Blocks[blockID]);
+							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].BlockID = blockID;
+							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Current_page_write_index = 0;
+							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Invalid_page_count = 0;
+							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Erase_count = 0; 
+							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Holds_mapping_data = false;
+							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Erase_transaction = NULL;
+								BlockPoolSlotType::Page_vector_size = pages_no_per_block / 64;
+							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Invalid_page_bitmap = new uint64_t[BlockPoolSlotType::Page_vector_size];
+							for (unsigned int i = 0; i < BlockPoolSlotType::Page_vector_size; i++)
+								plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Invalid_page_bitmap[i] = All_VALID_PAGE;
+							plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.push_back(&plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID]);
 						}
-						planeManager[channelID][chipID][dieID][planeID].DataWF = new BlockPoolSlotType*[total_concurrent_streams_no];
-						planeManager[channelID][chipID][dieID][planeID].TranslationWF = new BlockPoolSlotType*[total_concurrent_streams_no];
-						for (unsigned int i = 0; i < total_concurrent_streams_no; i++)
+						plane_manager[channelID][chipID][dieID][planeID].DataWF = new BlockPoolSlotType*[total_concurrent_streams_no];
+						plane_manager[channelID][chipID][dieID][planeID].Translation_wf = new BlockPoolSlotType*[total_concurrent_streams_no];
+						for (unsigned int stream_cntr = 0; stream_cntr < total_concurrent_streams_no; stream_cntr++)
 						{
-							planeManager[channelID][chipID][dieID][planeID].DataWF[i] = planeManager[channelID][chipID][dieID][planeID].FreeBlockPool.front();
-							planeManager[channelID][chipID][dieID][planeID].FreeBlockPool.pop_front();
-							planeManager[channelID][chipID][dieID][planeID].DataWF[i]->HoldsMappingData = false;
-							planeManager[channelID][chipID][dieID][planeID].TranslationWF[i] = planeManager[channelID][chipID][dieID][planeID].FreeBlockPool.front();
-							planeManager[channelID][chipID][dieID][planeID].TranslationWF[i]->HoldsMappingData = true;;
-							planeManager[channelID][chipID][dieID][planeID].FreeBlockPool.pop_front();
+							plane_manager[channelID][chipID][dieID][planeID].DataWF[stream_cntr] = plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.front();
+							plane_manager[channelID][chipID][dieID][planeID].Block_usage_history.push(plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.front()->BlockID);
+							plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.pop_front();
+							plane_manager[channelID][chipID][dieID][planeID].DataWF[stream_cntr]->Stream_id = stream_cntr;
+							plane_manager[channelID][chipID][dieID][planeID].DataWF[stream_cntr]->Holds_mapping_data = false;
+							plane_manager[channelID][chipID][dieID][planeID].Translation_wf[stream_cntr] = plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.front();
+							plane_manager[channelID][chipID][dieID][planeID].Block_usage_history.push(plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.front()->BlockID);
+							plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.pop_front();
+							plane_manager[channelID][chipID][dieID][planeID].Translation_wf[stream_cntr]->Stream_id = stream_cntr;;
+							plane_manager[channelID][chipID][dieID][planeID].Translation_wf[stream_cntr]->Holds_mapping_data = true;;
 						}
 					}
 				}
@@ -62,68 +65,71 @@ namespace SSD_Components
 		}
 	}
 
-	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_user_write(const stream_id_type streamID, NVM::FlashMemory::Physical_Page_Address& PageAddress)
+	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_user_write(const stream_id_type streamID, NVM::FlashMemory::Physical_Page_Address& page_address, bool is_for_gc)
 	{
-		PlaneBookKeepingType *plane_record = &planeManager[PageAddress.ChannelID][PageAddress.ChipID][PageAddress.DieID][PageAddress.PlaneID];
-		plane_record->FreePagesCount--;
-		plane_record->ValidPagesCount++;
-		PageAddress.BlockID = plane_record->DataWF[streamID]->BlockID;
-		PageAddress.PageID = plane_record->DataWF[streamID]->CurrentPageWriteIndex++;
-		if(plane_record->DataWF[streamID]->CurrentPageWriteIndex == pages_no_per_block)//The current write frontier block is written to the end
+		PlaneBookKeepingType *plane_record = &plane_manager[page_address.ChannelID][page_address.ChipID][page_address.DieID][page_address.PlaneID];
+		plane_record->Free_pages_count--;
+		plane_record->Valid_pages_count++;
+		page_address.BlockID = plane_record->DataWF[streamID]->BlockID;
+		page_address.PageID = plane_record->DataWF[streamID]->Current_page_write_index++;
+		if(plane_record->DataWF[streamID]->Current_page_write_index == pages_no_per_block)//The current write frontier block is written to the end
 		{
-			plane_record->DataWF[streamID] = plane_record->FreeBlockPool.front();//Assign a new write frontier block
-			plane_record->BlockUsageHistory.push(plane_record->FreeBlockPool.front()->BlockID);
-			plane_record->FreeBlockPool.pop_front();
+			plane_record->DataWF[streamID] = plane_record->Free_block_pool.front();//Assign a new write frontier block
+			plane_record->Block_usage_history.push(plane_record->Free_block_pool.front()->BlockID);
+			plane_record->Free_block_pool.pop_front();
 			plane_record->DataWF[streamID]->Stream_id = streamID;
-			plane_record->DataWF[streamID]->HoldsMappingData = false;
-			gc_and_wl_unit->Check_gc_required((unsigned int)plane_record->FreeBlockPool.size(), PageAddress);
+			plane_record->DataWF[streamID]->Holds_mapping_data = false;
+			if (!is_for_gc)
+				gc_and_wl_unit->Check_gc_required((unsigned int)plane_record->Free_block_pool.size(), page_address);
 		}
 	}
-	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_translation_write(const stream_id_type streamID, NVM::FlashMemory::Physical_Page_Address& PageAddress)
+
+	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_translation_write(const stream_id_type streamID, NVM::FlashMemory::Physical_Page_Address& page_address, bool is_for_gc)
 	{
-		PlaneBookKeepingType *plane = &planeManager[PageAddress.ChannelID][PageAddress.ChipID][PageAddress.DieID][PageAddress.PlaneID];
-		PageAddress.BlockID = plane->TranslationWF[streamID]->BlockID;
-		PageAddress.PageID = plane->TranslationWF[streamID]->CurrentPageWriteIndex++;
-		if (plane->TranslationWF[streamID]->CurrentPageWriteIndex == pages_no_per_block)//The current write frontier block for translation pages is written to the end
+		PlaneBookKeepingType *plane_record = &plane_manager[page_address.ChannelID][page_address.ChipID][page_address.DieID][page_address.PlaneID];
+		plane_record->Free_pages_count--;
+		plane_record->Valid_pages_count++;
+		page_address.BlockID = plane_record->Translation_wf[streamID]->BlockID;
+		page_address.PageID = plane_record->Translation_wf[streamID]->Current_page_write_index++;
+		if (plane_record->Translation_wf[streamID]->Current_page_write_index == pages_no_per_block)//The current write frontier block for translation pages is written to the end
 		{
-			plane->TranslationWF[streamID] = plane->FreeBlockPool.front();//Assign a new write frontier block
-			plane->FreeBlockPool.pop_front();
-			plane->TranslationWF[streamID]->Stream_id = streamID;
-			plane->TranslationWF[streamID]->HoldsMappingData = true;
-			gc_and_wl_unit->Check_gc_required((unsigned int)plane->FreeBlockPool.size(), PageAddress);
+			plane_record->Translation_wf[streamID] = plane_record->Free_block_pool.front();//Assign a new write frontier block
+			plane_record->Block_usage_history.push(plane_record->Free_block_pool.front()->BlockID);
+			plane_record->Free_block_pool.pop_front();
+			plane_record->Translation_wf[streamID]->Stream_id = streamID;
+			plane_record->Translation_wf[streamID]->Holds_mapping_data = true;
+			if (!is_for_gc)
+				gc_and_wl_unit->Check_gc_required((unsigned int)plane_record->Free_block_pool.size(), page_address);
 		}
 	}
-	void Flash_Block_Manager::Invalidate_page_in_block(const stream_id_type streamID, const NVM::FlashMemory::Physical_Page_Address& PageAddress)
+
+	void Flash_Block_Manager::Invalidate_page_in_block(const stream_id_type streamID, const NVM::FlashMemory::Physical_Page_Address& page_address)
 	{
-		planeManager[PageAddress.ChannelID][PageAddress.ChipID][PageAddress.DieID][PageAddress.PlaneID].InvalidPagesCount++;
-		planeManager[PageAddress.ChannelID][PageAddress.ChipID][PageAddress.DieID][PageAddress.PlaneID].Blocks[PageAddress.BlockID].InvalidPageCount++;
-		planeManager[PageAddress.ChannelID][PageAddress.ChipID][PageAddress.DieID][PageAddress.PlaneID].Blocks[PageAddress.BlockID].InvalidPageVector[PageAddress.PageID / 64]
-			|= ((uint64_t)0x1) << (PageAddress.PageID % 64);
+		plane_manager[page_address.ChannelID][page_address.ChipID][page_address.DieID][page_address.PlaneID].Invalid_pages_count++;
+		plane_manager[page_address.ChannelID][page_address.ChipID][page_address.DieID][page_address.PlaneID].Blocks[page_address.BlockID].Invalid_page_count++;
+		plane_manager[page_address.ChannelID][page_address.ChipID][page_address.DieID][page_address.PlaneID].Blocks[page_address.BlockID].Invalid_page_bitmap[page_address.PageID / 64]
+			|= ((uint64_t)0x1) << (page_address.PageID % 64);
 	}
 
-	void Flash_Block_Manager::Add_erased_block_to_pool(const NVM::FlashMemory::Physical_Page_Address& BloackAddress)
+	void Flash_Block_Manager::Add_erased_block_to_pool(const NVM::FlashMemory::Physical_Page_Address& block_address)
 	{
-		PlaneBookKeepingType *plane = &planeManager[BloackAddress.ChannelID][BloackAddress.ChipID][BloackAddress.DieID][BloackAddress.PlaneID];
-		BlockPoolSlotType* block = &(plane->Blocks[BloackAddress.BlockID]);
-		plane->BlockEraseCount++;
-		plane->FreePagesCount += block->InvalidPageCount;
-		plane->InvalidPagesCount -= block->InvalidPageCount;
+		PlaneBookKeepingType *plane = &plane_manager[block_address.ChannelID][block_address.ChipID][block_address.DieID][block_address.PlaneID];
+		BlockPoolSlotType* block = &(plane->Blocks[block_address.BlockID]);
+		plane->Free_pages_count += block->Invalid_page_count;
+		plane->Invalid_pages_count -= block->Invalid_page_count;
 
-		block->CurrentPageWriteIndex = 0;
-		plane->BlockEraseCount[block->EraseCount]--;
-		block->EraseCount++;
-		plane->BlockEraseCount[block->EraseCount]++;
-		block->HoldsMappingData = false;
-		block->InvalidPageCount = 0;
-		for (unsigned int i = 0; i < BlockPoolSlotType::PageVectorSize; i++)
-			block->InvalidPageVector[i] = All_VALID_PAGE;
-		plane->FreeBlockPool.push_back(block);
+		Stats::Block_erase_histogram[block_address.ChannelID][block_address.ChipID][block_address.DieID][block_address.PlaneID][block->Erase_count]--;
+		block->Erase();
+		Stats::Block_erase_histogram[block_address.ChannelID][block_address.ChipID][block_address.DieID][block_address.PlaneID][block->Erase_count]++;
+		plane->Free_block_pool.push_back(block);
 	}
+
 	inline unsigned int Flash_Block_Manager::Get_pool_size(const NVM::FlashMemory::Physical_Page_Address& plane_address)
 	{
-		return (unsigned int) planeManager[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID].FreeBlockPool.size();
+		return (unsigned int) plane_manager[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID].Free_block_pool.size();
 	}
-	void Flash_Block_Manager::GetWearlevelingBlocks(BlockPoolSlotType*& hotBlock, BlockPoolSlotType*& coldBlock)
+
+	void Flash_Block_Manager::Get_wearleveling_blocks(BlockPoolSlotType*& hotBlock, BlockPoolSlotType*& coldBlock)
 	{
 	}
 }

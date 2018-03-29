@@ -112,7 +112,7 @@ namespace SSD_Components
 		HostInterfaceType type;
 		LSA_type max_logical_sector_address;
 		unsigned int sectors_per_page;
-		static Host_Interface_Base* _myInstance;
+		static Host_Interface_Base* _my_instance;
 		Input_Stream_Manager_Base* input_stream_manager;
 		Request_Fetch_Unit_Base* request_fetch_unit;
 		Data_Cache_Manager_Base* cache;
@@ -126,7 +126,7 @@ namespace SSD_Components
 		}
 		static void handle_user_request_serviced_signal_from_cache(User_Request* user_request)
 		{
-			_myInstance->input_stream_manager->Handle_serviced_request(user_request);
+			_my_instance->input_stream_manager->Handle_serviced_request(user_request);
 		}
 	private:
 		Host_Components::PCIe_Switch* pcie_switch;

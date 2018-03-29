@@ -23,25 +23,36 @@ namespace SSD_Components
 
 	inline void TSU_OutofOrder::Prepare_for_transaction_submit()
 	{
-		incomingTransactionSlots.clear();
+		opened_scheduling_reqs++;
+		if (opened_scheduling_reqs > 1)
+			return;
+		transaction_receive_slots.clear();
 	}
 
 	inline void TSU_OutofOrder::Submit_transaction(NVM_Transaction_Flash* transaction)
 	{
-		incomingTransactionSlots.push_back(transaction);
+		transaction_receive_slots.push_back(transaction);
 	}
 
 	void TSU_OutofOrder::Schedule()
 	{
-		if (incomingTransactionSlots.size() == 0)
+		opened_scheduling_reqs--;
+		if (opened_scheduling_reqs > 0)
 			return;
-		for(std::list<NVM_Transaction_Flash*>::iterator it = incomingTransactionSlots.begin();
-			it != incomingTransactionSlots.end(); it++)
+		if (opened_scheduling_reqs < 0)
+			PRINT_ERROR("TSU Schedule function is invoked in an incorrect way!");
+
+		if (transaction_receive_slots.size() == 0)
+			return;
+
+		for(std::list<NVM_Transaction_Flash*>::iterator it = transaction_receive_slots.begin();
+			it != transaction_receive_slots.end(); it++)
 			switch ((*it)->Type)
 			{
-			case TransactionType::READ:
+			case Transaction_Type::READ:
 				switch ((*it)->Source)
 				{
+				case Transaction_Source_Type::CACHE:
 				case Transaction_Source_Type::USERIO:
 					UserReadTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
@@ -55,9 +66,10 @@ namespace SSD_Components
 					PRINT_ERROR("TSU_OutofOrder: Unhandled source type four read transaction!")
 				}
 				break;
-			case TransactionType::WRITE:
+			case Transaction_Type::WRITE:
 				switch ((*it)->Source)
 				{
+				case Transaction_Source_Type::CACHE:
 				case Transaction_Source_Type::USERIO:
 					UserWriteTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
@@ -71,7 +83,7 @@ namespace SSD_Components
 					PRINT_ERROR("TSU_OutofOrder: Unhandled source type four write transaction!")
 				}
 				break;
-			case TransactionType::ERASE:
+			case Transaction_Type::ERASE:
 				GCEraseTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 				break;
 			default:
@@ -84,7 +96,7 @@ namespace SSD_Components
 			if (_NVMController->GetChannelStatus(channelID) == BusChannelStatus::IDLE)
 			{
 				for (unsigned int i = 0; i < chip_no_per_channel; i++) {
-					NVM::FlashMemory::Chip* chip = _NVMController->GetChip(channelID, LastChip[channelID]);
+					NVM::FlashMemory::Flash_Chip* chip = _NVMController->GetChip(channelID, LastChip[channelID]);
 					//The TSU does not check if the chip is idle or not since it is possible to suspend a busy chip and issue a new command
 					if (!service_read_transaction(chip))
 						if (!service_write_transaction(chip))
@@ -97,7 +109,7 @@ namespace SSD_Components
 		}
 	}
 	
-	bool TSU_OutofOrder::service_read_transaction(NVM::FlashMemory::Chip* chip)
+	bool TSU_OutofOrder::service_read_transaction(NVM::FlashMemory::Flash_Chip* chip)
 	{
 		FlashTransactionQueue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
 
@@ -212,7 +224,7 @@ namespace SSD_Components
 		return true;
 	}
 
-	bool TSU_OutofOrder::service_write_transaction(NVM::FlashMemory::Chip* chip)
+	bool TSU_OutofOrder::service_write_transaction(NVM::FlashMemory::Flash_Chip* chip)
 	{
 		FlashTransactionQueue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
 
@@ -309,7 +321,7 @@ namespace SSD_Components
 		return true;
 	}
 
-	bool TSU_OutofOrder::service_erase_transaction(NVM::FlashMemory::Chip* chip)
+	bool TSU_OutofOrder::service_erase_transaction(NVM::FlashMemory::Flash_Chip* chip)
 	{
 		if (_NVMController->GetChipStatus(chip) != ChipStatus::IDLE)
 			return false;
@@ -327,7 +339,7 @@ namespace SSD_Components
 
 			for (FlashTransactionQueue::iterator it = source_queue->begin(); it != source_queue->end(); )
 			{
-				if ((*it)->Address.DieID == dieID && !(planeVector & 1 << (*it)->Address.PlaneID))
+				if (((NVM_Transaction_Flash_ER*)*it)->Page_movement_activities.size() == 0 && (*it)->Address.DieID == dieID && !(planeVector & 1 << (*it)->Address.PlaneID))
 				{
 					planeVector |= 1 << (*it)->Address.PlaneID;
 					transaction_dispatch_slots.push_back(*it);

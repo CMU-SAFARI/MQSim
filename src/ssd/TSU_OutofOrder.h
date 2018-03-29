@@ -36,9 +36,9 @@ namespace SSD_Components
 		void Validate_simulation_config();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
 	private:
-		bool service_read_transaction(NVM::FlashMemory::Chip* chip);
-		bool service_write_transaction(NVM::FlashMemory::Chip* chip);
-		bool service_erase_transaction(NVM::FlashMemory::Chip* chip);
+		bool service_read_transaction(NVM::FlashMemory::Flash_Chip* chip);
+		bool service_write_transaction(NVM::FlashMemory::Flash_Chip* chip);
+		bool service_erase_transaction(NVM::FlashMemory::Flash_Chip* chip);
 	};
 }
 
