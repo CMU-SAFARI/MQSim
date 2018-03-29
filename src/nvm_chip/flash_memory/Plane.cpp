@@ -5,18 +5,18 @@ namespace NVM
 	namespace FlashMemory
 	{
 		Plane::Plane(unsigned int BlocksNoPerPlane, unsigned int PagesNoPerBlock) :
-			ReadCount(0), ProgamCount(0), Erase_count(0)
+			Read_count(0), Progam_count(0), Erase_count(0)
 		{
-			HealthyBlockNo = BlocksNoPerPlane;
+			Healthy_block_no = BlocksNoPerPlane;
 			Blocks = new Block*[BlocksNoPerPlane];
 			for (unsigned int i = 0; i < BlocksNoPerPlane; i++)
 				Blocks[i] = new Block(PagesNoPerBlock, i);
-			AllocatedStreams = NULL;
+			Allocated_streams = NULL;
 		}
 
 		Plane::~Plane()
 		{
-			for (unsigned int i = 0; i < HealthyBlockNo; i++)
+			for (unsigned int i = 0; i < Healthy_block_no; i++)
 				delete Blocks[i];
 			delete[] Blocks;
 		}

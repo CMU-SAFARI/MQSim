@@ -3,6 +3,7 @@
 
 #include<cstdint>
 #include "../../sim/Sim_Defs.h"
+#include "../NVM_Types.h"
 
 namespace NVM
 {
