@@ -1044,7 +1044,7 @@ namespace SSD_Components
 		//Read the unchaged mapping entries from flash to merge them with updated parts of MVPN
 		NVM_Transaction_Flash_RD* readTR = NULL;
 		MPPN_type mppn = domains[stream_id]->GlobalTranslationDirectory[mvpn].MPPN;
-		if (mppn != NO_PPA)
+		if (mppn != NO_MPPN)
 		{
 			readTR = new NVM_Transaction_Flash_RD(Transaction_Source_Type::MAPPING, stream_id, read_size,
 				mvpn, mppn, NULL, mvpn, NULL, readSectorsBitmap, CurrentTimeStamp);
@@ -1079,7 +1079,7 @@ namespace SSD_Components
 
 		PPA_type ppn = domains[stream_id]->GlobalTranslationDirectory[mvpn].MPPN;
 		
-		if(ppn == NO_PPA)
+		if(ppn == NO_MPPN)
 			PRINT_ERROR("Reading an unaviable physical flash page in function generate_flash_read_request_for_mapping_data")
 
 		NVM_Transaction_Flash_RD* readTR = new NVM_Transaction_Flash_RD(Transaction_Source_Type::MAPPING, stream_id,
@@ -1173,7 +1173,7 @@ namespace SSD_Components
 		if (is_translation_page)
 		{
 			MPPN_type mppn = domains[transaction->Stream_id]->GlobalTranslationDirectory[transaction->LPA].MPPN;
-			if (mppn == NO_PPA)
+			if (mppn == NO_MPPN)
 				PRINT_ERROR("Unexpected situation occured for gc write in Allocate_new_page_for_gc function!")
 
 			allocate_page_in_plane_for_translation_write(transaction, (MVPN_type)transaction->LPA, true);
