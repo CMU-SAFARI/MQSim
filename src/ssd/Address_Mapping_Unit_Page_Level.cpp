@@ -174,17 +174,54 @@ namespace SSD_Components
 		}
 	}
 
+	inline void AddressMappingDomain::Update_mapping_info(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa, const PPA_type ppa, const page_status_type page_status_bitmap)
+	{
+		if (ideal_mapping)
+		{
+			GlobalMappingTable[lpa].PPA = ppa;
+			GlobalMappingTable[lpa].WrittenStateBitmap = page_status_bitmap;
+			GlobalMappingTable[lpa].TimeStamp = CurrentTimeStamp;
+		}
+		else
+			CMT->Update_mapping_info(stream_id, lpa, ppa, page_status_bitmap);
+
+	}
+
+	inline page_status_type AddressMappingDomain::Get_page_status(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
+	{
+		if (ideal_mapping)
+			return GlobalMappingTable[lpa].WrittenStateBitmap;
+		else
+			return CMT->Get_bitmap_vector_of_written_sectors(stream_id, lpa);
+	}
+
+	inline PPA_type AddressMappingDomain::Get_ppa(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
+	{
+		if (ideal_mapping)
+			return GlobalMappingTable[lpa].PPA;
+		else
+			return CMT->Retrieve_ppa(stream_id, lpa);
+	}
+
+	inline bool AddressMappingDomain::Mapping_entry_accessible(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
+	{
+		if (ideal_mapping)
+			return true;
+		else
+			return CMT->Exists(stream_id, lpa);
+	}
+
 	Address_Mapping_Unit_Page_Level* Address_Mapping_Unit_Page_Level::_my_instance = NULL;
 
 	Address_Mapping_Unit_Page_Level::Address_Mapping_Unit_Page_Level(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* BlockManager,
-		unsigned int cmt_capacity_in_byte, Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
+		bool ideal_mapping_table, unsigned int cmt_capacity_in_byte, Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
 		unsigned int ConcurrentStreamNo,
 		unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 		std::vector<std::vector<flash_channel_ID_type>> stream_channel_ids, std::vector<std::vector<flash_chip_ID_type>> stream_chip_ids,
 		std::vector<std::vector<flash_die_ID_type>> stream_die_ids, std::vector<std::vector<flash_plane_ID_type>> stream_plane_ids,
 		unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int SectorsPerPage, unsigned int PageSizeInByte,
 		double Overprovisioning_ratio, CMT_Sharing_Mode SharingMode, bool fold_large_addresses)
-		: Address_Mapping_Unit_Base(id, ftl, flash_controller, BlockManager,
+		: Address_Mapping_Unit_Base(id, ftl, flash_controller, BlockManager, ideal_mapping_table,
 			ConcurrentStreamNo, ChannelCount, ChipNoPerChannel, DieNoPerChip, PlaneNoPerDie,
 			Block_no_per_plane, Page_no_per_block, SectorsPerPage, PageSizeInByte, Overprovisioning_ratio, fold_large_addresses),
 		SharingMode(SharingMode)
@@ -490,7 +527,7 @@ namespace SSD_Components
 
 		BlockManager->Allocate_block_and_page_in_plane_for_user_write(stream_id, read_address, false);
 		PPA_type ppa = Convert_address_to_ppa(read_address);
-		domain->CMT->Update_mapping_info(stream_id, lpa, ppa, read_sectors_bitmap);
+		domain->Update_mapping_info(ideal_mapping_table, stream_id, lpa, ppa, read_sectors_bitmap);
 		
 		return ppa;
 	}
@@ -516,10 +553,10 @@ namespace SSD_Components
 
 	inline void Address_Mapping_Unit_Page_Level::Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state)
 	{
-		if (domains[stream_id]->CMT->Exists(stream_id, lpa))
+		if (domains[stream_id]->Mapping_entry_accessible(ideal_mapping_table, stream_id, lpa))
 		{
-			ppa = domains[stream_id]->CMT->Retrieve_ppa(stream_id, lpa);
-			page_state = domains[stream_id]->CMT->Get_bitmap_vector_of_written_sectors(stream_id, lpa);
+			ppa = domains[stream_id]->Get_ppa(ideal_mapping_table, stream_id, lpa);
+			page_state = domains[stream_id]->Get_page_status(ideal_mapping_table, stream_id, lpa);
 		}
 		else
 		{
@@ -533,7 +570,6 @@ namespace SSD_Components
 		mppa = domains[stream_id]->GlobalTranslationDirectory[mvpn].MPPN;
 		timestamp = domains[stream_id]->GlobalTranslationDirectory[mvpn].TimeStamp;
 	}
-
 
 	inline MVPN_type Address_Mapping_Unit_Page_Level::get_MVPN(const LPA_type lpn, stream_id_type stream_id)
 	{
@@ -551,12 +587,17 @@ namespace SSD_Components
 		return (MVPN_type)(mvpn * no_of_translation_entries_per_page + no_of_translation_entries_per_page - 1);
 	}
 
+	LSA_type Address_Mapping_Unit_Page_Level::Get_logical_sectors_count_allocated_to_stream(stream_id_type stream_id)
+	{
+		return this->domains[stream_id]->max_logical_sector_address;
+	}
+
 	bool Address_Mapping_Unit_Page_Level::check_and_translate(NVM_Transaction_Flash* transaction)
 	{
 		stream_id_type streamID = transaction->Stream_id;
 		domains[streamID]->STAT_total_CMT_queries++;
 
-		if (domains[streamID]->CMT->Exists(streamID, transaction->LPA))
+		if (domains[streamID]->Mapping_entry_accessible(ideal_mapping_table, streamID, transaction->LPA))//Either limited or unlimited CMT
 		{
 			domains[streamID]->STAT_CMT_hits++;
 			if (transaction->Type == Transaction_Type::READ)
@@ -573,7 +614,7 @@ namespace SSD_Components
 			transaction->Physical_address_determined = true;
 			return true;
 		}
-		else
+		else//Limited CMT
 		{
 			if (request_mapping_entry_for_lpn(streamID, transaction->LPA))//Maybe we can catch mapping data from an on-the-fly write back request
 			{
@@ -616,7 +657,8 @@ namespace SSD_Components
 	*/
 	inline void Address_Mapping_Unit_Page_Level::translate_lpa_to_ppa(stream_id_type streamID, NVM_Transaction_Flash* transaction)
 	{
-		PPA_type ppa = domains[streamID]->CMT->Retrieve_ppa(streamID, transaction->LPA);
+		PPA_type ppa = domains[streamID]->Get_ppa(ideal_mapping_table, streamID, transaction->LPA);
+
 		if (transaction->Type == Transaction_Type::READ)
 		{
 			if (ppa == NO_PPA)
@@ -628,7 +670,7 @@ namespace SSD_Components
 		{
 			if (ppa != NO_PPA)//check if an update read is required
 			{
-				page_status_type previous_status = domains[streamID]->CMT->Get_bitmap_vector_of_written_sectors(streamID, transaction->LPA);
+				page_status_type previous_status = domains[streamID]->Get_page_status(ideal_mapping_table, streamID, transaction->LPA);
 				page_status_type status_intersection = previous_status & ((NVM_Transaction_Flash_WR*)transaction)->write_sectors_bitmap;
 				if (status_intersection != previous_status)
 				{
@@ -813,13 +855,13 @@ namespace SSD_Components
 			PRINT_ERROR("Unhandled allocation scheme type!")
 		}
 	}
-	
+
 	void Address_Mapping_Unit_Page_Level::allocate_page_in_plane_for_user_write(NVM_Transaction_Flash_WR* transaction, bool is_for_gc)
 	{
 		AddressMappingDomain* domain = domains[transaction->Stream_id];
+		PPA_type old_ppa = domain->Get_ppa(ideal_mapping_table, transaction->Stream_id, transaction->LPA);
 
-		PPA_type old_ppn = domain->CMT->Retrieve_ppa(transaction->Stream_id, transaction->LPA);
-		if (old_ppn == NO_PPA)  /*this is the first access to the logical page*/
+		if (old_ppa == NO_PPA)  /*this is the first access to the logical page*/
 		{
 			if (is_for_gc)
 				PRINT_ERROR("Unexpected situation in allocate_page_in_plane_for_user_write for GC write!")
@@ -828,25 +870,25 @@ namespace SSD_Components
 		{
 			if (is_for_gc)
 			{
-				page_status_type page_status_in_cmt = domain->CMT->Get_bitmap_vector_of_written_sectors(transaction->Stream_id, transaction->LPA);
+				page_status_type page_status_in_cmt = domain->Get_page_status(ideal_mapping_table, transaction->Stream_id, transaction->LPA);
 				if(page_status_in_cmt != transaction->write_sectors_bitmap)
 					PRINT_ERROR("Unexpected situation in allocate_page_in_plane_for_user_write for GC write!")
 			}
 			else
 			{
-				page_status_type prev_page_status = domain->CMT->Get_bitmap_vector_of_written_sectors(transaction->Stream_id, transaction->LPA);
+				page_status_type prev_page_status = domain->Get_page_status(ideal_mapping_table, transaction->Stream_id, transaction->LPA);
 				if ((transaction->write_sectors_bitmap & prev_page_status) == prev_page_status)
 				{
 					NVM::FlashMemory::Physical_Page_Address addr;
-					Convert_ppa_to_address(old_ppn, addr);
+					Convert_ppa_to_address(old_ppa, addr);
 					BlockManager->Invalidate_page_in_block(transaction->Stream_id, addr);
 				}
 				else
 				{
 					NVM_Transaction_Flash_RD *update_read_tr = new NVM_Transaction_Flash_RD(transaction->Source, transaction->Stream_id,
-						count_sector_no_from_status_bitmap(prev_page_status) * SECTOR_SIZE_IN_BYTE, transaction->LPA, old_ppn, transaction->UserIORequest,
+						count_sector_no_from_status_bitmap(prev_page_status) * SECTOR_SIZE_IN_BYTE, transaction->LPA, old_ppa, transaction->UserIORequest,
 						transaction->Content, transaction, prev_page_status, domain->GlobalMappingTable[transaction->LPA].TimeStamp);
-					Convert_ppa_to_address(old_ppn, update_read_tr->Address);
+					Convert_ppa_to_address(old_ppa, update_read_tr->Address);
 					BlockManager->Invalidate_page_in_block(transaction->Stream_id, update_read_tr->Address);
 					transaction->RelatedRead = update_read_tr;
 				}
@@ -858,9 +900,8 @@ namespace SSD_Components
 		* may decide to move a page that is just invalidated.*/
 		BlockManager->Allocate_block_and_page_in_plane_for_user_write(transaction->Stream_id, transaction->Address, is_for_gc);
 		transaction->PPA = Convert_address_to_ppa(transaction->Address);
-		domain->CMT->Update_mapping_info(transaction->Stream_id, transaction->LPA, transaction->PPA,
-			((NVM_Transaction_Flash_WR*)transaction)->write_sectors_bitmap | domain->CMT->Get_bitmap_vector_of_written_sectors(transaction->Stream_id, transaction->LPA));
-
+		domain->Update_mapping_info(ideal_mapping_table, transaction->Stream_id, transaction->LPA, transaction->PPA,
+			((NVM_Transaction_Flash_WR*)transaction)->write_sectors_bitmap | domain->Get_page_status(ideal_mapping_table, transaction->Stream_id, transaction->LPA));
 	}
 
 	void Address_Mapping_Unit_Page_Level::allocate_plane_for_translation_write(NVM_Transaction_Flash* transaction)
@@ -1101,6 +1142,10 @@ namespace SSD_Components
 		//First check if the transaction source is Mapping Module
 		if (transaction->Source != Transaction_Source_Type::MAPPING)
 			return;
+
+		if(_my_instance->ideal_mapping_table)
+			throw std::logic_error("There should not be any flash read/write when ideal mapping is enabled!");
+
 		if (transaction->Type == Transaction_Type::WRITE)
 		{
 			_my_instance->domains[transaction->Stream_id]->DepartingMappingEntries.erase((MVPN_type)((NVM_Transaction_Flash_WR*)transaction)->Content);
@@ -1188,14 +1233,14 @@ namespace SSD_Components
 			stream_id_type stream_id = transaction->Stream_id;
 			domains[stream_id]->STAT_total_CMT_queries++;
 
-			if (domains[stream_id]->CMT->Exists(stream_id, transaction->LPA))
+			if (domains[stream_id]->Mapping_entry_accessible(ideal_mapping_table, stream_id, transaction->LPA))//either limited or unlimited mapping
 			{
 				domains[stream_id]->STAT_CMT_hits++;
 				domains[stream_id]->STAT_total_writeTR_CMT_queries++;
 				domains[stream_id]->STAT_writeTR_CMT_hits++;
-				domains[stream_id]->CMT->Update_mapping_info(stream_id, transaction->LPA, transaction->PPA, transaction->write_sectors_bitmap);
+				domains[stream_id]->Update_mapping_info(ideal_mapping_table, stream_id, transaction->LPA, transaction->PPA, transaction->write_sectors_bitmap);
 			}
-			else
+			else//the else block only executed for non-ideal mapping table in which CMT has a limited capacity and mapping data is read/written from/to the flash storage
 			{
 				if (!domains[stream_id]->CMT->Check_free_slot_availability())
 				{
@@ -1218,12 +1263,8 @@ namespace SSD_Components
 				domains[stream_id]->CMT->Reserve_slot_for_lpn(stream_id, transaction->LPA);
 				domains[stream_id]->CMT->Insert_new_mapping_info(stream_id, transaction->LPA, transaction->PPA, transaction->write_sectors_bitmap);
 			}
-		}
-	}
 
-	LSA_type Address_Mapping_Unit_Page_Level::Get_logical_sectors_count_allocated_to_stream(stream_id_type stream_id)
-	{
-		return this->domains[stream_id]->max_logical_sector_address;
+		}
 	}
 
 	inline NVM::FlashMemory::Physical_Page_Address Address_Mapping_Unit_Page_Level::Convert_ppa_to_address(const PPA_type ppa)
@@ -1301,5 +1342,4 @@ namespace SSD_Components
 		}
 
 	}
-
 }

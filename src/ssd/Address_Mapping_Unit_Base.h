@@ -33,7 +33,7 @@ namespace SSD_Components
 	{
 	public:
 		Address_Mapping_Unit_Base(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI* FlashController, Flash_Block_Manager_Base* BlockManager,
-			unsigned int no_of_input_streams,
+			bool ideal_mapping_table, unsigned int no_of_input_streams,
 			unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int SectorsPerPage, unsigned int PageSizeInBytes,
 			double Overprovisioning_ratio, bool fold_large_addresses = true);
@@ -59,6 +59,7 @@ namespace SSD_Components
 		FTL* ftl;
 		NVM_PHY_ONFI* flash_controller;
 		Flash_Block_Manager_Base* BlockManager;
+		bool ideal_mapping_table;//If mapping is ideal, then all the mapping entries are found in the DRAM and there is no need to read mapping entries from flash
 		unsigned int no_of_input_streams;
 		LSA_type max_logical_sector_address;
 		unsigned int total_logical_pages_no = 0;

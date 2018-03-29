@@ -9,7 +9,7 @@ namespace SSD_Components
 	{
 	public:
 		Address_Mapping_Unit_Hybrid(sim_object_id_type id, FTL* ftl, NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* BlockManager,
-			unsigned int ConcurrentStreamNo,
+			bool ideal_mapping_table, unsigned int ConcurrentStreamNo,
 			unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int SectorsPerPage, unsigned int PageSizeInBytes,
 			double Overprovisioning_ratio, bool fold_large_addresses = true);

@@ -17,6 +17,7 @@ sim_time_type Device_Parameter_Set::Data_Cache_DRAM_tRCD = 13;//tRCD parameter t
 sim_time_type Device_Parameter_Set::Data_Cache_DRAM_tCL = 13;//tCL parameter to access DRAM in the data cache, the unit is nano-seconds
 sim_time_type Device_Parameter_Set::Data_Cache_DRAM_tRP = 13;//tRP parameter to access DRAM in the data cache, the unit is nano-seconds
 SSD_Components::Flash_Address_Mapping_Type Device_Parameter_Set::Address_Mapping = SSD_Components::Flash_Address_Mapping_Type::PAGE_LEVEL;
+bool Device_Parameter_Set::Ideal_Mapping_Table = false;//If mapping is ideal, then all the mapping entries are found in the DRAM and there is no need to read mapping entries from flash
 unsigned int Device_Parameter_Set::CMT_Capacity = 2 * 1024 * 1024;//Size of SRAM/DRAM space that is used to cache address mapping table in bytes
 SSD_Components::CMT_Sharing_Mode Device_Parameter_Set::CMT_Sharing_Mode = SSD_Components::CMT_Sharing_Mode::SHARED;//How the entire CMT space is shared among concurrently running flows
 SSD_Components::Flash_Plane_Allocation_Scheme_Type Device_Parameter_Set::Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::CWDP;
@@ -138,6 +139,10 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	}
 	xmlwriter.Write_attribute_string(attr, val);
 
+	attr = "Ideal_Mapping_Table";
+	val = (Use_Copyback_for_GC ? "true" : "false");
+	xmlwriter.Write_attribute_string(attr, val);
+	
 	attr = "CMT_Capacity";
 	val = std::to_string(CMT_Capacity);
 	xmlwriter.Write_attribute_string(attr, val);
@@ -433,6 +438,12 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				else if (strcmp(val.c_str(), "HYBRID") == 0)
 					Address_Mapping = SSD_Components::Flash_Address_Mapping_Type::HYBRID;
 				else PRINT_ERROR("Unknown address mapping type specified in the SSD configuration file")
+			}
+			else if (strcmp(param->name(), "Ideal_Mapping_Table") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				Ideal_Mapping_Table = (val.compare("FALSE") == 0 ? false : true);
 			}
 			else if (strcmp(param->name(), "CMT_Capacity") == 0)
 			{
