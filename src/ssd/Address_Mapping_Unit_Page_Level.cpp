@@ -896,6 +896,7 @@ namespace SSD_Components
 		AddressMappingDomain* domain = domains[stream_id];
 		MVPN_type mvpn = get_MVPN(lpa, stream_id);
 
+
 		/*This is the first time that a user request accesses this address.
 		Just create an entry in cache! No flash read is needed.*/
 		if (domain->GlobalTranslationDirectory[mvpn].MPPN == NO_MPPN)
@@ -955,6 +956,7 @@ namespace SSD_Components
 				}
 				domain->CMT->Reserve_slot_for_lpn(stream_id, lpa);
 				domain->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpa));
+
 				return false;
 			}
 		}
@@ -1118,39 +1120,45 @@ namespace SSD_Components
 				if ((*it).first == mvpn)
 				{
 					LPA_type lpa = (*it).second;
-					_my_instance->domains[transaction->Stream_id]->CMT->Insert_new_mapping_info(transaction->Stream_id, lpa,
-						_my_instance->domains[transaction->Stream_id]->GlobalMappingTable[lpa].PPA,
-						_my_instance->domains[transaction->Stream_id]->GlobalMappingTable[lpa].WrittenStateBitmap);
-					std::map<LPA_type, NVM_Transaction_Flash*>::iterator it2 = _my_instance->domains[transaction->Stream_id]->Waiting_unmapped_read_transactions.find(lpa);
-					while (it2 != _my_instance->domains[transaction->Stream_id]->Waiting_unmapped_read_transactions.end() &&
-						(*it2).first == lpa)
+
+					//This mapping entry maybe arrived due to an update read request that is required for merging new and old mapping entries.
+					//If that is the case, we should not insert it into CMT
+					if (_my_instance->domains[transaction->Stream_id]->CMT->Is_slot_reserved_for_lpn_and_waiting(transaction->Stream_id, lpa))
 					{
-						if (_my_instance->Is_lpa_locked(transaction->Stream_id, lpa))
+						_my_instance->domains[transaction->Stream_id]->CMT->Insert_new_mapping_info(transaction->Stream_id, lpa,
+							_my_instance->domains[transaction->Stream_id]->GlobalMappingTable[lpa].PPA,
+							_my_instance->domains[transaction->Stream_id]->GlobalMappingTable[lpa].WrittenStateBitmap);
+						std::map<LPA_type, NVM_Transaction_Flash*>::iterator it2 = _my_instance->domains[transaction->Stream_id]->Waiting_unmapped_read_transactions.find(lpa);
+						while (it2 != _my_instance->domains[transaction->Stream_id]->Waiting_unmapped_read_transactions.end() &&
+							(*it2).first == lpa)
 						{
-							_my_instance->manage_transaction_with_locked_lpa(transaction);
+							if (_my_instance->Is_lpa_locked(transaction->Stream_id, lpa))
+							{
+								_my_instance->manage_transaction_with_locked_lpa(transaction);
+							}
+							else
+							{
+								_my_instance->translate_lpa_to_ppa(transaction->Stream_id, it2->second);
+								_my_instance->ftl->TSU->Submit_transaction(it2->second);
+							}
+							_my_instance->domains[transaction->Stream_id]->Waiting_unmapped_read_transactions.erase(it2++);
 						}
-						else
+						it2 = _my_instance->domains[transaction->Stream_id]->Waiting_unmapped_program_transactions.find(lpa);
+						while (it2 != _my_instance->domains[transaction->Stream_id]->Waiting_unmapped_program_transactions.end() &&
+							(*it2).first == lpa)
 						{
-							_my_instance->translate_lpa_to_ppa(transaction->Stream_id, it2->second);
-							_my_instance->ftl->TSU->Submit_transaction(it2->second);
+							if (_my_instance->Is_lpa_locked(transaction->Stream_id, lpa))
+							{
+							}
+							else
+							{
+								_my_instance->translate_lpa_to_ppa(transaction->Stream_id, it2->second);
+								_my_instance->ftl->TSU->Submit_transaction(it2->second);
+								if (((NVM_Transaction_Flash_WR*)it2->second)->RelatedRead != NULL)
+									_my_instance->ftl->TSU->Submit_transaction(((NVM_Transaction_Flash_WR*)it2->second)->RelatedRead);
+							}
+							_my_instance->domains[transaction->Stream_id]->Waiting_unmapped_program_transactions.erase(it2++);
 						}
-						_my_instance->domains[transaction->Stream_id]->Waiting_unmapped_read_transactions.erase(it2++);
-					}
-					it2 = _my_instance->domains[transaction->Stream_id]->Waiting_unmapped_program_transactions.find(lpa);
-					while (it2 != _my_instance->domains[transaction->Stream_id]->Waiting_unmapped_program_transactions.end() &&
-						(*it2).first == lpa)
-					{
-						if (_my_instance->Is_lpa_locked(transaction->Stream_id, lpa))
-						{
-						}
-						else
-						{
-							_my_instance->translate_lpa_to_ppa(transaction->Stream_id, it2->second);
-							_my_instance->ftl->TSU->Submit_transaction(it2->second);
-							if (((NVM_Transaction_Flash_WR*)it2->second)->RelatedRead != NULL)
-								_my_instance->ftl->TSU->Submit_transaction(((NVM_Transaction_Flash_WR*)it2->second)->RelatedRead);
-						}
-						_my_instance->domains[transaction->Stream_id]->Waiting_unmapped_program_transactions.erase(it2++);
 					}
 				}
 				else break;
