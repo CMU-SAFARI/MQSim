@@ -131,10 +131,7 @@ namespace SSD_Components
 		unsigned int Page_no_per_block;
 		unsigned int Sectors_no_per_page;
 		double Overprovisioning_ratio;
-
-		unsigned int STAT_CMT_hits, STAT_readTR_CMT_hits, STAT_writeTR_CMT_hits;
-		unsigned int STAT_CMT_miss, STAT_readTR_CMT_miss, STAT_writeTR_CMT_miss;
-		unsigned int STAT_total_CMT_queries, STAT_total_readTR_CMT_queries, STAT_total_writeTR_CMT_queries;
+		
 	};
 
 	class Address_Mapping_Unit_Page_Level : public Address_Mapping_Unit_Base

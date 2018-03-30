@@ -1,6 +1,7 @@
 #ifndef FTL_H
 #define FTL_H
 
+#include"../sim/Sim_Reporter.h"
 #include "Data_Cache_Manager_Flash.h"
 #include "NVM_Firmware.h"
 #include "TSU_Base.h"
@@ -30,6 +31,7 @@ namespace SSD_Components
 		Flash_Block_Manager_Base* BlockManager;
 		GC_and_WL_Unit_Base* GC_and_WL_Unit;
 		TSU_Base * TSU;
+		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 	private:
 		void handle_user_request(User_Request* user_request);
 	};

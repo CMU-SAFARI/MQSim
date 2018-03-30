@@ -167,6 +167,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_1->Plane_No = 2;
 		io_flow_1->Plane_IDs = new flash_plane_ID_type[2];
 		io_flow_1->Plane_IDs[0] = 0; io_flow_1->Plane_IDs[1] = 1;
+		io_flow_1->Working_Set_Percentage = 50;
 		io_flow_1->Read_Percentage = 100;
 		io_flow_1->Address_Distribution = Host_Components::Address_Distribution_Type::UNIFORM_RANDOM;
 		io_flow_1->Percentage_of_Hot_Region = 0;
@@ -196,6 +197,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Plane_No = 2;
 		io_flow_2->Plane_IDs = new flash_plane_ID_type[2];
 		io_flow_2->Plane_IDs[0] = 0; io_flow_2->Plane_IDs[1] = 1;
+		io_flow_2->Working_Set_Percentage = 50;
 		io_flow_2->Read_Percentage = 100;
 		io_flow_2->Address_Distribution = Host_Components::Address_Distribution_Type::STREAMING;
 		io_flow_2->Percentage_of_Hot_Region = 0;

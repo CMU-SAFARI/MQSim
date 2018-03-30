@@ -100,6 +100,10 @@ void IO_Flow_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 		val += std::to_string(Plane_IDs[i]);
 	}
 	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Working_Set_Percentage";
+	val = std::to_string(Working_Set_Percentage);
+	xmlwriter.Write_attribute_string(attr, val);
 }
 
 void IO_Flow_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
@@ -233,6 +237,11 @@ void IO_Flow_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				int i = 0;
 				for (auto it = ids.begin(); it != ids.end(); it++)
 					Plane_IDs[i++] = *it;
+			}
+			else if (strcmp(param->name(), "Working_Set_Percentage") == 0)
+			{
+				std::string val = param->value();
+				Working_Set_Percentage = std::stoi(val);
 			}
 		}
 	}

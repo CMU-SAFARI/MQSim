@@ -258,7 +258,9 @@ void SSD_Device::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter
 	xmlwriter.Write_open_tag(tmp);
 
 	if (Memory_Type == NVM::NVM_Type::FLASH)
+	{
+		((SSD_Components::FTL*)this->Firmware)->Report_results_in_XML(ID(), xmlwriter);
 		((SSD_Components::FTL*)this->Firmware)->TSU->Report_results_in_XML(ID(), xmlwriter);
-
+	}
 	xmlwriter.Write_close_tag();
 }

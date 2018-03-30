@@ -32,6 +32,7 @@ namespace Host_Components
 						|| \
 						(Q.Submission_queue_head - Q.Submission_queue_tail == Q.Submission_queue_size))
 	
+
 	struct NCQ //SATA native command queue
 	{
 	};
@@ -71,7 +72,7 @@ namespace Host_Components
 		HostInterfaceType SSD_device_type;
 		PCIe_Root_Complex* pcie_root_complex;
 
-		std::unordered_map<uint16_t, Host_IO_Reqeust*> enqueued_requests;//The I/O requests that are enqueued in the I/O queue of the SSD device
+		std::unordered_map<sim_time_type, Host_IO_Reqeust*> enqueued_requests;//The I/O requests that are enqueued in the I/O queue of the SSD device
 		std::list<Host_IO_Reqeust*> waiting_requests;//The I/O requests that are still waiting (since the I/O queue is full) to be enqueued in the I/O queue 
 		NVMe_Queue_Pair nvme_queue_pair;
 		static unsigned int last_id;

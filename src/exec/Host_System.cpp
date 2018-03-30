@@ -32,7 +32,7 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 		{
 			IO_Flow_Parameter_Set_Synthetic* flow_param = (IO_Flow_Parameter_Set_Synthetic*)parameters->IO_Flow_Definitions[flow_id];
 			io_flow = new Host_Components::IO_Flow_Synthetic(this->ID() + ".IO_Flow.Synth.No_" + std::to_string(flow_id),
-				address_range_per_flow * flow_id, address_range_per_flow * (flow_id + 1) - 1, 
+				address_range_per_flow * flow_id, (LSA_type)(address_range_per_flow * (flow_id + 1) * ((double)flow_param->Working_Set_Percentage / 100.0)) - 1,
 				FLOW_ID_TO_Q_ID(flow_id), ((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_submission_queue_depth(),
 				((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth(),
 				flow_param->Priority_Class, flow_param->Read_Percentage / double(100.0), flow_param->Address_Distribution, flow_param->Percentage_of_Hot_Region / double(100.0),

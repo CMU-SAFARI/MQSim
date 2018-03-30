@@ -107,7 +107,6 @@ namespace Host_Components
 		enqueued_requests.erase(cqe->Command_Identifier);
 		sim_time_type device_response_time = Simulator->Time() - request->Enqueue_time;
 		sim_time_type request_delay = Simulator->Time() - request->Arrival_time;
-		DEBUG("* Host: Request #" << cqe->Command_Identifier << " finished: end-to-end delay:" << (request_delay / 1000) << "(us) device response time:" << (device_response_time / 1000) << "(us)")
 		STAT_serviced_request_count++;
 		STAT_sum_device_response_time += device_response_time;
 		STAT_sum_request_delay += request_delay;

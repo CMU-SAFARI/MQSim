@@ -140,10 +140,7 @@ namespace SSD_Components
 		PlaneAllocationScheme(PlaneAllocationScheme),
 		ChannelIDs(ChannelIDs), ChannelNo(ChannelNo), ChipIDs(ChipIDs), ChipNo(ChipNo), DieIDs(DieIDs), DieNo(DieNo), PlaneIDs(PlaneIDs), PlaneNo(PlaneNo),
 		Block_no_per_plane(Block_no_per_plane), Page_no_per_block(Page_no_per_block), Sectors_no_per_page(Sectors_no_per_page), 
-		Overprovisioning_ratio(Overprovisioning_ratio),
-		STAT_CMT_hits(0), STAT_readTR_CMT_hits(0), STAT_writeTR_CMT_hits(0),
-		STAT_CMT_miss(0), STAT_readTR_CMT_miss(0), STAT_writeTR_CMT_miss(0),
-		STAT_total_CMT_queries(0), STAT_total_readTR_CMT_queries(0), STAT_total_writeTR_CMT_queries(0)
+		Overprovisioning_ratio(Overprovisioning_ratio)
 	{
 		Pages_no_per_plane = (unsigned int)(((double)Page_no_per_block * Block_no_per_plane) * Share_per_plane);
 		Pages_no_per_die = Pages_no_per_plane * PlaneNo;
@@ -594,42 +591,53 @@ namespace SSD_Components
 
 	bool Address_Mapping_Unit_Page_Level::check_and_translate(NVM_Transaction_Flash* transaction)
 	{
-		stream_id_type streamID = transaction->Stream_id;
-		domains[streamID]->STAT_total_CMT_queries++;
+		stream_id_type stream_id = transaction->Stream_id;
+		Stats::total_CMT_queries++;
+		Stats::total_CMT_queries_per_stream[stream_id]++;
 
-		if (domains[streamID]->Mapping_entry_accessible(ideal_mapping_table, streamID, transaction->LPA))//Either limited or unlimited CMT
+		if (domains[stream_id]->Mapping_entry_accessible(ideal_mapping_table, stream_id, transaction->LPA))//Either limited or unlimited CMT
 		{
-			domains[streamID]->STAT_CMT_hits++;
+			Stats::CMT_hits_per_stream[stream_id]++;
+			Stats::CMT_hits++;
 			if (transaction->Type == Transaction_Type::READ)
 			{
-				domains[streamID]->STAT_total_readTR_CMT_queries++;
-				domains[streamID]->STAT_readTR_CMT_hits++;
+				Stats::total_readTR_CMT_queries_per_stream[stream_id]++;
+				Stats::total_readTR_CMT_queries++;
+				Stats::readTR_CMT_hits_per_stream[stream_id]++;
+				Stats::readTR_CMT_hits++;
 			}
 			else//This is a write transaction
 			{
-				domains[streamID]->STAT_total_writeTR_CMT_queries++;
-				domains[streamID]->STAT_writeTR_CMT_hits++;
+				Stats::total_writeTR_CMT_queries++;
+				Stats::total_writeTR_CMT_queries_per_stream[stream_id]++;
+				Stats::writeTR_CMT_hits++;
+				Stats::writeTR_CMT_hits_per_stream[stream_id]++;
 			}
-			translate_lpa_to_ppa(streamID, transaction);
+			translate_lpa_to_ppa(stream_id, transaction);
 			transaction->Physical_address_determined = true;
 			return true;
 		}
 		else//Limited CMT
 		{
-			if (request_mapping_entry_for_lpn(streamID, transaction->LPA))//Maybe we can catch mapping data from an on-the-fly write back request
+			if (request_mapping_entry_for_lpn(stream_id, transaction->LPA))//Maybe we can catch mapping data from an on-the-fly write back request
 			{
-				domains[streamID]->STAT_CMT_miss++;
+				Stats::CMT_miss++;
+				Stats::CMT_miss_per_stream[stream_id]++;
 				if (transaction->Type == Transaction_Type::READ)
 				{
-					domains[streamID]->STAT_total_readTR_CMT_queries++;
-					domains[streamID]->STAT_readTR_CMT_miss++;
+					Stats::total_readTR_CMT_queries++;
+					Stats::total_readTR_CMT_queries_per_stream[stream_id]++;
+					Stats::readTR_CMT_miss++;
+					Stats::readTR_CMT_miss_per_stream[stream_id]++;
 				}
 				else//This is a write transaction
 				{
-					domains[streamID]->STAT_total_writeTR_CMT_queries++;
-					domains[streamID]->STAT_writeTR_CMT_miss++;
+					Stats::total_writeTR_CMT_queries++;
+					Stats::total_writeTR_CMT_queries_per_stream[stream_id]++;
+					Stats::writeTR_CMT_miss++;
+					Stats::writeTR_CMT_miss_per_stream[stream_id]++;
 				}
-				translate_lpa_to_ppa(streamID, transaction);
+				translate_lpa_to_ppa(stream_id, transaction);
 				transaction->Physical_address_determined = true;
 				return true;
 			}
@@ -637,15 +645,19 @@ namespace SSD_Components
 			{
 				if (transaction->Type == Transaction_Type::READ)
 				{
-					domains[streamID]->STAT_total_readTR_CMT_queries++;
-					domains[streamID]->STAT_readTR_CMT_miss++;
-					domains[streamID]->Waiting_unmapped_read_transactions.insert(std::pair<LPA_type, NVM_Transaction_Flash*>(transaction->LPA, transaction));
+					Stats::total_readTR_CMT_queries++;
+					Stats::total_readTR_CMT_queries_per_stream[stream_id]++;
+					Stats::readTR_CMT_miss++;
+					Stats::readTR_CMT_miss_per_stream[stream_id]++;
+					domains[stream_id]->Waiting_unmapped_read_transactions.insert(std::pair<LPA_type, NVM_Transaction_Flash*>(transaction->LPA, transaction));
 				}
 				else//This is a write transaction
 				{
-					domains[streamID]->STAT_total_writeTR_CMT_queries++;
-					domains[streamID]->STAT_writeTR_CMT_miss++;
-					domains[streamID]->Waiting_unmapped_program_transactions.insert(std::pair<LPA_type, NVM_Transaction_Flash*>(transaction->LPA, transaction));
+					Stats::total_writeTR_CMT_queries++;
+					Stats::total_writeTR_CMT_queries_per_stream[stream_id]++;
+					Stats::writeTR_CMT_miss++;
+					Stats::writeTR_CMT_miss_per_stream[stream_id]++;
+					domains[stream_id]->Waiting_unmapped_program_transactions.insert(std::pair<LPA_type, NVM_Transaction_Flash*>(transaction->LPA, transaction));
 				}
 			}
 			return false;
@@ -1102,10 +1114,10 @@ namespace SSD_Components
 		ftl->TSU->Submit_transaction(writeTR);
 
 
-		Stats::TotalMappingReadRequests++;
-		Stats::TotalMappingWriteRequests++;
-		Stats::MappingReadRequests[stream_id]++;
-		Stats::MappingWriteRequests[stream_id]++;
+		Stats::Total_flash_reads_for_mapping++;
+		Stats::Total_flash_writes_for_mapping++;
+		Stats::Total_flash_reads_for_mapping_per_stream[stream_id]++;
+		Stats::Total_flash_writes_for_mapping_per_stream[stream_id]++;
 
 		ftl->TSU->Schedule();
 	}
@@ -1131,8 +1143,8 @@ namespace SSD_Components
 		ftl->TSU->Submit_transaction(readTR);
 
 
-		Stats::TotalMappingReadRequests++;
-		Stats::MappingReadRequests[stream_id]++;
+		Stats::Total_flash_reads_for_mapping++;
+		Stats::Total_flash_reads_for_mapping_per_stream[stream_id]++;
 
 		ftl->TSU->Schedule();
 	}
@@ -1231,13 +1243,17 @@ namespace SSD_Components
 
 			//The mapping entry should be updated
 			stream_id_type stream_id = transaction->Stream_id;
-			domains[stream_id]->STAT_total_CMT_queries++;
+			Stats::total_CMT_queries++;
+			Stats::total_CMT_queries_per_stream[stream_id]++;
 
 			if (domains[stream_id]->Mapping_entry_accessible(ideal_mapping_table, stream_id, transaction->LPA))//either limited or unlimited mapping
 			{
-				domains[stream_id]->STAT_CMT_hits++;
-				domains[stream_id]->STAT_total_writeTR_CMT_queries++;
-				domains[stream_id]->STAT_writeTR_CMT_hits++;
+				Stats::CMT_hits++;
+				Stats::CMT_hits_per_stream[stream_id]++;
+				Stats::total_writeTR_CMT_queries++;
+				Stats::total_writeTR_CMT_queries_per_stream[stream_id]++;
+				Stats::writeTR_CMT_hits++;
+				Stats::writeTR_CMT_hits_per_stream[stream_id]++;
 				domains[stream_id]->Update_mapping_info(ideal_mapping_table, stream_id, transaction->LPA, transaction->PPA, transaction->write_sectors_bitmap);
 			}
 			else//the else block only executed for non-ideal mapping table in which CMT has a limited capacity and mapping data is read/written from/to the flash storage

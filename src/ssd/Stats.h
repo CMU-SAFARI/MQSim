@@ -14,8 +14,16 @@ namespace SSD_Components
 		static unsigned long IssuedEraseCMD, IssuedInterleaveEraseCMD, IssuedMultiplaneEraseCMD, IssuedInterleaveMultiplaneEraseCMD;
 		static unsigned long IssuedSuspendProgramCMD, IssuedSuspendEraseCMD;
 
-		static unsigned long TotalMappingReadRequests, TotalMappingWriteRequests;
-		static unsigned long MappingReadRequests[MAX_SUPPORT_STREAMS], MappingWriteRequests[MAX_SUPPORT_STREAMS];
+		static unsigned long Total_flash_reads_for_mapping, Total_flash_writes_for_mapping;
+		static unsigned long Total_flash_reads_for_mapping_per_stream[MAX_SUPPORT_STREAMS], Total_flash_writes_for_mapping_per_stream[MAX_SUPPORT_STREAMS];
+
+		static unsigned int CMT_hits, readTR_CMT_hits, writeTR_CMT_hits;
+		static unsigned int CMT_miss, readTR_CMT_miss, writeTR_CMT_miss;
+		static unsigned int total_CMT_queries, total_readTR_CMT_queries, total_writeTR_CMT_queries;
+		
+		static unsigned int CMT_hits_per_stream[MAX_SUPPORT_STREAMS], readTR_CMT_hits_per_stream[MAX_SUPPORT_STREAMS], writeTR_CMT_hits_per_stream[MAX_SUPPORT_STREAMS];
+		static unsigned int CMT_miss_per_stream[MAX_SUPPORT_STREAMS], readTR_CMT_miss_per_stream[MAX_SUPPORT_STREAMS], writeTR_CMT_miss_per_stream[MAX_SUPPORT_STREAMS];
+		static unsigned int total_CMT_queries_per_stream[MAX_SUPPORT_STREAMS], total_readTR_CMT_queries_per_stream[MAX_SUPPORT_STREAMS], total_writeTR_CMT_queries_per_stream[MAX_SUPPORT_STREAMS];
 		
 		static unsigned int***** Block_erase_histogram;
 	};

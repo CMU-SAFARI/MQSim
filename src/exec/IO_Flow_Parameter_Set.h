@@ -19,6 +19,7 @@ public:
 	flash_chip_ID_type* Chip_IDs;//Resource partitioning: which chip ids are allocated to this flow
 	flash_die_ID_type* Die_IDs;//Resource partitioning: which die ids are allocted to this flow
 	flash_plane_ID_type* Plane_IDs;//Resource partitioning: which plane ids are allocated to this flow
+	unsigned int Working_Set_Percentage;//Percentage of available storage space that is accessed
 	int Channel_No, Chip_No, Die_No, Plane_No;
 	void XML_serialize(Utils::XmlWriter& xmlwrite);
 	void XML_deserialize(rapidxml::xml_node<> *node);
