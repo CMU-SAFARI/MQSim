@@ -8,6 +8,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -26,6 +27,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -46,6 +48,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -64,6 +67,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -84,6 +88,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -102,6 +107,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -122,6 +128,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -140,6 +147,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -160,6 +168,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -178,6 +187,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -198,6 +208,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -216,6 +227,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -236,6 +248,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -254,6 +267,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -274,6 +288,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -292,6 +307,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
