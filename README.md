@@ -144,6 +144,19 @@ The following parameters are used to define a trace-based workload:
 16. **Stop_Time:** defines when to stop generating I/O requests in nanoseconds.
 17. **Total_Requests_To_Generate:** if Stop_Time is set to zero, then MQSim's request generator considers Total_Requests_To_Generate to decide when to stop generating I/O requests.
 
+## The Experiments of the FAST 2018 Paper
+
+The input files in the fast18 folder can be used to repeat the experiments of the FAST 2018 paper [1].
+
+1. **Contention Effect in the Back END:** the 3 workload definition files in the *backend-contention* folder should be fed into MQSim as workload definition file. The output of execution will be:
+1.1. *workload-backend-flow-1*: response time of flow-1 when it is executed alone
+1.2. *workload-backend-flow-2*: response time of flow-2 when it is executed alone
+1.3. *workload-backend-flow-1-flow-2*: response time of flow-1 and flow-2 when they are executed concurrently
+
+the response time of flow-1 and flow-2 in the concurrent execution should be devided to the response time of flow-1 and flow-2, respectively, when they are executed concurrently.
+
+
+
 ## References
 [1] A. Tavakkol et al., "MQSim: A Framework for Enabling Realistic Studies of Modern Multi-Queue SSD Devices," FAST, pp. 49 - 66, 2018.
 
