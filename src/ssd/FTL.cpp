@@ -6,7 +6,8 @@ namespace SSD_Components
 {
 	FTL::FTL(const sim_object_id_type& id, Data_Cache_Manager_Base* data_cache_manager) :
 		NVM_Firmware(id, data_cache_manager)
-	{}
+	{
+	}
 
 	void FTL::Validate_simulation_config()
 	{

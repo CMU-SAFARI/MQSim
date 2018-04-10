@@ -3,7 +3,8 @@
 
 
 
-int Device_Parameter_Set::Seed = 123;
+int Device_Parameter_Set::Seed = 123;//Seed for random number generation (used in device's random number generators)
+bool Device_Parameter_Set::Enabled_Preconditioning = true;
 NVM::NVM_Type Device_Parameter_Set::Memory_Type = NVM::NVM_Type::FLASH;
 HostInterfaceType Device_Parameter_Set::HostInterface_Type = HostInterfaceType::NVME;
 uint16_t Device_Parameter_Set::IO_Queue_Depth = 1024;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ
@@ -46,6 +47,10 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 
 	std::string attr = "Seed";
 	std::string val = std::to_string(Seed);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Enabled_Preconditioning";
+	val = (Enabled_Preconditioning ? "true" : "false");
 	xmlwriter.Write_attribute_string(attr, val);
 
 	attr = "Memory_Type";
@@ -355,6 +360,12 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			{
 				std::string val = param->value();
 				Seed = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Enabled_Preconditioning") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				Enabled_Preconditioning = (val.compare("FALSE") == 0 ? false : true);
 			}
 			else if (strcmp(param->name(), "Memory_Type") == 0)
 			{
