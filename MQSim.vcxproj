@@ -104,6 +104,7 @@
     <ClInclude Include="src\nvm_chip\NVM_Chip.h" />
     <ClInclude Include="src\nvm_chip\NVM_Memory_Address.h" />
     <ClInclude Include="src\nvm_chip\NVM_Types.h" />
+    <ClInclude Include="src\precond\Workload_Statistics.h" />
     <ClInclude Include="src\sim\Engine.h" />
     <ClInclude Include="src\sim\EventTree.h" />
     <ClInclude Include="src\sim\Sim_Defs.h" />

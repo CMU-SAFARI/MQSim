@@ -1,0 +1,430 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="exec">
+      <UniqueIdentifier>{8482b821-60f0-4396-a8f2-91ad16921ebb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="host">
+      <UniqueIdentifier>{0b8b576f-adba-4dc5-997c-7591a9af68aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nvm_chip">
+      <UniqueIdentifier>{2c643acd-a7f1-4d4d-97e0-15a2a0cdd040}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="nvm_chip\flash_memory">
+      <UniqueIdentifier>{183b0812-fdd8-46b0-8357-5e0ae093d444}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="precond">
+      <UniqueIdentifier>{b75f6b7e-50f3-4df7-a039-ec1f2c0aa5b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sim">
+      <UniqueIdentifier>{bbc361a0-cefd-4eb7-93b0-7b8db96bfa49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ssd">
+      <UniqueIdentifier>{3a1ff030-cec0-4375-9637-031c13765cb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{c45ab961-987d-4cd5-9200-853246e0b0b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils\rapidxml">
+      <UniqueIdentifier>{338b4a59-3227-4ff1-be87-2a60c6309aa6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\exec\Device_Parameter_Set.cpp">
+      <Filter>exec</Filter>
+    </ClCompile>
+    <ClCompile Include="src\exec\Execution_Parameter_Set.cpp">
+      <Filter>exec</Filter>
+    </ClCompile>
+    <ClCompile Include="src\exec\Flash_Parameter_Set.cpp">
+      <Filter>exec</Filter>
+    </ClCompile>
+    <ClCompile Include="src\exec\Host_Parameter_Set.cpp">
+      <Filter>exec</Filter>
+    </ClCompile>
+    <ClCompile Include="src\exec\Host_System.cpp">
+      <Filter>exec</Filter>
+    </ClCompile>
+    <ClCompile Include="src\exec\IO_Flow_Parameter_Set.cpp">
+      <Filter>exec</Filter>
+    </ClCompile>
+    <ClCompile Include="src\exec\SSD_Device.cpp">
+      <Filter>exec</Filter>
+    </ClCompile>
+    <ClCompile Include="src\host\IO_Flow_Base.cpp">
+      <Filter>host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\host\IO_Flow_Synthetic.cpp">
+      <Filter>host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\host\IO_Flow_Trace_Based.cpp">
+      <Filter>host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\host\PCIe_Link.cpp">
+      <Filter>host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\host\PCIe_Root_Complex.cpp">
+      <Filter>host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\host\PCIe_Switch.cpp">
+      <Filter>host</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\CMRRandomGenerator.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\RandomGenerator.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\StringTools.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\XMLWriter.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Address_Mapping_Unit_Base.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Address_Mapping_Unit_Hybrid.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Address_Mapping_Unit_Page_Level.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Controller.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Data_Cache_Manager_Base.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Data_Cache_Manager_Flash.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Flash_Block_Manager.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Flash_Block_Manager_Base.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\FlashTransactionQueue.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\FTL.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\GC_and_WL_Unit_Base.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\GC_and_WL_Unit_Page_Level.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Host_Interface_Base.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Host_Interface_NVMe.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\NVM_Firmware.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\NVM_PHY_Base.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\NVM_PHY_ONFI.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\NVM_PHY_ONFI_NVDDR2.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\NVM_Transaction_Flash.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\NVM_Transaction_Flash_ER.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\NVM_Transaction_Flash_RD.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\NVM_Transaction_Flash_WR.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\ONFI_Channel_Base.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\ONFI_Channel_NVDDR2.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Queue_Probe.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Stats.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\TSU_Base.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\TSU_OutofOrder.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\User_Request.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sim\Engine.cpp">
+      <Filter>sim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sim\EventTree.cpp">
+      <Filter>sim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Block.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Die.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Flash_Chip.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Physical_Page_Address.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Plane.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\exec\Device_Parameter_Set.h">
+      <Filter>exec</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exec\Execution_Parameter_Set.h">
+      <Filter>exec</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exec\Flash_Parameter_Set.h">
+      <Filter>exec</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exec\Host_Parameter_Set.h">
+      <Filter>exec</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exec\Host_System.h">
+      <Filter>exec</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exec\IO_Flow_Parameter_Set.h">
+      <Filter>exec</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exec\Parameter_Set_Base.h">
+      <Filter>exec</Filter>
+    </ClInclude>
+    <ClInclude Include="src\exec\SSD_Device.h">
+      <Filter>exec</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\ASCII_Trace_Definition.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\Host_Defs.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\Host_IO_Request.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\IO_Flow_Base.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\IO_Flow_Synthetic.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\IO_Flow_Trace_Based.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\PCIe_Link.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\PCIe_Message.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\PCIe_Root_Complex.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\PCIe_Switch.h">
+      <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\CMRRandomGenerator.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\RandomGenerator.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\StringTools.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\XMLWriter.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\rapidxml\rapidxml.hpp">
+      <Filter>utils\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\rapidxml\rapidxml_iterators.hpp">
+      <Filter>utils\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\rapidxml\rapidxml_print.hpp">
+      <Filter>utils\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\rapidxml\rapidxml_utils.hpp">
+      <Filter>utils\rapidxml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Address_Mapping_Unit_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Address_Mapping_Unit_Hybrid.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Address_Mapping_Unit_Page_Level.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Controller.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Data_Cache_Manager_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Data_Cache_Manager_Flash.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Flash_Block_Manager.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Flash_Block_Manager_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\FlashTransactionQueue.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\FTL.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\GC_and_WL_Unit_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\GC_and_WL_Unit_Page_Level.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Host_Interface_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Host_Interface_Defs.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Host_Interface_NVMe.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Host_Interface_SATA.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_Channel_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_Firmware.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_PHY_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_PHY_ONFI.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_PHY_ONFI_NVDDR2.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_Transaction.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_Transaction_Flash.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_Transaction_Flash_ER.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_Transaction_Flash_RD.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\NVM_Transaction_Flash_WR.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\ONFI_Channel_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\ONFI_Channel_NVDDR2.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Queue_Probe.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\SSD_Defs.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Stats.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\TSU_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\TSU_OutofOrder.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\User_Request.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\Engine.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\EventTree.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\Sim_Defs.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\Sim_Event.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\Sim_Object.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\Sim_Reporter.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\precond\Workload_Statistics.h">
+      <Filter>precond</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Block.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Die.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Flash_Chip.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Flash_Command.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\FlashTypes.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Page.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Physical_Page_Address.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Plane.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\NVM_Chip.h">
+      <Filter>nvm_chip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\NVM_Memory_Address.h">
+      <Filter>nvm_chip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\NVM_Types.h">
+      <Filter>nvm_chip</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
