@@ -145,8 +145,41 @@ namespace SSD_Components
 		flash_controller->ConnectToTransactionServicedSignal(handle_transaction_serviced_signal_from_PHY);
 	}
 
-	void Data_Cache_Manager_Flash::Make_warmup()
-	{}
+	void Data_Cache_Manager_Flash::Make_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats)
+	{
+		for (auto stat : workload_stats)
+		{
+			switch (caching_mode_per_input_stream[stat->Stream_id])
+			{
+			case Caching_Mode::TURNED_OFF:
+				break;
+			case Caching_Mode::READ_CACHE:
+				if (stat->Type == Preconditioning::Workload_Type::SYNTHETIC)
+				{
+				}
+				else
+				{
+				}
+				break;
+			case Caching_Mode::WRITE_CACHE:
+				if (stat->Type == Preconditioning::Workload_Type::SYNTHETIC)
+				{
+				}
+				else
+				{
+				}
+				break;
+			case Caching_Mode::WRITE_READ_CACHE:
+				if (stat->Type == Preconditioning::Workload_Type::SYNTHETIC)
+				{
+				}
+				else
+				{
+				}
+				break;
+			}
+		}
+	}
 
 	void Data_Cache_Manager_Flash::write_to_dram_cache(User_Request* user_request)
 	{
@@ -193,7 +226,6 @@ namespace SSD_Components
 		}
 		user_request->Transaction_list.clear();//All flash transactions are serviced from DRAM
 	}
-
 
 	void Data_Cache_Manager_Flash::process_new_user_request(User_Request* user_request)
 	{

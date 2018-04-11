@@ -12,6 +12,19 @@
 
 namespace SSD_Components
 {
+	enum class GC_Block_Selection_Policy_Type {
+		GREEDY,
+		RGA,						/*The randomized-greedy algorithm described in: "B. Van Houdt, A Mean Field Model
+									for a Class of Garbage Collection Algorithms in Flash - based Solid State Drives,
+									SIGMETRICS, 2013" and "Stochastic Modeling of Large-Scale Solid-State Storage
+									Systems: Analysis, Design Tradeoffs and Optimization, SIGMETRICS, 2013".*/
+		RANDOM, RANDOM_P, RANDOM_PP,/*The RANDOM, RANDOM+, and RANDOM++ algorithms described in: "B. Van Houdt, A Mean
+									Field Model  for a Class of Garbage Collection Algorithms in Flash - based Solid
+									State Drives, SIGMETRICS, 2013".*/
+		FIFO						/*The FIFO algortihm described in P. Desnoyers, "Analytic  Modeling  of  SSD Write
+									Performance, SYSTOR, 2012".*/
+	};
+
 	class Address_Mapping_Unit_Base;
 	class Flash_Block_Manager_Base;
 	class TSU_Base;
@@ -24,7 +37,7 @@ namespace SSD_Components
 	public:
 		GC_and_WL_Unit_Base(const sim_object_id_type& id, 
 			Address_Mapping_Unit_Base* address_mapping_unit, Flash_Block_Manager_Base* block_manager, TSU_Base* tsu, NVM_PHY_ONFI* flash_controller,
-			double GCThreshold,	bool preemptible_gc_enabled, double gc_hard_threshold,
+			GC_Block_Selection_Policy_Type block_selection_policy, double gc_threshold,	bool preemptible_gc_enabled, double gc_hard_threshold,
 			unsigned int channel_count, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die,
 			unsigned int block_no_per_plane, unsigned int page_no_per_block, unsigned int sector_no_per_page);
 		void Setup_triggers();
@@ -35,7 +48,9 @@ namespace SSD_Components
 		virtual bool GC_is_in_urgent_mode(const NVM::FlashMemory::Flash_Chip*) = 0;
 		virtual void Check_gc_required(const unsigned int BlockPoolSize, const NVM::FlashMemory::Physical_Page_Address& planeAddress) = 0;
 		virtual void Check_wl_required(const double staticWLFactor, const NVM::FlashMemory::Physical_Page_Address planeAddress) = 0;
+		GC_Block_Selection_Policy_Type Get_gc_policy();
 	protected:
+		GC_Block_Selection_Policy_Type block_selection_policy;
 		static GC_and_WL_Unit_Base * _my_instance;
 		Address_Mapping_Unit_Base* address_mapping_unit;
 		Flash_Block_Manager_Base* block_manager;

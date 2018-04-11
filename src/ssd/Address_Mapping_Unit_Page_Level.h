@@ -96,6 +96,7 @@ namespace SSD_Components
 		void Update_mapping_info(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa, const PPA_type ppa, const page_status_type page_status_bitmap);
 		page_status_type Get_page_status(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa);
 		PPA_type Get_ppa(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa);
+		PPA_type Get_ppa_for_preconditioning(const stream_id_type stream_id, const LPA_type lpa);
 		bool Mapping_entry_accessible(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa);
 
 		
@@ -151,6 +152,7 @@ namespace SSD_Components
 		void Validate_simulation_config();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
 
+		void Allocate_address_or_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& address);
 		void Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transactionList);
 		void Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state);
 		void Get_translation_mapping_info_for_gc(const stream_id_type stream_id, const MVPN_type mvpn, MPPN_type& mppa, sim_time_type& timestamp);
@@ -178,6 +180,7 @@ namespace SSD_Components
 		void allocate_page_in_plane_for_user_write(NVM_Transaction_Flash_WR* transaction, bool is_for_gc);
 		void allocate_plane_for_translation_write(NVM_Transaction_Flash* transaction);
 		void allocate_page_in_plane_for_translation_write(NVM_Transaction_Flash* transaction, MVPN_type mvpn, bool is_for_gc);
+		void allocate_plane_for_preconditioning(stream_id_type stream_id, LPA_type lpn, NVM::FlashMemory::Physical_Page_Address& targetAddress);
 		bool request_mapping_entry_for_lpn(const stream_id_type streamID, const LPA_type lpn);
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
 		void translate_lpa_to_ppa(stream_id_type streamID, NVM_Transaction_Flash* transaction);
@@ -190,7 +193,7 @@ namespace SSD_Components
 		LPA_type get_start_LPN_MVP(const MVPN_type);
 		LPA_type get_end_LPN_in_MVP(const MVPN_type);
 
-		bool check_and_translate(NVM_Transaction_Flash* transaction);
+		bool query_cmt(NVM_Transaction_Flash* transaction);
 		void prepare_mapping_table();
 		PPA_type online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap);
 		void manage_transaction_with_locked_lpa(NVM_Transaction_Flash* transaction);

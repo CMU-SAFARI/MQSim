@@ -68,4 +68,9 @@ namespace SSD_Components
 	{
 		return max_logical_sector_address;
 	}
+
+	unsigned int Host_Interface_Base::Get_sector_no_per_NVM_write_unit()
+	{
+		return sectors_per_page;
+	}
 }

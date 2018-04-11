@@ -18,6 +18,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 	SSD_Device* device = this;
 	Simulator->AddObject(device);
 
+	device->Preconditioning_required = parameters->Enabled_Preconditioning;
 	device->Memory_Type = parameters->Memory_Type;
 
 	switch (Memory_Type)
@@ -92,7 +93,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		}
 
 		//Steps 4 - 8: create FTL components and connect them together
-		SSD_Components::FTL* ftl = new SSD_Components::FTL(device->ID() + ".FTL", NULL);
+		SSD_Components::FTL* ftl = new SSD_Components::FTL(device->ID() + ".FTL", NULL, parameters->Seed++);
 		Simulator->AddObject(ftl);
 		device->Firmware = ftl;
 
@@ -138,7 +139,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		std::vector<std::vector<flash_chip_ID_type>> flow_chip_id_assignments;
 		std::vector<std::vector<flash_die_ID_type>> flow_die_id_assignments;
 		std::vector<std::vector<flash_plane_ID_type>> flow_plane_id_assignments;
-		for (int i = 0; i < io_flows->size(); i++)
+		for (unsigned int i = 0; i < io_flows->size(); i++)
 		{
 			std::vector<flash_channel_ID_type> channel_ids;
 			flow_channel_id_assignments.push_back(channel_ids);
@@ -239,10 +240,13 @@ void SSD_Device::Attach_to_host(Host_Components::PCIe_Switch* pcie_switch)
 	this->Host_interface->Attach_to_device(pcie_switch);
 }
 
-void SSD_Device::Perform_preconditioning()
+void SSD_Device::Perform_preconditioning(std::vector<Preconditioning::Workload_Statistics*> workload_stats)
 {
-	this->Cache_manager->Make_warmup();
-	((SSD_Components::FTL*)this->Firmware)->Perform_precondition();
+	if (Preconditioning_required)
+	{
+		this->Cache_manager->Make_warmup(workload_stats);
+		((SSD_Components::FTL*)this->Firmware)->Perform_precondition(workload_stats);
+	}
 }
 
 void SSD_Device::Start_simulation() {}
@@ -263,4 +267,9 @@ void SSD_Device::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter
 		((SSD_Components::FTL*)this->Firmware)->TSU->Report_results_in_XML(ID(), xmlwriter);
 	}
 	xmlwriter.Write_close_tag();
+}
+
+unsigned int SSD_Device::Get_NVM_write_unit_size_in_sectors()
+{
+	return Host_interface->Get_sector_no_per_NVM_write_unit();
 }

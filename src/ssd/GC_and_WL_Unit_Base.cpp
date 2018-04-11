@@ -6,11 +6,11 @@ namespace SSD_Components
 	
 	GC_and_WL_Unit_Base::GC_and_WL_Unit_Base(const sim_object_id_type& id,
 		Address_Mapping_Unit_Base* address_mapping_unit, Flash_Block_Manager_Base* block_manager, TSU_Base* tsu, NVM_PHY_ONFI* flash_controller,
-		double gc_threshold, bool preemptible_gc_enabled, double gc_hard_threshold,
+		GC_Block_Selection_Policy_Type block_selection_policy, double gc_threshold, bool preemptible_gc_enabled, double gc_hard_threshold,
 		unsigned int channel_count, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die,
 		unsigned int block_no_per_plane, unsigned int page_no_per_block, unsigned int sector_no_per_page) :
 		Sim_Object(id), address_mapping_unit(address_mapping_unit), block_manager(block_manager), tsu(tsu), flash_controller(flash_controller), force_gc(false),
-		gc_threshold(gc_threshold), preemptible_gc_enabled(preemptible_gc_enabled), gc_hard_threshold(gc_hard_threshold),
+		block_selection_policy(block_selection_policy), gc_threshold(gc_threshold), preemptible_gc_enabled(preemptible_gc_enabled), gc_hard_threshold(gc_hard_threshold),
 		channel_count(channel_count), chip_no_per_channel(chip_no_per_channel), die_no_per_chip(die_no_per_chip), plane_no_per_die(plane_no_per_die),
 		block_no_per_plane(block_no_per_plane), pages_no_per_block(page_no_per_block), sector_no_per_page(sector_no_per_page)
 	{
@@ -98,4 +98,10 @@ namespace SSD_Components
 	void GC_and_WL_Unit_Base::Validate_simulation_config() {}
 
 	void GC_and_WL_Unit_Base::Execute_simulator_event(MQSimEngine::Sim_Event* ev) {}
+
+	GC_Block_Selection_Policy_Type GC_and_WL_Unit_Base::Get_gc_policy()
+	{
+		return block_selection_policy;
+	}
+
 }

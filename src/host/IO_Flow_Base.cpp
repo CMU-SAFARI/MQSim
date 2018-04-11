@@ -9,7 +9,7 @@ namespace Host_Components
 		uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size,
 		IO_Flow_Priority_Class priority_class, sim_time_type stop_time, unsigned int total_requets_to_be_generated,
 		HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex) :
-		MQSimEngine::Sim_Object(name), start_lsa_on_device(start_lsa_on_device), end_lsa_on_device(end_lsa_on_device), io_queue_id(io_queue_id),
+		MQSimEngine::Sim_Object(name), input_file_processed(false), start_lsa_on_device(start_lsa_on_device), end_lsa_on_device(end_lsa_on_device), io_queue_id(io_queue_id),
 		priority_class(priority_class), stop_time(stop_time), total_requests_to_be_generated(total_requets_to_be_generated), SSD_device_type(SSD_device_type), pcie_root_complex(pcie_root_complex),
 		STAT_generated_request_count(0), STAT_generated_read_request_count(0), STAT_generated_write_request_count(0),
 		STAT_ignored_request_count(0),

@@ -108,6 +108,7 @@ namespace SSD_Components
 		HostInterfaceType GetType() { return type; }
 		void Attach_to_device(Host_Components::PCIe_Switch* pcie_switch);
 		LSA_type Get_max_logical_sector_address();
+		unsigned int Get_sector_no_per_NVM_write_unit();
 	protected:
 		HostInterfaceType type;
 		LSA_type max_logical_sector_address;

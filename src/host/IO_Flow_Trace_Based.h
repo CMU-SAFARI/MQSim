@@ -21,6 +21,7 @@ namespace Host_Components
 		void Start_simulation();
 		void Validate_simulation_config();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
+		void Get_statistics(Preconditioning::Workload_Statistics& stats);
 	private:
 		Trace_Time_Unit time_unit;
 		unsigned int percentage_to_be_simulated;

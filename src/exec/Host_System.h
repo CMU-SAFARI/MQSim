@@ -13,6 +13,7 @@
 #include "../ssd/Host_Interface_Base.h"
 #include "Host_Parameter_Set.h"
 #include "SSD_Device.h"
+#include "../precond/Workload_Statistics.h"
 
 class Host_System : public MQSimEngine::Sim_Object, public MQSimEngine::Sim_Reporter
 {
@@ -31,6 +32,7 @@ private:
 	Host_Components::PCIe_Switch* PCIe_switch;
 	std::vector<Host_Components::IO_Flow_Base*> IO_flows;
 	SSD_Device* ssd_device;
+	std::vector<Preconditioning::Workload_Statistics*> get_workloads_statistics();
 };
 
 #endif // !HOST_SYSTEM_H

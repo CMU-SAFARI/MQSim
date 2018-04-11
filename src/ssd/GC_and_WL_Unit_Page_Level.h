@@ -9,18 +9,6 @@
 
 namespace SSD_Components
 {
-	enum class GC_Block_Selection_Policy_Type {
-		GREEDY,
-		RGA,						/*The randomized-greedy algorithm described in: "B. Van Houdt, A Mean Field Model 
-									for a Class of Garbage Collection Algorithms in Flash - based Solid State Drives,
-									SIGMETRICS, 2013" and "Stochastic Modeling of Large-Scale Solid-State Storage
-									Systems: Analysis, Design Tradeoffs and Optimization, SIGMETRICS, 2013".*/
-		RANDOM, RANDOM_P, RANDOM_PP,/*The RANDOM, RANDOM+, and RANDOM++ algorithms described in: "B. Van Houdt, A Mean
-									Field Model  for a Class of Garbage Collection Algorithms in Flash - based Solid
-									State Drives, SIGMETRICS, 2013".*/
-		FIFO						/*The FIFO algortihm described in P. Desnoyers, "Analytic  Modeling  of  SSD Write
-									Performance, SYSTOR, 2012".*/
-		};
 	class GC_and_WL_Unit_Page_Level : public GC_and_WL_Unit_Base
 	{
 	public:
@@ -39,7 +27,6 @@ namespace SSD_Components
 		void Check_gc_required(const unsigned int free_block_pool_size, const NVM::FlashMemory::Physical_Page_Address& plane_address);
 		void Check_wl_required(const double static_wl_factor, const NVM::FlashMemory::Physical_Page_Address plane_address);
 	private:
-		GC_Block_Selection_Policy_Type block_selection_policy;
 		NVM_PHY_ONFI * flash_controller;
 		bool use_copyback;
 		bool is_wf(PlaneBookKeepingType* pbke, flash_block_ID_type gc_candidate_block_id);

@@ -50,7 +50,6 @@ namespace Host_Components
 		return request;
 	}
 
-
 	void IO_Flow_Trace_Based::NVMe_consume_io_request(Completion_Queue_Entry* io_request)
 	{
 		IO_Flow_Base::NVMe_consume_io_request(io_request);
@@ -59,34 +58,37 @@ namespace Host_Components
 
 	void IO_Flow_Trace_Based::Start_simulation()
 	{
-		trace_file.open(trace_file_path, std::ios::in);
-		if(!trace_file.is_open())
-			PRINT_ERROR("Error while opening input trace file!")
-
-		PRINT_MESSAGE("Investigating input trace file: " << trace_file_path)
 		std::string trace_line;
 		char* pEnd;
-		sim_time_type last_request_arrival_time = 0;
-		while (std::getline(trace_file, trace_line))
+		if (!input_file_processed)
 		{
-			Utils::Helper_Functions::Remove_cr(trace_line);
-			current_trace_line.clear();
-			Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
-			if (current_trace_line.size() != ASCIIItemsPerLine)
-				break;
-			total_requests_in_file++;
-			sim_time_type prev_time = last_request_arrival_time;
-			last_request_arrival_time = std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10);
-			if(last_request_arrival_time < prev_time)
-				PRINT_ERROR("Unexpected request arrival time: " << last_request_arrival_time << "\nMQSim expects request arrival times to be monotonic increasing in the input trace!")
-		}
-		trace_file.close();
-		PRINT_MESSAGE("Trace file: " << trace_file_path << " seems healthy")
+			trace_file.open(trace_file_path, std::ios::in);
+			if (!trace_file.is_open())
+				PRINT_ERROR("Error while opening input trace file!")
 
-		if (total_replay_no == 1)
-			total_requests_to_be_generated = (int) (((double)percentage_to_be_simulated / 100) * total_requests_in_file);
-		else
-			total_requests_to_be_generated = total_requests_in_file * total_replay_no;
+				PRINT_MESSAGE("Investigating input trace file: " << trace_file_path)
+			sim_time_type last_request_arrival_time = 0;
+			while (std::getline(trace_file, trace_line))
+			{
+				Utils::Helper_Functions::Remove_cr(trace_line);
+				current_trace_line.clear();
+				Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
+				if (current_trace_line.size() != ASCIIItemsPerLine)
+					break;
+				total_requests_in_file++;
+				sim_time_type prev_time = last_request_arrival_time;
+				last_request_arrival_time = std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10);
+				if (last_request_arrival_time < prev_time)
+					PRINT_ERROR("Unexpected request arrival time: " << last_request_arrival_time << "\nMQSim expects request arrival times to be monotonic increasing in the input trace!")
+			}
+			trace_file.close();
+			PRINT_MESSAGE("Trace file: " << trace_file_path << " seems healthy")
+
+				if (total_replay_no == 1)
+					total_requests_to_be_generated = (int)(((double)percentage_to_be_simulated / 100) * total_requests_in_file);
+				else
+					total_requests_to_be_generated = total_requests_in_file * total_replay_no;
+		}
 
 		trace_file.open(trace_file_path);
 		current_trace_line.clear();
@@ -130,5 +132,122 @@ namespace Host_Components
 			char* pEnd;
 			Simulator->Register_sim_event(time_offset + std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10), this);
 		}
+	}
+
+	void IO_Flow_Trace_Based::Get_statistics(Preconditioning::Workload_Statistics& stats)
+	{
+		stats.Type = Preconditioning::Workload_Type::TRACE_BASED;
+		stats.Stream_id = io_queue_id;
+		for (int i = 0; i < MAX_ARRIVAL_TIME_HISTOGRAM + 1; i++)
+		{
+			stats.Write_arrival_time.push_back(0);
+			stats.Read_arrival_time.push_back(0);
+		}
+		for (int i = 0; i < MAX_SIZE_HISTOGRAM + 1; i++)
+		{
+			stats.Write_size_histogram.push_back(0);
+			stats.Read_size_histogram.push_back(0);
+		}
+		stats.Total_generated_reqeusts = 0;
+		stats.Total_accessed_lbas = 0;
+
+		trace_file.open(trace_file_path, std::ios::in);
+		if (!trace_file.is_open())
+			PRINT_ERROR("Error while opening input trace file!")
+
+		PRINT_MESSAGE("Investigating input trace file: " << trace_file_path);
+		
+		std::string trace_line;
+		char* pEnd;
+		sim_time_type last_request_arrival_time = 0;
+		while (std::getline(trace_file, trace_line))
+		{
+			Utils::Helper_Functions::Remove_cr(trace_line);
+			current_trace_line.clear();
+			Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
+			if (current_trace_line.size() != ASCIIItemsPerLine)
+				break;
+			total_requests_in_file++;
+			sim_time_type prev_time = last_request_arrival_time;
+			last_request_arrival_time = std::strtoull(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10);
+			if (last_request_arrival_time < prev_time)
+				PRINT_ERROR("Unexpected request arrival time: " << last_request_arrival_time << "\nMQSim expects request arrival times to be monotonic increasing in the input trace!")
+			sim_time_type diff = (last_request_arrival_time - prev_time) / 1000;
+
+
+			unsigned int LBA_count = std::strtoul(current_trace_line[ASCIITraceSizeColumn].c_str(), &pEnd, 0);
+			LSA_type start_LBA = std::strtoull(current_trace_line[ASCIITraceAddressColumn].c_str(), &pEnd, 0);
+			if (start_LBA <= (end_lsa_on_device - start_lsa_on_device))
+				start_LBA += start_lsa_on_device;
+			else
+				start_LBA = start_lsa_on_device + start_LBA % (end_lsa_on_device - start_lsa_on_device);
+			LSA_type end_LBA = start_LBA + LBA_count - 1;
+			if (end_LBA > end_lsa_on_device)
+				end_LBA = start_lsa_on_device + (end_LBA - end_lsa_on_device) - 1;
+
+			//Address access pattern statistics
+			while (start_LBA <= end_LBA)
+			{
+				if (current_trace_line[ASCIITraceTypeColumn].compare(ASCIITraceWriteCode) == 0)
+				{
+					if (stats.Write_address_access_pattern.find(start_LBA) == stats.Write_address_access_pattern.end())
+						stats.Write_address_access_pattern[start_LBA] = (unsigned int)1;
+					else
+						stats.Write_address_access_pattern[start_LBA] =	stats.Write_address_access_pattern[start_LBA] + 1;
+				}
+				else
+				{
+					if (stats.Read_address_access_pattern.find(start_LBA) == stats.Read_address_access_pattern.end())
+						stats.Read_address_access_pattern[start_LBA] = (unsigned int)1;
+					else
+						stats.Read_address_access_pattern[start_LBA] = stats.Read_address_access_pattern[start_LBA] + 1;
+
+				}
+				stats.Write_read_shared_addresses.insert(start_LBA);
+				stats.Total_accessed_lbas++;
+				start_LBA++;
+				if (start_LBA > end_lsa_on_device)
+					start_LBA = start_lsa_on_device;
+			}
+
+			//Request size statistics
+			if (current_trace_line[ASCIITraceTypeColumn].compare(ASCIITraceWriteCode) == 0)
+			{
+				if (diff < MAX_ARRIVAL_TIME_HISTOGRAM)
+					stats.Write_arrival_time[diff]++;
+				else
+					stats.Write_arrival_time[MAX_ARRIVAL_TIME_HISTOGRAM]++;
+				if (LBA_count < MAX_SIZE_HISTOGRAM)
+					stats.Write_size_histogram[LBA_count]++;
+				else stats.Write_size_histogram[MAX_SIZE_HISTOGRAM]++;
+			}
+			else
+			{
+				if (diff < MAX_ARRIVAL_TIME_HISTOGRAM)
+					stats.Read_arrival_time[diff]++;
+				else
+					stats.Read_arrival_time[MAX_ARRIVAL_TIME_HISTOGRAM]++;
+				if (LBA_count < MAX_SIZE_HISTOGRAM)
+					stats.Read_size_histogram[LBA_count]++;
+				else stats.Read_size_histogram[(unsigned int)MAX_SIZE_HISTOGRAM]++;
+			}
+			stats.Total_generated_reqeusts++;
+		}
+		trace_file.close();
+		PRINT_MESSAGE("Trace file: " << trace_file_path << " seems healthy");
+
+		stats.Occupancy = stats.Write_read_shared_addresses.size() / (double)stats.Total_accessed_lbas;
+		if (stats.Occupancy > MAX_OCCUPANCY)
+			stats.Occupancy = MAX_OCCUPANCY;
+
+		stats.Replay_no = total_replay_no;
+
+		if (total_replay_no == 1)
+			total_requests_to_be_generated = (int)(((double)percentage_to_be_simulated / 100) * total_requests_in_file);
+		else
+			total_requests_to_be_generated = total_requests_in_file * total_replay_no;
+
+
+		input_file_processed = true;
 	}
 }

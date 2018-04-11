@@ -16,6 +16,7 @@
 #include "../nvm_chip/NVM_Types.h"
 #include "Device_Parameter_Set.h"
 #include "IO_Flow_Parameter_Set.h"
+#include "../precond/Workload_Statistics.h"
 
 /*********************************************************************************************************
 * An SSD device has the following components:
@@ -28,6 +29,7 @@ class SSD_Device : public MQSimEngine::Sim_Object, public MQSimEngine::Sim_Repor
 {
 public:
 	SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Parameter_Set*>* io_flows);
+	bool Preconditioning_required;
 	NVM::NVM_Type Memory_Type;
 	SSD_Components::Host_Interface_Base *Host_interface;
 	SSD_Components::Data_Cache_Manager_Base *Cache_manager;
@@ -35,9 +37,10 @@ public:
 	SSD_Components::NVM_PHY_Base* PHY;
 	std::vector<SSD_Components::NVM_Channel_Base*> Channels;
 	void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
+	unsigned int Get_NVM_write_unit_size_in_sectors();
 
 	void Attach_to_host(Host_Components::PCIe_Switch* pcie_switch);
-	void Perform_preconditioning();
+	void Perform_preconditioning(std::vector<Preconditioning::Workload_Statistics*> workload_stats);
 	void Start_simulation();
 	void Validate_simulation_config();
 	void Execute_simulator_event(MQSimEngine::Sim_Event* event);

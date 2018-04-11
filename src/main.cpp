@@ -169,9 +169,9 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_1->Plane_IDs[0] = 0; io_flow_1->Plane_IDs[1] = 1;
 		io_flow_1->Working_Set_Percentage = 50;
 		io_flow_1->Read_Percentage = 100;
-		io_flow_1->Address_Distribution = Host_Components::Address_Distribution_Type::UNIFORM_RANDOM;
+		io_flow_1->Address_Distribution = Preconditioning::Address_Distribution_Type::UNIFORM_RANDOM;
 		io_flow_1->Percentage_of_Hot_Region = 0;
-		io_flow_1->Request_Size_Distribution = Host_Components::Request_Size_Distribution_Type::FIXED;
+		io_flow_1->Request_Size_Distribution = Preconditioning::Request_Size_Distribution_Type::FIXED;
 		io_flow_1->Average_Request_Size = 8;
 		io_flow_1->Variance_Request_Size = 0;
 		io_flow_1->Seed = 12344;
@@ -199,9 +199,9 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Plane_IDs[0] = 0; io_flow_2->Plane_IDs[1] = 1;
 		io_flow_2->Working_Set_Percentage = 50;
 		io_flow_2->Read_Percentage = 100;
-		io_flow_2->Address_Distribution = Host_Components::Address_Distribution_Type::STREAMING;
+		io_flow_2->Address_Distribution = Preconditioning::Address_Distribution_Type::STREAMING;
 		io_flow_2->Percentage_of_Hot_Region = 0;
-		io_flow_2->Request_Size_Distribution = Host_Components::Request_Size_Distribution_Type::FIXED;
+		io_flow_2->Request_Size_Distribution = Preconditioning::Request_Size_Distribution_Type::FIXED;
 		io_flow_2->Average_Request_Size = 8;
 		io_flow_2->Variance_Request_Size = 0;
 		io_flow_2->Seed = 6533;
@@ -301,7 +301,6 @@ int main(int argc, char* argv[])
 		SSD_Device ssd(&exec_params->SSD_Device_Configuration, &exec_params->Host_Configuration.IO_Flow_Definitions);
 		Host_System host(&exec_params->Host_Configuration, ssd.Host_interface);
 		host.Attach_ssd_device(&ssd);
-		ssd.Perform_preconditioning();
 
 		Simulator->Start_simulation();
 

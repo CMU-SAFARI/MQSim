@@ -4,8 +4,8 @@
 
 namespace SSD_Components
 {
-	FTL::FTL(const sim_object_id_type& id, Data_Cache_Manager_Base* data_cache_manager) :
-		NVM_Firmware(id, data_cache_manager)
+	FTL::FTL(const sim_object_id_type& id, Data_Cache_Manager_Base* data_cache_manager, int seed) :
+		NVM_Firmware(id, data_cache_manager), random_generator(seed)
 	{
 	}
 
@@ -22,9 +22,50 @@ namespace SSD_Components
 			throw std::logic_error("The garbage collector is not set for FTL!");
 	}
 
-	void FTL::Perform_precondition()
+	void FTL::Perform_precondition(std::vector<Preconditioning::Workload_Statistics*> workload_stats)
 	{
-
+		for (auto stat : workload_stats)
+		{
+			if (stat->Type == Preconditioning::Workload_Type::SYNTHETIC)
+			{
+				switch (GC_and_WL_Unit->Get_gc_policy())
+				{
+				case GC_Block_Selection_Policy_Type::GREEDY:
+					break;
+				case GC_Block_Selection_Policy_Type::RGA:
+					break;
+				case GC_Block_Selection_Policy_Type::FIFO:
+					break;
+				case GC_Block_Selection_Policy_Type::RANDOM:
+					break;
+				case GC_Block_Selection_Policy_Type::RANDOM_P:
+					break;
+				case GC_Block_Selection_Policy_Type::RANDOM_PP:
+					break;
+				}
+			}
+			else
+			{
+				switch (GC_and_WL_Unit->Get_gc_policy())
+				{
+				case GC_Block_Selection_Policy_Type::GREEDY:
+					break;
+				case GC_Block_Selection_Policy_Type::RGA:
+					break;
+				case GC_Block_Selection_Policy_Type::FIFO:
+					break;
+				case GC_Block_Selection_Policy_Type::RANDOM:
+					break;
+				case GC_Block_Selection_Policy_Type::RANDOM_P:
+					break;
+				case GC_Block_Selection_Policy_Type::RANDOM_PP:
+					break;
+				}
+			}
+		}
+		//occupancy: total written logical space
+		
+		//fill CMT
 	}
 	
 	/*	
@@ -158,8 +199,4 @@ namespace SSD_Components
 
 	void FTL::Start_simulation() {}
 	void FTL::Execute_simulator_event(MQSimEngine::Sim_Event*) {}
-	void FTL::handle_user_request(User_Request* user_request)
-	{
-	}
-
 }

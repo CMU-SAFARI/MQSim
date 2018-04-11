@@ -18,6 +18,7 @@ namespace SSD_Components
 		void Validate_simulation_config();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
 
+		void Allocate_address_or_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& address);
 		void Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transactionList);
 		void Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state);
 		void Get_translation_mapping_info_for_gc(const stream_id_type stream_id, const MVPN_type mvpn, MPPN_type& mppa, sim_time_type& timestamp);
@@ -36,7 +37,7 @@ namespace SSD_Components
 		bool Is_lpa_locked(stream_id_type stream_id, LPA_type lpa);
 		bool Is_mvpn_locked(stream_id_type stream_id, MVPN_type mvpn);
 	private:
-		bool check_and_translate(NVM_Transaction_Flash* transaction);
+		bool query_cmt(NVM_Transaction_Flash* transaction);
 		void prepare_mapping_table();
 		PPA_type online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap);
 	};

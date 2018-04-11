@@ -15,6 +15,7 @@ namespace SSD_Components
 	void Address_Mapping_Unit_Hybrid::Validate_simulation_config() {}
 	void Address_Mapping_Unit_Hybrid::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
 
+	void Address_Mapping_Unit_Hybrid::Allocate_address_or_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& address) {}
 	void Address_Mapping_Unit_Hybrid::Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transaction_list) {}
 	void Address_Mapping_Unit_Hybrid::Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state) {}
 	void Address_Mapping_Unit_Hybrid::Get_translation_mapping_info_for_gc(const stream_id_type stream_id, const MVPN_type mvpn, MPPN_type& mppa, sim_time_type& timestamp) {}
@@ -22,7 +23,7 @@ namespace SSD_Components
 
 	PPA_type Address_Mapping_Unit_Hybrid::online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap) { return 0; }
 
-	bool Address_Mapping_Unit_Hybrid::check_and_translate(NVM_Transaction_Flash* transaction) { return true; }
+	bool Address_Mapping_Unit_Hybrid::query_cmt(NVM_Transaction_Flash* transaction) { return true; }
 	NVM::FlashMemory::Physical_Page_Address Address_Mapping_Unit_Hybrid::Convert_ppa_to_address(const PPA_type ppa)
 	{
 		NVM::FlashMemory::Physical_Page_Address pa;

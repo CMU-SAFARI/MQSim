@@ -62,7 +62,7 @@ namespace SSD_Components
 			unsigned int sector_no_per_page, unsigned int back_pressure_buffer_max_depth);
 		void Execute_simulator_event(MQSimEngine::Sim_Event* ev);
 		void Setup_triggers();
-		void Make_warmup();
+		void Make_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats);
 	private:
 		NVM_PHY_ONFI * flash_controller;
 		unsigned int capacity_in_bytes, capacity_in_pages;

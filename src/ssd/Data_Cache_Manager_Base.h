@@ -1,11 +1,13 @@
 #ifndef DATA_CACHE_MANAGER_BASE_H
 #define DATA_CACHE_MANAGER_BASE_H
 
+#include <vector>
 #include "../sim/Sim_Object.h"
 #include "Host_Interface_Base.h"
 #include "User_Request.h"
 #include "NVM_Firmware.h"
 #include "NVM_PHY_ONFI.h"
+#include "../precond/Workload_Statistics.h"
 
 namespace SSD_Components
 {
@@ -30,7 +32,7 @@ namespace SSD_Components
 		typedef void(*UserRequestServicedSignalHanderType) (User_Request*);
 		void Connect_to_user_request_serviced_signal(UserRequestServicedSignalHanderType);
 		void Set_host_interface(Host_Interface_Base* host_interface);
-		virtual void Make_warmup() = 0;
+		virtual void Make_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats) = 0;
 	protected:
 		static Data_Cache_Manager_Base* _my_instance;
 		Host_Interface_Base* host_interface;

@@ -14,9 +14,9 @@ namespace SSD_Components
 		unsigned int ChannelCount, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die,
 		unsigned int block_no_per_plane, unsigned int Page_no_per_block, unsigned int sectors_per_page, 
 		bool use_copyback, int seed, unsigned int max_ongoing_gc_reqs_per_plane)
-		: GC_and_WL_Unit_Base(id, address_mapping_unit, block_manager, tsu, flash_controller, gc_threshold, preemptible_gc_enabled, gc_hard_threshold,
+		: GC_and_WL_Unit_Base(id, address_mapping_unit, block_manager, tsu, flash_controller, block_selection_policy, gc_threshold, preemptible_gc_enabled, gc_hard_threshold,
 		ChannelCount, chip_no_per_channel, die_no_per_chip, plane_no_per_die, block_no_per_plane, Page_no_per_block, sectors_per_page),
-		block_selection_policy(block_selection_policy), random_generator(seed), max_ongoing_gc_reqs_per_plane(max_ongoing_gc_reqs_per_plane),
+		random_generator(seed), max_ongoing_gc_reqs_per_plane(max_ongoing_gc_reqs_per_plane),
 		use_copyback(use_copyback)
 	{
 		rga_set_size = (unsigned int)log2(block_no_per_plane);

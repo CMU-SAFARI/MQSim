@@ -1,7 +1,8 @@
 #ifndef FTL_H
 #define FTL_H
 
-#include"../sim/Sim_Reporter.h"
+#include "../sim/Sim_Reporter.h"
+#include "../utils/RandomGenerator.h"
 #include "Data_Cache_Manager_Flash.h"
 #include "NVM_Firmware.h"
 #include "TSU_Base.h"
@@ -11,8 +12,6 @@
 
 namespace SSD_Components
 {
-
-	enum class InitialSimulationStatus { EMPTY, STEADY_STATE }; //Empty: All pages are free, STEADY_STATE: pages are invalidated/validated based on the input workload behavior
 	enum class SimulationMode { STANDALONE, FULL_SYSTEM };
 
 	class Flash_Block_Manager_Base;
@@ -22,8 +21,8 @@ namespace SSD_Components
 	class FTL : public NVM_Firmware
 	{
 	public:
-		FTL(const sim_object_id_type& id, Data_Cache_Manager_Base* data_cache);
-		void Perform_precondition();
+		FTL(const sim_object_id_type& id, Data_Cache_Manager_Base* data_cache, int seed);
+		void Perform_precondition(std::vector<Preconditioning::Workload_Statistics*> workload_stats);
 		void Validate_simulation_config();
 		void Start_simulation();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
@@ -33,7 +32,8 @@ namespace SSD_Components
 		TSU_Base * TSU;
 		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 	private:
-		void handle_user_request(User_Request* user_request);
+		int preconditioning_seed;
+		Utils::RandomGenerator random_generator;
 	};
 }
 
