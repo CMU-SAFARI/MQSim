@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <MQSim_IO_Scenarios>
 	<IO_Scenario>
+		<IO_Flow_Parameter_Set_Trace_Based>
+				 <Priority_Class>HIGH</Priority_Class>
+				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
+				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
+				 <Chip_IDs>0,1,2,3</Chip_IDs>
+				 <Die_IDs>0,1</Die_IDs>
+				 <Plane_IDs>0,1</Plane_IDs>
+				 <File_Path>traces/tpcc-small.trace</File_Path>
+				 <Percentage_To_Be_Executed>100</Percentage_To_Be_Executed>
+				 <Relay_Count>1</Relay_Count>
+				 <Time_Unit>NANOSECOND</Time_Unit>
+		</IO_Flow_Parameter_Set_Trace_Based>
+	</IO_Scenario>
+	<IO_Scenario>
 		<IO_Flow_Parameter_Set_Synthetic>
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
@@ -8,6 +22,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>0</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -26,6 +41,7 @@
 				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Read_Percentage>0</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -37,19 +53,5 @@
 				 <Stop_Time>10000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
-	</IO_Scenario>
-	<IO_Scenario>
-		<IO_Flow_Parameter_Set_Trace_Based>
-				 <Priority_Class>HIGH</Priority_Class>
-				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
-				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1,2,3</Chip_IDs>
-				 <Die_IDs>0,1</Die_IDs>
-				 <Plane_IDs>0,1</Plane_IDs>
-				 <File_Path>traces/tpcc-small.trace</File_Path>
-				 <Percentage_To_Be_Executed>100</Percentage_To_Be_Executed>
-				 <Relay_Count>1</Relay_Count>
-				 <Time_Unit>NANOSECOND</Time_Unit>
-		</IO_Flow_Parameter_Set_Trace_Based>
 	</IO_Scenario>
 </MQSim_IO_Scenarios>
