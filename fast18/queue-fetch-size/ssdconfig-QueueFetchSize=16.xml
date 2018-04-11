@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Execution_Parameter_Set>
 	<Host_Parameter_Set>
-			 <PCIe_Lane_Bandwidth>0.100000</PCIe_Lane_Bandwidth>
+			 <PCIe_Lane_Bandwidth>0.500000</PCIe_Lane_Bandwidth>
 			 <PCIe_Lane_Count>4</PCIe_Lane_Count>
 	</Host_Parameter_Set>
 	<Device_Parameter_Set>
@@ -9,7 +9,7 @@
 			 <Enabled_Preconditioning>true</Enabled_Preconditioning>
 			 <HostInterface_Type>NVME</HostInterface_Type>
 			 <IO_Queue_Depth>65535</IO_Queue_Depth>
-			 <Queue_Fetch_Size>512</Queue_Fetch_Size>
+			 <Queue_Fetch_Size>16</Queue_Fetch_Size>
 			 <Data_Cache_Sharing_Mode>SHARED</Data_Cache_Sharing_Mode>
 			 <Data_Cache_Capacity>268435456</Data_Cache_Capacity>
 			 <Data_Cache_DRAM_Row_Size>8192</Data_Cache_DRAM_Row_Size>

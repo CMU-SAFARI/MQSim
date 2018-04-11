@@ -15,7 +15,7 @@ namespace SSD_Components
 	void Address_Mapping_Unit_Hybrid::Validate_simulation_config() {}
 	void Address_Mapping_Unit_Hybrid::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
 
-	void Address_Mapping_Unit_Hybrid::Allocate_address_or_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& address) {}
+	void Address_Mapping_Unit_Hybrid::Allocate_address_for_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& address) {}
 	void Address_Mapping_Unit_Hybrid::Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transaction_list) {}
 	void Address_Mapping_Unit_Hybrid::Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state) {}
 	void Address_Mapping_Unit_Hybrid::Get_translation_mapping_info_for_gc(const stream_id_type stream_id, const MVPN_type mvpn, MPPN_type& mppa, sim_time_type& timestamp) {}

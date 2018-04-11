@@ -352,7 +352,7 @@ namespace SSD_Components
 		}
 	}
 
-	void Address_Mapping_Unit_Page_Level::Allocate_address_or_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& addresses)
+	void Address_Mapping_Unit_Page_Level::Allocate_address_for_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& addresses)
 	{
 		int idx = 0;
 		for (auto lpa : lpa_list)
