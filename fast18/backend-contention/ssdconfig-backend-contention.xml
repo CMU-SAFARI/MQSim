@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Execution_Parameter_Set>
 	<Host_Parameter_Set>
-			 <PCIe_Lane_Bandwidth>0.100000</PCIe_Lane_Bandwidth>
+			 <PCIe_Lane_Bandwidth>0.200000</PCIe_Lane_Bandwidth>
 			 <PCIe_Lane_Count>4</PCIe_Lane_Count>
 	</Host_Parameter_Set>
 	<Device_Parameter_Set>
