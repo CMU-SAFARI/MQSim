@@ -5,7 +5,7 @@
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
 				 <Channel_IDs>0,1,2,3</Channel_IDs>
-				 <Chip_IDs>4,5,6,7</Chip_IDs>
+				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
 				 <Working_Set_Percentage>1</Working_Set_Percentage>

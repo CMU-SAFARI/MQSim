@@ -244,19 +244,39 @@ namespace SSD_Components
 		{
 			ChannelIDs = new flash_channel_ID_type[stream_channel_ids[domainID].size()];
 			for (unsigned int i = 0; i < stream_channel_ids[domainID].size(); i++)
-				ChannelIDs[i] = stream_channel_ids[domainID][i];
+			{
+				if (stream_channel_ids[domainID][i] < ChannelCount)
+					ChannelIDs[i] = stream_channel_ids[domainID][i];
+				else
+					PRINT_ERROR("Invalid channel ID specified for I/O flow " << domainID);
+			}
 
 			ChipIDs = new flash_channel_ID_type[stream_chip_ids[domainID].size()];
 			for (unsigned int i = 0; i < stream_chip_ids[domainID].size(); i++)
-				ChipIDs[i] = stream_chip_ids[domainID][i];
+			{
+				if (stream_chip_ids[domainID][i] < ChipNoPerChannel)
+					ChipIDs[i] = stream_chip_ids[domainID][i];
+				else
+					PRINT_ERROR("Invalid chip ID specified for I/O flow " << domainID);
+			}
 
 			dieIDs = new flash_channel_ID_type[stream_die_ids[domainID].size()];
 			for (unsigned int i = 0; i < stream_die_ids[domainID].size(); i++)
-				dieIDs[i] = stream_die_ids[domainID][i];
+			{
+				if (stream_die_ids[domainID][i] < DieNoPerChip)
+					dieIDs[i] = stream_die_ids[domainID][i];
+				else
+					PRINT_ERROR("Invalid die ID specified for I/O flow " << domainID);
+			}
 
 			planeIDs = new flash_channel_ID_type[stream_plane_ids[domainID].size()];
 			for (unsigned int i = 0; i < stream_plane_ids[domainID].size(); i++)
-				planeIDs[i] = stream_plane_ids[domainID][i];
+			{
+				if (stream_plane_ids[domainID][i] < PlaneNoPerDie)
+					planeIDs[i] = stream_plane_ids[domainID][i];
+				else
+					PRINT_ERROR("Invalid plane ID specified for I/O flow " << domainID);
+			}
 		}
 
 		bool****resource_list;
