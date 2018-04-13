@@ -1,6 +1,8 @@
 #include <stdexcept>
+#include <vector>
 #include "FTL.h"
 #include "Stats.h"
+#include "../utils/DistributionTypes.h"
 
 namespace SSD_Components
 {
@@ -24,9 +26,37 @@ namespace SSD_Components
 
 	void FTL::Perform_precondition(std::vector<Preconditioning::Workload_Statistics*> workload_stats)
 	{
+		return;
 		for (auto stat : workload_stats)
 		{
-			if (stat->Type == Preconditioning::Workload_Type::SYNTHETIC)
+			//First generate enough number of LPAs that are accessed in the steady-state
+			std::vector<LPA_type> accessed_lpas;
+			unsigned int required_logical_pages = (unsigned int) (stat->Occupancy * Address_Mapping_Unit->Get_logical_pages_count(stat->Stream_id));
+			unsigned int total_accessed_logical_pages = stat->Write_address_access_pattern.size() + stat->Read_address_access_pattern.size() - stat->Write_address_access_pattern.size();
+			while (total_accessed_logical_pages < required_logical_pages)
+			{
+				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
+				{
+					switch (stat->Address_distribution_type)
+					{
+					case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+						break;
+					case Utils::Address_Distribution_Type::STREAMING:
+						break;
+					case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+						break;
+					}
+				}
+				else
+				{
+
+				}
+
+				required_logical_pages++;
+			}
+
+			//Assign PPAs to LPAs based on the steady-state status of pages
+			if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 			{
 				switch (GC_and_WL_Unit->Get_gc_policy())
 				{
@@ -62,10 +92,9 @@ namespace SSD_Components
 					break;
 				}
 			}
+
+			//Touch the LPAs to warmup CMT
 		}
-		//occupancy: total written logical space
-		
-		//fill CMT
 	}
 	
 	/*	

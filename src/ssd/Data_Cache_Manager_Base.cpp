@@ -14,7 +14,7 @@ namespace SSD_Components
 		sharing_mode(sharing_mode), stream_count(stream_count), back_pressure_buffer_max_depth(back_pressure_buffer_max_depth), back_pressure_buffer_depth(0)
 	{
 		_my_instance = this;
-		dram_burst_transfer_time_ddr = ONE_SECOND / (dram_data_rate * 1000 * 1000);
+		dram_burst_transfer_time_ddr = (double) ONE_SECOND / (dram_data_rate * 1000 * 1000);
 		this->caching_mode_per_input_stream = new Caching_Mode[stream_count];
 		for (unsigned int i = 0; i < stream_count; i++)
 			this->caching_mode_per_input_stream[i] = caching_mode_per_input_stream[i];

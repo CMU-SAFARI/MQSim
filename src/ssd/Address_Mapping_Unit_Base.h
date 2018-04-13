@@ -39,6 +39,7 @@ namespace SSD_Components
 			double Overprovisioning_ratio, bool fold_large_addresses = true);
 
 		virtual void Allocate_address_for_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& address) = 0;
+		virtual void Touch_address_for_preconditioning(stream_id_type stream_id, LPA_type lpa) = 0;
 		virtual void Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transactionList) = 0;
 		virtual void Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state) = 0;
 		virtual void Get_translation_mapping_info_for_gc(const stream_id_type stream_id, const MVPN_type mvpn, MPPN_type& mppa, sim_time_type& timestamp) = 0;
@@ -46,7 +47,8 @@ namespace SSD_Components
 		virtual void Allocate_new_page_for_gc(NVM_Transaction_Flash_WR* transaction, bool is_translation_page) = 0;
 		unsigned int Get_no_of_input_streams() { return no_of_input_streams; }
 		
-		virtual LSA_type Get_logical_sectors_count_allocated_to_stream(stream_id_type stream_id) = 0;
+		virtual LSA_type Get_logical_sectors_count(stream_id_type stream_id) = 0;
+		virtual unsigned int Get_logical_pages_count(stream_id_type stream_id) = 0;
 		virtual NVM::FlashMemory::Physical_Page_Address Convert_ppa_to_address(const PPA_type ppa) = 0;
 		virtual void Convert_ppa_to_address(const PPA_type ppa, NVM::FlashMemory::Physical_Page_Address& address) = 0;
 		virtual PPA_type Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress) = 0;

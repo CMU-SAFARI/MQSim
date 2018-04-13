@@ -11,13 +11,14 @@
 
 namespace SSD_Components
 {
+	enum class CacheSlotStatus {EMPTY, CLEAN, DIRTY_NO_FLASH_WRITEBACK, DIRTY_FLASH_WRITEBACK};
 	struct DataCacheSlotType
 	{
 		unsigned long long State_bitmap_of_existing_sectors;
 		LPA_type LPA;
 		data_cache_content_type Content;
 		data_timestamp_type Timestamp;
-		bool Dirty;
+		CacheSlotStatus Status;
 		std::list<std::pair<LPA_type, DataCacheSlotType*>>::iterator lru_list_ptr;//used for fast implementation of LRU
 	};
 
@@ -29,8 +30,11 @@ namespace SSD_Components
 		bool Check_free_slot_availability();
 		bool Check_free_slot_availability(unsigned int no_of_slots);
 		bool Empty();
+		bool Full();
 		DataCacheSlotType Get_slot(const stream_id_type stream_id, const LPA_type lpn);
-		DataCacheSlotType Evict_one_slot();
+		DataCacheSlotType Evict_one_dirty_slot();
+		DataCacheSlotType Evict_one_slot_lru();
+		void Change_slot_status_to_writeback(const stream_id_type stream_id, const LPA_type lpn);
 		void Remove_slot(const stream_id_type stream_id, const LPA_type lpn);
 		void Insert_read_data(const stream_id_type stream_id, const LPA_type lpn, const data_cache_content_type content, const data_timestamp_type timestamp, const page_status_type state_bitmap_of_read_sectors);
 		void Insert_write_data(const stream_id_type stream_id, const LPA_type lpn, const data_cache_content_type content, const data_timestamp_type timestamp, const page_status_type state_bitmap_of_write_sectors);
@@ -62,7 +66,7 @@ namespace SSD_Components
 			unsigned int sector_no_per_page, unsigned int back_pressure_buffer_max_depth);
 		void Execute_simulator_event(MQSimEngine::Sim_Event* ev);
 		void Setup_triggers();
-		void Make_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats);
+		void Do_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats);
 	private:
 		NVM_PHY_ONFI * flash_controller;
 		unsigned int capacity_in_bytes, capacity_in_pages;
@@ -71,7 +75,7 @@ namespace SSD_Components
 		bool memory_channel_is_busy;
 		
 		void process_new_user_request(User_Request* user_request);
-		void write_to_dram_cache(User_Request* user_request);
+		void write_to_destage_buffer(User_Request* user_request);//Used in the WRITE_CACHE execution mode in which the DRAM space is used as a destage buffer
 		std::queue<Memory_Transfer_Info*> dram_access_request_queue;//The list of DRAM transfers that are waiting to be executed
 		std::queue<Memory_Transfer_Info*> waiting_access_request_queue;//The list of user writes that are waiting for the DRAM space to be free
 		std::list<User_Request*> waiting_user_requests_queue;//The list of user requests that are waiting for the free DRAM space

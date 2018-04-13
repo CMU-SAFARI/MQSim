@@ -8,6 +8,7 @@
 #include "exec/SSD_Device.h"
 #include "exec/Host_System.h"
 #include "utils/rapidxml/rapidxml.hpp"
+#include "utils/DistributionTypes.h"
 
 using namespace std;
 
@@ -169,9 +170,9 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_1->Plane_IDs[0] = 0; io_flow_1->Plane_IDs[1] = 1;
 		io_flow_1->Working_Set_Percentage = 50;
 		io_flow_1->Read_Percentage = 100;
-		io_flow_1->Address_Distribution = Preconditioning::Address_Distribution_Type::UNIFORM_RANDOM;
+		io_flow_1->Address_Distribution = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
 		io_flow_1->Percentage_of_Hot_Region = 0;
-		io_flow_1->Request_Size_Distribution = Preconditioning::Request_Size_Distribution_Type::FIXED;
+		io_flow_1->Request_Size_Distribution = Utils::Request_Size_Distribution_Type::FIXED;
 		io_flow_1->Average_Request_Size = 8;
 		io_flow_1->Variance_Request_Size = 0;
 		io_flow_1->Seed = 12344;
@@ -199,9 +200,9 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Plane_IDs[0] = 0; io_flow_2->Plane_IDs[1] = 1;
 		io_flow_2->Working_Set_Percentage = 50;
 		io_flow_2->Read_Percentage = 100;
-		io_flow_2->Address_Distribution = Preconditioning::Address_Distribution_Type::STREAMING;
+		io_flow_2->Address_Distribution = Utils::Address_Distribution_Type::STREAMING;
 		io_flow_2->Percentage_of_Hot_Region = 0;
-		io_flow_2->Request_Size_Distribution = Preconditioning::Request_Size_Distribution_Type::FIXED;
+		io_flow_2->Request_Size_Distribution = Utils::Request_Size_Distribution_Type::FIXED;
 		io_flow_2->Average_Request_Size = 8;
 		io_flow_2->Variance_Request_Size = 0;
 		io_flow_2->Seed = 6533;
@@ -315,5 +316,6 @@ int main(int argc, char* argv[])
 		collect_results(ssd, host, (workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of(".")) + "_scenario_" + std::to_string(cntr) + ".xml").c_str());
 	}
 
+	cin.get();
 	return 0;
 }

@@ -266,13 +266,13 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 	attr = "Address_Distribution";
 	switch (Address_Distribution)
 	{
-	case Preconditioning::Address_Distribution_Type::STREAMING:
+	case Utils::Address_Distribution_Type::STREAMING:
 		val = "STREAMING";
 		break;
-	case Preconditioning::Address_Distribution_Type::HOTCOLD_RANDOM:
+	case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
 		val = "HOTCOLD_RANDOM";
 		break;
-	case Preconditioning::Address_Distribution_Type::UNIFORM_RANDOM:
+	case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
 		val = "UNIFORM_RANDOM";
 		break;
 	}
@@ -286,10 +286,10 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 	attr = "Request_Size_Distribution";
 	switch (Request_Size_Distribution)
 	{
-	case Preconditioning::Request_Size_Distribution_Type::FIXED:
+	case Utils::Request_Size_Distribution_Type::FIXED:
 		val = "FIXED";
 		break;
-	case Preconditioning::Request_Size_Distribution_Type::NORMAL:
+	case Utils::Request_Size_Distribution_Type::NORMAL:
 		val = "NORMAL";
 		break;
 	}
@@ -344,11 +344,11 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 				std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "STREAMING") == 0)
-					Address_Distribution = Preconditioning::Address_Distribution_Type::STREAMING;
+					Address_Distribution = Utils::Address_Distribution_Type::STREAMING;
 				else if (strcmp(val.c_str(), "HOTCOLD_RANDOM") == 0)
-					Address_Distribution = Preconditioning::Address_Distribution_Type::HOTCOLD_RANDOM;
+					Address_Distribution = Utils::Address_Distribution_Type::HOTCOLD_RANDOM;
 				else if (strcmp(val.c_str(), "UNIFORM_RANDOM") == 0)
-					Address_Distribution = Preconditioning::Address_Distribution_Type::UNIFORM_RANDOM;
+					Address_Distribution = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
 				else PRINT_ERROR("Wrong address distribution type for input synthetic flow")
 			}
 			else if (strcmp(param->name(), "Percentage_of_Hot_Region") == 0)
@@ -361,9 +361,9 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 				std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "FIXED") == 0)
-					Request_Size_Distribution = Preconditioning::Request_Size_Distribution_Type::FIXED;
+					Request_Size_Distribution = Utils::Request_Size_Distribution_Type::FIXED;
 				else if (strcmp(val.c_str(), "NORMAL") == 0)
-					Request_Size_Distribution = Preconditioning::Request_Size_Distribution_Type::NORMAL;
+					Request_Size_Distribution = Utils::Request_Size_Distribution_Type::NORMAL;
 				else PRINT_ERROR("Wrong request size distribution type for input synthetic flow")
 			}
 			else if (strcmp(param->name(), "Average_Request_Size") == 0)

@@ -184,7 +184,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		ftl->Address_Mapping_Unit = amu;
 		LSA_type total_logical_sectors_in_SSD = 0;
 		for (stream_id_type stream_id = 0; stream_id < io_flows->size(); stream_id++)
-			total_logical_sectors_in_SSD += amu->Get_logical_sectors_count_allocated_to_stream(stream_id);
+			total_logical_sectors_in_SSD += amu->Get_logical_sectors_count(stream_id);
 
 		//Step 8: create GC_and_WL_unit
 		SSD_Components::GC_and_WL_Unit_Base* gcwl;
@@ -244,7 +244,7 @@ void SSD_Device::Perform_preconditioning(std::vector<Preconditioning::Workload_S
 {
 	if (Preconditioning_required)
 	{
-		this->Cache_manager->Make_warmup(workload_stats);
+		this->Cache_manager->Do_warmup(workload_stats);
 		((SSD_Components::FTL*)this->Firmware)->Perform_precondition(workload_stats);
 	}
 }

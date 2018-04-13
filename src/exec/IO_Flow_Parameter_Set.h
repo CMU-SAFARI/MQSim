@@ -7,6 +7,7 @@
 #include "../host/IO_Flow_Synthetic.h"
 #include "../host/IO_Flow_Trace_Based.h"
 #include "../precond/Workload_Statistics.h"
+#include "../utils/DistributionTypes.h"
 #include "Parameter_Set_Base.h"
 
 enum class Flow_Type { SYNTHETIC, TRACE };
@@ -32,9 +33,9 @@ class IO_Flow_Parameter_Set_Synthetic : public IO_Flow_Parameter_Set
 public:
 	IO_Flow_Parameter_Set_Synthetic() { this->Type = Flow_Type::SYNTHETIC; }
 	char Read_Percentage;
-	Preconditioning::Address_Distribution_Type Address_Distribution;
+	Utils::Address_Distribution_Type Address_Distribution;
 	char Percentage_of_Hot_Region;//This parameters used if the address distribution type is hot/cold (i.e., (100-H)% of the whole I/O requests are going to a H% hot region of the storage space)
-	Preconditioning::Request_Size_Distribution_Type Request_Size_Distribution;
+	Utils::Request_Size_Distribution_Type Request_Size_Distribution;
 	unsigned int Average_Request_Size;//Average request size in sectors
 	unsigned int Variance_Request_Size;//Variance of request size in sectors
 	//Host_Components::Request_Generator_Type Generator_Type;//Request generator could be time-based 

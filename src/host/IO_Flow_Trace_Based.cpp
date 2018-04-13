@@ -1,6 +1,7 @@
 #include "IO_Flow_Trace_Based.h"
 #include "../utils/StringTools.h"
 #include "ASCII_Trace_Definition.h"
+#include "../utils/DistributionTypes.h"
 
 namespace Host_Components
 {
@@ -136,7 +137,7 @@ namespace Host_Components
 
 	void IO_Flow_Trace_Based::Get_statistics(Preconditioning::Workload_Statistics& stats)
 	{
-		stats.Type = Preconditioning::Workload_Type::TRACE_BASED;
+		stats.Type = Utils::Workload_Type::TRACE_BASED;
 		stats.Stream_id = io_queue_id;
 		for (int i = 0; i < MAX_ARRIVAL_TIME_HISTOGRAM + 1; i++)
 		{

@@ -334,6 +334,18 @@ namespace Host_Components
 		val = std::to_string(STAT_generated_write_request_count);
 		xmlwriter.Write_attribute_string(attr, val);
 
+		attr = "IOPS";
+		val = std::to_string((double)STAT_generated_request_count / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "IOPS_Read";
+		val = std::to_string((double)STAT_generated_read_request_count / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "IOPS_Write";
+		val = std::to_string((double)STAT_generated_write_request_count / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		xmlwriter.Write_attribute_string(attr, val);
+
 		attr = "Device_Response_Time";
 		val = std::to_string(Get_device_response_time());
 		xmlwriter.Write_attribute_string(attr, val);

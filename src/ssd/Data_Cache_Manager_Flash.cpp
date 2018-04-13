@@ -32,13 +32,39 @@ namespace SSD_Components
 	}
 	inline bool Cache::Check_free_slot_availability(unsigned int no_of_slots)
 	{
+		//PRINT_MESSAGE("Cache size is " << slots.size());
 		return slots.size() + no_of_slots <= capacity_in_pages;
 	}
 	inline bool Cache::Empty()
 	{
 		return slots.size() == 0;
 	}
-	DataCacheSlotType Cache::Evict_one_slot()
+	inline bool Cache::Full()
+	{
+		return slots.size() == capacity_in_pages;
+	}
+	DataCacheSlotType Cache::Evict_one_dirty_slot()
+	{
+		assert(slots.size() > 0);
+		auto itr = lru_list.rbegin();
+		while (itr != lru_list.rend())
+		{
+			if ((*itr).second->Status == CacheSlotStatus::DIRTY_NO_FLASH_WRITEBACK)
+				break;
+			itr++;
+		}
+		DataCacheSlotType evicted_item = *lru_list.back().second;
+		if (itr == lru_list.rend())
+		{
+			evicted_item.Status = CacheSlotStatus::EMPTY;
+			return evicted_item;
+		}
+		slots.erase(lru_list.back().first);
+		delete lru_list.back().second;
+		lru_list.pop_back();
+		return evicted_item;
+	}
+	DataCacheSlotType Cache::Evict_one_slot_lru()
 	{
 		assert(slots.size() > 0);
 		slots.erase(lru_list.back().first);
@@ -46,6 +72,13 @@ namespace SSD_Components
 		delete lru_list.back().second;
 		lru_list.pop_back();
 		return evicted_item;
+	}
+	void Cache::Change_slot_status_to_writeback(const stream_id_type stream_id, const LPA_type lpn)
+	{
+		LPA_type key = LPN_TO_UNIQUE_KEY(stream_id, lpn);
+		auto it = slots.find(key);
+		assert(it != slots.end());
+		it->second->Status = CacheSlotStatus::DIRTY_FLASH_WRITEBACK;
 	}
 	void Cache::Insert_read_data(const stream_id_type stream_id, const LPA_type lpn, const data_cache_content_type content,
 		const data_timestamp_type timestamp, const page_status_type state_bitmap_of_read_sectors)
@@ -61,7 +94,7 @@ namespace SSD_Components
 		cache_slot->State_bitmap_of_existing_sectors = state_bitmap_of_read_sectors;
 		cache_slot->Content = content;
 		cache_slot->Timestamp = timestamp;
-		cache_slot->Dirty = false;
+		cache_slot->Status = CacheSlotStatus::CLEAN;
 		lru_list.push_front(std::pair<LPA_type, DataCacheSlotType*>(key, cache_slot));
 		cache_slot->lru_list_ptr = lru_list.begin();
 		slots[key] = cache_slot;
@@ -80,7 +113,7 @@ namespace SSD_Components
 		cache_slot->State_bitmap_of_existing_sectors = state_bitmap_of_write_sectors;
 		cache_slot->Content = content;
 		cache_slot->Timestamp = timestamp;
-		cache_slot->Dirty = true;
+		cache_slot->Status = CacheSlotStatus::DIRTY_NO_FLASH_WRITEBACK;
 		lru_list.push_front(std::pair<LPA_type, DataCacheSlotType*>(key, cache_slot));
 		cache_slot->lru_list_ptr = lru_list.begin();
 		slots[key] = cache_slot;
@@ -96,7 +129,7 @@ namespace SSD_Components
 		it->second->State_bitmap_of_existing_sectors = state_bitmap_of_write_sectors;
 		it->second->Content = content;
 		it->second->Timestamp = timestamp;
-		it->second->Dirty = true;
+		it->second->Status = CacheSlotStatus::DIRTY_NO_FLASH_WRITEBACK;
 		if (lru_list.begin()->first != key)
 			lru_list.splice(lru_list.begin(), lru_list, it->second->lru_list_ptr);
 	}
@@ -145,7 +178,7 @@ namespace SSD_Components
 		flash_controller->ConnectToTransactionServicedSignal(handle_transaction_serviced_signal_from_PHY);
 	}
 
-	void Data_Cache_Manager_Flash::Make_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats)
+	void Data_Cache_Manager_Flash::Do_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats)
 	{
 		for (auto stat : workload_stats)
 		{
@@ -154,7 +187,7 @@ namespace SSD_Components
 			case Caching_Mode::TURNED_OFF:
 				break;
 			case Caching_Mode::READ_CACHE:
-				if (stat->Type == Preconditioning::Workload_Type::SYNTHETIC)
+				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 				{
 				}
 				else
@@ -162,7 +195,7 @@ namespace SSD_Components
 				}
 				break;
 			case Caching_Mode::WRITE_CACHE:
-				if (stat->Type == Preconditioning::Workload_Type::SYNTHETIC)
+				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 				{
 				}
 				else
@@ -170,7 +203,7 @@ namespace SSD_Components
 				}
 				break;
 			case Caching_Mode::WRITE_READ_CACHE:
-				if (stat->Type == Preconditioning::Workload_Type::SYNTHETIC)
+				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 				{
 				}
 				else
@@ -181,7 +214,7 @@ namespace SSD_Components
 		}
 	}
 
-	void Data_Cache_Manager_Flash::write_to_dram_cache(User_Request* user_request)
+	void Data_Cache_Manager_Flash::write_to_destage_buffer(User_Request* user_request)//This funciton is only used in the WRITE_CACHE mode
 	{
 		for (std::list<NVM_Transaction*>::iterator tr = user_request->Transaction_list.begin();
 			tr != user_request->Transaction_list.end(); tr++)
@@ -219,9 +252,11 @@ namespace SSD_Components
 		write_transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_WRITE_FOR_USERIO_FINISHED;
 		service_dram_access_request(write_transfer_info);
 
-		if (back_pressure_buffer_depth < back_pressure_buffer_max_depth)
+		if (back_pressure_buffer_depth < back_pressure_buffer_max_depth)//Eagerly write back the data while the back pressure bufer is not full
 		{
-			back_pressure_buffer_depth += user_request->Sectors_serviced_from_cache;
+			for (auto tr : user_request->Transaction_list)
+				per_stream_cache[user_request->Stream_id]->Change_slot_status_to_writeback(tr->Stream_id, ((NVM_Transaction_Flash_WR*)tr)->LPA);
+			back_pressure_buffer_depth += user_request->Sectors_serviced_from_cache;//All sectors written to the detage buffer (DRAM) should be written back
 			static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Translate_lpa_to_ppa_and_dispatch(user_request->Transaction_list);
 		}
 		user_request->Transaction_list.clear();//All flash transactions are serviced from DRAM
@@ -290,17 +325,22 @@ namespace SSD_Components
 					static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Translate_lpa_to_ppa_and_dispatch(user_request->Transaction_list);
 					return;
 				case Caching_Mode::WRITE_CACHE://The data cache manger unit performs like a destage buffer
+				{
+					user_request->Cache_slot_to_reserve = 0;
 					for (auto tr : user_request->Transaction_list)
 					{
+						if (!per_stream_cache[tr->Stream_id]->Exists(tr->Stream_id, ((NVM_Transaction_Flash_WR*)tr)->LPA))//If the logical address already exists in the cache
+							user_request->Cache_slot_to_reserve++;
 						user_request->Sectors_serviced_from_cache += count_sector_no_from_status_bitmap(((NVM_Transaction_Flash_WR*)tr)->write_sectors_bitmap);
 						((NVM_Transaction_Flash_WR*)tr)->Source = Transaction_Source_Type::CACHE;
 					}
-					
-					if (per_stream_cache[user_request->Stream_id]->Check_free_slot_availability(user_request->Sectors_serviced_from_cache))
-						write_to_dram_cache(user_request);
+
+					if (per_stream_cache[user_request->Stream_id]->Check_free_slot_availability(user_request->Cache_slot_to_reserve))
+						write_to_destage_buffer(user_request);
 					else
 						waiting_user_requests_queue.push_back(user_request);
 					break;
+				}
 				case Caching_Mode::WRITE_READ_CACHE:
 				{
 					unsigned int cache_eviction_read_size_in_sectors = 0;
@@ -330,8 +370,8 @@ namespace SSD_Components
 						{
 							if (!per_stream_cache[tr->Stream_id]->Check_free_slot_availability())
 							{
-								DataCacheSlotType evicted_slot = per_stream_cache[tr->Stream_id]->Evict_one_slot();
-								if (evicted_slot.Dirty)
+								DataCacheSlotType evicted_slot = per_stream_cache[tr->Stream_id]->Evict_one_slot_lru();
+								if (evicted_slot.Status == CacheSlotStatus::DIRTY_NO_FLASH_WRITEBACK)
 								{
 									evicted_cache_slots->push_back(new NVM_Transaction_Flash_WR(Transaction_Source_Type::CACHE,
 										tr->Stream_id, count_sector_no_from_status_bitmap(evicted_slot.State_bitmap_of_existing_sectors) * SECTOR_SIZE_IN_BYTE,
@@ -428,8 +468,8 @@ namespace SSD_Components
 					if (!((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[transaction->Stream_id]->Check_free_slot_availability())
 					{
 						std::list<NVM_Transaction*>* evicted_cache_slots = new std::list<NVM_Transaction*>;
-						DataCacheSlotType evicted_slot = ((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[transaction->Stream_id]->Evict_one_slot();
-						if (evicted_slot.Dirty)
+						DataCacheSlotType evicted_slot = ((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[transaction->Stream_id]->Evict_one_slot_lru();
+						if (evicted_slot.Status == CacheSlotStatus::DIRTY_NO_FLASH_WRITEBACK)
 						{
 							Memory_Transfer_Info* transfer_info = new Memory_Transfer_Info;
 							transfer_info->Size = count_sector_no_from_status_bitmap(evicted_slot.State_bitmap_of_existing_sectors) * SECTOR_SIZE_IN_BYTE;
@@ -484,8 +524,8 @@ namespace SSD_Components
 						std::list<NVM_Transaction*>* evicted_cache_slots = new std::list<NVM_Transaction*>;
 						while (!((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[transaction->Stream_id]->Empty())
 						{
-							DataCacheSlotType evicted_slot = ((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[transaction->Stream_id]->Evict_one_slot();
-							if (evicted_slot.Dirty)
+							DataCacheSlotType evicted_slot = ((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[transaction->Stream_id]->Evict_one_dirty_slot();
+							if (evicted_slot.Status != CacheSlotStatus::EMPTY)
 							{
 								evicted_cache_slots->push_back(new NVM_Transaction_Flash_WR(Transaction_Source_Type::CACHE,
 									transaction->Stream_id, count_sector_no_from_status_bitmap(evicted_slot.State_bitmap_of_existing_sectors) * SECTOR_SIZE_IN_BYTE,
@@ -493,25 +533,45 @@ namespace SSD_Components
 								_my_instance->back_pressure_buffer_depth += count_sector_no_from_status_bitmap(evicted_slot.State_bitmap_of_existing_sectors);
 								cache_eviction_read_size_in_sectors += count_sector_no_from_status_bitmap(evicted_slot.State_bitmap_of_existing_sectors);
 							}
+							else break;
 							if (_my_instance->back_pressure_buffer_depth >= _my_instance->back_pressure_buffer_max_depth)
 								break;
 						}
 						
-						Memory_Transfer_Info* read_transfer_info = new Memory_Transfer_Info;
-						read_transfer_info->Size = cache_eviction_read_size_in_sectors * SECTOR_SIZE_IN_BYTE;
-						read_transfer_info->Related_request = evicted_cache_slots;
-						read_transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_FINISHED;
-						((Data_Cache_Manager_Flash*)_my_instance)->service_dram_access_request(read_transfer_info);
-
-						for (auto user_request = ((Data_Cache_Manager_Flash*)_my_instance)->waiting_user_requests_queue.begin();
-							user_request != ((Data_Cache_Manager_Flash*)_my_instance)->waiting_user_requests_queue.end();)
+						if (cache_eviction_read_size_in_sectors > 0)
 						{
-							if (((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[(*user_request)->Stream_id]->Check_free_slot_availability((*user_request)->Sectors_serviced_from_cache))
-							{
-								((Data_Cache_Manager_Flash*)_my_instance)->waiting_user_requests_queue.erase(user_request);
-								((Data_Cache_Manager_Flash*)_my_instance)->write_to_dram_cache(*user_request);
-							}
+							Memory_Transfer_Info* read_transfer_info = new Memory_Transfer_Info;
+							read_transfer_info->Size = cache_eviction_read_size_in_sectors * SECTOR_SIZE_IN_BYTE;
+							read_transfer_info->Related_request = evicted_cache_slots;
+							read_transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_FINISHED;
+							((Data_Cache_Manager_Flash*)_my_instance)->service_dram_access_request(read_transfer_info);
 						}
+					}
+
+					for (auto user_request_itr = ((Data_Cache_Manager_Flash*)_my_instance)->waiting_user_requests_queue.begin();
+						user_request_itr != ((Data_Cache_Manager_Flash*)_my_instance)->waiting_user_requests_queue.end(); )
+					{
+						User_Request* user_request = *user_request_itr;
+
+						//The number of required free cache slots should be calculated every time that MQSim wants to service a user requests,
+						//since the content of cache may be changed from time to time.
+						user_request->Cache_slot_to_reserve = 0;
+						for (auto tr : user_request->Transaction_list)
+						{
+							if (!((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[tr->Stream_id]->Exists(tr->Stream_id, ((NVM_Transaction_Flash_WR*)tr)->LPA))//If the logical address already exists in the cache
+								user_request->Cache_slot_to_reserve++;
+							user_request->Sectors_serviced_from_cache += count_sector_no_from_status_bitmap(((NVM_Transaction_Flash_WR*)tr)->write_sectors_bitmap);
+							((NVM_Transaction_Flash_WR*)tr)->Source = Transaction_Source_Type::CACHE;
+						}
+						if (((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[user_request->Stream_id]->Check_free_slot_availability(user_request->Cache_slot_to_reserve))
+						{
+							((Data_Cache_Manager_Flash*)_my_instance)->waiting_user_requests_queue.erase(user_request_itr++);
+							((Data_Cache_Manager_Flash*)_my_instance)->write_to_destage_buffer(user_request);
+						}
+						else
+							user_request_itr++;
+						if (((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[user_request->Stream_id]->Full())
+							break;
 					}
 					break;
 				}
@@ -549,13 +609,13 @@ namespace SSD_Components
 
 		switch (eventType)
 		{
-		case Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_USERIO_FINISHED:
+		case Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_USERIO_FINISHED://A user read is service from DRAM cache
 		case Data_Cache_Simulation_Event_Type::MEMORY_WRITE_FOR_USERIO_FINISHED:
 			((User_Request*)(transfer_info)->Related_request)->Sectors_serviced_from_cache = 0;
 			if (((User_Request*)(transfer_info)->Related_request)->Transaction_list.size() == 0)
 				broadcast_user_request_serviced_signal(((User_Request*)(transfer_info)->Related_request));
 			break;
-		case Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_FINISHED:
+		case Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_FINISHED://Reading data from DRAM and writing it back to the flash storage
 			static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Translate_lpa_to_ppa_and_dispatch(*((std::list<NVM_Transaction*>*)(transfer_info->Related_request)));
 			delete (std::list<NVM_Transaction*>*)transfer_info->Related_request;
 			break;

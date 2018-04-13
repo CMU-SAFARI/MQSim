@@ -16,6 +16,7 @@ namespace SSD_Components
 	void Address_Mapping_Unit_Hybrid::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
 
 	void Address_Mapping_Unit_Hybrid::Allocate_address_for_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& address) {}
+	void Address_Mapping_Unit_Hybrid::Touch_address_for_preconditioning(stream_id_type stream_id, LPA_type lpa) {}
 	void Address_Mapping_Unit_Hybrid::Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transaction_list) {}
 	void Address_Mapping_Unit_Hybrid::Get_data_mapping_info_for_gc(const stream_id_type stream_id, const LPA_type lpa, PPA_type& ppa, page_status_type& page_state) {}
 	void Address_Mapping_Unit_Hybrid::Get_translation_mapping_info_for_gc(const stream_id_type stream_id, const MVPN_type mvpn, MPPN_type& mppa, sim_time_type& timestamp) {}
@@ -29,10 +30,16 @@ namespace SSD_Components
 		NVM::FlashMemory::Physical_Page_Address pa;
 		return pa;
 	}
-	LSA_type Address_Mapping_Unit_Hybrid::Get_logical_sectors_count_allocated_to_stream(stream_id_type stream_id)
+	LSA_type Address_Mapping_Unit_Hybrid::Get_logical_sectors_count(stream_id_type stream_id)
 	{
 		return 0;
 	}
+	
+	unsigned int Address_Mapping_Unit_Hybrid::Get_logical_pages_count(stream_id_type stream_id)
+	{
+		return 0;
+	}
+
 	void Address_Mapping_Unit_Hybrid::Convert_ppa_to_address(const PPA_type ppa, NVM::FlashMemory::Physical_Page_Address& address) {}
 	PPA_type Address_Mapping_Unit_Hybrid::Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress) { return 0; }
 	void Address_Mapping_Unit_Hybrid::prepare_mapping_table() {}

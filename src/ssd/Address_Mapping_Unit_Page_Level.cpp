@@ -365,6 +365,27 @@ namespace SSD_Components
 		BlockManager->Allocate_Pages_in_block_and_invalidate_remaining_for_preconditioning(stream_id, addresses);
 	}
 
+	void Address_Mapping_Unit_Page_Level::Touch_address_for_preconditioning(stream_id_type stream_id, LPA_type lpa)
+	{
+		if(domains[stream_id]->GlobalMappingTable[lpa].PPA == NO_PPA)
+			PRINT_ERROR("Touching an unallocated logical address in preconditioning!")
+
+		if (domains[stream_id]->CMT->Check_free_slot_availability())
+		{
+			domains[stream_id]->CMT->Reserve_slot_for_lpn(stream_id, lpa);
+			domains[stream_id]->CMT->Insert_new_mapping_info(stream_id, lpa,
+				domains[stream_id]->GlobalMappingTable[lpa].PPA, domains[stream_id]->GlobalMappingTable[lpa].WrittenStateBitmap);
+		}
+		else
+		{
+			LPA_type evicted_lpa;
+			domains[stream_id]->CMT->Evict_one_slot(evicted_lpa);
+			domains[stream_id]->CMT->Reserve_slot_for_lpn(stream_id, lpa);
+			domains[stream_id]->CMT->Insert_new_mapping_info(stream_id, lpa,
+				domains[stream_id]->GlobalMappingTable[lpa].PPA, domains[stream_id]->GlobalMappingTable[lpa].WrittenStateBitmap);
+		}
+	}
+
 	void Address_Mapping_Unit_Page_Level::Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transactionList)
 	{
 		for (std::list<NVM_Transaction*>::const_iterator it = transactionList.begin();
@@ -1116,9 +1137,14 @@ namespace SSD_Components
 		return (MVPN_type)(mvpn * no_of_translation_entries_per_page + no_of_translation_entries_per_page - 1);
 	}
 
-	LSA_type Address_Mapping_Unit_Page_Level::Get_logical_sectors_count_allocated_to_stream(stream_id_type stream_id)
+	LSA_type Address_Mapping_Unit_Page_Level::Get_logical_sectors_count(stream_id_type stream_id)
 	{
 		return this->domains[stream_id]->max_logical_sector_address;
+	}
+
+	unsigned int Address_Mapping_Unit_Page_Level::Get_logical_pages_count(stream_id_type stream_id)
+	{
+		return this->domains[stream_id]->Total_logical_pages_no;
 	}
 
 	bool Address_Mapping_Unit_Page_Level::request_mapping_entry_for_lpn(const stream_id_type stream_id, const LPA_type lpa)

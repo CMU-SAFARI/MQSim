@@ -3,6 +3,7 @@
 
 #include "IO_Flow_Base.h"
 #include "../utils/RandomGenerator.h"
+#include "../utils/DistributionTypes.h"
 
 namespace Host_Components
 {
@@ -13,8 +14,8 @@ namespace Host_Components
 	public:
 		IO_Flow_Synthetic(const sim_object_id_type& name, LSA_type start_lsa_on_device, LSA_type end_lsa_on_device, double working_set_ratio, uint16_t io_queue_id,
 			uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class priority_class,
-			double read_ratio, Preconditioning::Address_Distribution_Type address_distribution, double hot_address_ratio,
-			Preconditioning::Request_Size_Distribution_Type request_size_distribution, unsigned int average_request_size, unsigned int variance_request_size,
+			double read_ratio, Utils::Address_Distribution_Type address_distribution, double hot_address_ratio,
+			Utils::Request_Size_Distribution_Type request_size_distribution, unsigned int average_request_size, unsigned int variance_request_size,
 			Request_Generator_Type generator_type, sim_time_type average_inter_arrival_time, unsigned int average_number_of_enqueued_requests,
 			int seed, sim_time_type stop_time, unsigned int total_req_count, HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex);
 		Host_IO_Reqeust* Generate_next_request();
@@ -27,14 +28,14 @@ namespace Host_Components
 		double read_ratio;
 		double working_set_ratio;
 		Utils::RandomGenerator* random_request_type_generator;
-		Preconditioning::Address_Distribution_Type address_distribution;
+		Utils::Address_Distribution_Type address_distribution;
 		double hot_address_ratio;
 		Utils::RandomGenerator* random_address_generator;
 		Utils::RandomGenerator* random_hot_cold_generator;
 		Utils::RandomGenerator* random_hot_address_generator;
 		LSA_type hot_region_end_address;
 		LSA_type streaming_next_address;
-		Preconditioning::Request_Size_Distribution_Type request_size_distribution;
+		Utils::Request_Size_Distribution_Type request_size_distribution;
 		unsigned int average_request_size;
 		unsigned int variance_request_size;
 		Utils::RandomGenerator* random_request_size_generator;
