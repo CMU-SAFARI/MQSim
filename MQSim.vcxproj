@@ -146,6 +146,7 @@
     <ClInclude Include="src\ssd\TSU_OutofOrder.h" />
     <ClInclude Include="src\ssd\User_Request.h" />
     <ClInclude Include="src\utils\CMRRandomGenerator.h" />
+    <ClInclude Include="src\utils\DistributionTypes.h" />
     <ClInclude Include="src\utils\RandomGenerator.h" />
     <ClInclude Include="src\utils\rapidxml\rapidxml.hpp" />
     <ClInclude Include="src\utils\rapidxml\rapidxml_iterators.hpp" />

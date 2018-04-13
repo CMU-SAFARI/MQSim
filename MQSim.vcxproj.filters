@@ -426,5 +426,8 @@
     <ClInclude Include="src\nvm_chip\NVM_Types.h">
       <Filter>nvm_chip</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\DistributionTypes.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
