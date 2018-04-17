@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cmath>
 #include <vector>
 #include "FTL.h"
 #include "Stats.h"
