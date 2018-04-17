@@ -24,7 +24,7 @@ typedef std::string sim_object_id_type;
 						 }
 #define PRINT_MESSAGE(M) std::cout << M << std::endl;
 #define DEBUG(M) //std::cout<<M<<std::endl;
-#define DEBUG2(M) std::cout<<M<<std::endl;
+#define DEBUG2(M) //std::cout<<M<<std::endl;
 #define SIM_TIME_TO_MICROSECONDS_COEFF 1000
 #define SIM_TIME_TO_SECONDS_COEFF 1000000000
 #endif // !DEFINITIONS_H
