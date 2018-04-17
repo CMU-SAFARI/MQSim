@@ -42,6 +42,7 @@ namespace SSD_Components
 	{
 	public:
 		Cached_Mapping_Table(unsigned int capacity);
+		~Cached_Mapping_Table();
 		bool Exists(const stream_id_type streamID, const LPA_type lpa);
 		PPA_type Retrieve_ppa(const stream_id_type streamID, const LPA_type lpa);
 		void Update_mapping_info(const stream_id_type streamID, const LPA_type lpa, const PPA_type ppa, const page_status_type pageWriteState);
@@ -77,6 +78,7 @@ namespace SSD_Components
 			double Share_per_plane,
 			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int Sectors_no_per_page,
 			double Overprovisioning_ratio);
+		~AddressMappingDomain();
 
 
 		/*Stores the mapping of Virtual Translation Page Number (MVPN) to Physical Translation Page Number (MPPN).
@@ -131,8 +133,7 @@ namespace SSD_Components
 		unsigned int Block_no_per_plane;
 		unsigned int Page_no_per_block;
 		unsigned int Sectors_no_per_page;
-		double Overprovisioning_ratio;
-		
+		double Overprovisioning_ratio;		
 	};
 
 	class Address_Mapping_Unit_Page_Level : public Address_Mapping_Unit_Base
@@ -147,6 +148,7 @@ namespace SSD_Components
 			std::vector<std::vector<flash_die_ID_type>> stream_die_ids, std::vector<std::vector<flash_plane_ID_type>> stream_plane_ids,
 			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int SectorsPerPage, unsigned int PageSizeInBytes,
 			double Overprovisioning_ratio, CMT_Sharing_Mode SharingMode = CMT_Sharing_Mode::SHARED, bool fold_large_addresses = true);
+		~Address_Mapping_Unit_Page_Level();
 		void Setup_triggers();
 		void Start_simulation();
 		void Validate_simulation_config();

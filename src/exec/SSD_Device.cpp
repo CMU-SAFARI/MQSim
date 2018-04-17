@@ -59,6 +59,8 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		}
 
 		//Step 2: create memory channels to connect chips to the controller
+		this->Channel_count = parameters->Flash_Channel_Count;
+		this->Chip_no_per_channel = parameters->Chip_No_Per_Channel;
 		switch (parameters->Flash_Comm_Protocol)
 		{
 		case SSD_Components::ONFI_Protocol::NVDDR2:
@@ -91,6 +93,8 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		default:
 			throw std::invalid_argument("No implementation is available for the specified flash communication protocol");
 		}
+		delete[] read_latencies;
+		delete[] write_latencies;
 
 		//Steps 4 - 8: create FTL components and connect them together
 		SSD_Components::FTL* ftl = new SSD_Components::FTL(device->ID() + ".FTL", NULL, parameters->Seed++);
@@ -233,6 +237,25 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 	default:
 		throw std::invalid_argument("Undefined NVM type specified ");
 	}
+}
+
+SSD_Device::~SSD_Device()
+{
+	for (unsigned int channel_cntr = 0; channel_cntr < Channel_count; channel_cntr++)
+	{
+		for (unsigned int chip_cntr = 0; chip_cntr < Chip_no_per_channel; chip_cntr++)
+			
+			delete ((SSD_Components::ONFI_Channel_NVDDR2*)this->Channels[channel_cntr])->Chips[chip_cntr];
+		delete this->Channels[channel_cntr];
+	}
+
+	delete this->PHY;
+	delete ((SSD_Components::FTL*)this->Firmware)->TSU;
+	delete ((SSD_Components::FTL*)this->Firmware)->BlockManager;
+	delete ((SSD_Components::FTL*)this->Firmware)->Address_Mapping_Unit;
+	delete ((SSD_Components::FTL*)this->Firmware)->GC_and_WL_Unit;
+	delete this->Firmware;
+	delete this->Cache_manager;
 }
 
 void SSD_Device::Attach_to_host(Host_Components::PCIe_Switch* pcie_switch)

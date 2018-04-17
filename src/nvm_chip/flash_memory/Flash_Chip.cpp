@@ -43,6 +43,8 @@ namespace NVM
 			for (unsigned int dieID = 0; dieID < die_no; dieID++)
 				delete Dies[dieID];
 			delete[] Dies;
+			delete[] _readLatency;
+			delete[] _programLatency;
 		}
 
 		void Flash_Chip::Connect_to_chip_ready_signal(ChipReadySignalHandlerType function)

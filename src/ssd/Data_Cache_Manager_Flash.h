@@ -26,6 +26,7 @@ namespace SSD_Components
 	{
 	public:
 		Cache(unsigned int capacity_in_pages = 0);
+		~Cache();
 		bool Exists(const stream_id_type streamID, const LPA_type lpn);
 		bool Check_free_slot_availability();
 		bool Check_free_slot_availability(unsigned int no_of_slots);
@@ -64,6 +65,7 @@ namespace SSD_Components
 			unsigned int dram_row_size, unsigned int dram_data_rate, unsigned int dram_busrt_size, sim_time_type dram_tRCD, sim_time_type dram_tCL, sim_time_type dram_tRP,
 			Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, unsigned int stream_count,
 			unsigned int sector_no_per_page, unsigned int back_pressure_buffer_max_depth);
+		~Data_Cache_Manager_Flash();
 		void Execute_simulator_event(MQSimEngine::Sim_Event* ev);
 		void Setup_triggers();
 		void Do_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats);

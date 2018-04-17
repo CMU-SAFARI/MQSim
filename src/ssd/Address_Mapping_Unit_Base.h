@@ -37,6 +37,7 @@ namespace SSD_Components
 			unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int SectorsPerPage, unsigned int PageSizeInBytes,
 			double Overprovisioning_ratio, bool fold_large_addresses = true);
+		virtual ~Address_Mapping_Unit_Base();
 
 		virtual void Allocate_address_for_preconditioning(const stream_id_type stream_id, const std::vector<LPA_type> lpa_list, const std::vector<unsigned int> size, std::vector<NVM::FlashMemory::Physical_Page_Address>& address) = 0;
 		virtual void Touch_address_for_preconditioning(stream_id_type stream_id, LPA_type lpa) = 0;

@@ -5,64 +5,16 @@
 
 namespace SSD_Components
 {
-	Flash_Block_Manager::Flash_Block_Manager(GC_and_WL_Unit_Base* gc_and_wl_unit, unsigned int MaxAllowedBlockEraseCount, unsigned int TotalStreamNo,
-		unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
-		unsigned int Block_no_per_plane, unsigned int Page_no_per_block)
-		: Flash_Block_Manager_Base(gc_and_wl_unit, MaxAllowedBlockEraseCount, TotalStreamNo),
-		channel_count(ChannelCount), chip_no_per_channel(ChipNoPerChannel), die_no_per_chip(DieNoPerChip), plane_no_per_die(PlaneNoPerDie),
-		block_no_per_plane(Block_no_per_plane), pages_no_per_block(Page_no_per_block)
+	Flash_Block_Manager::Flash_Block_Manager(GC_and_WL_Unit_Base* gc_and_wl_unit, unsigned int MaxAllowedBlockEraseCount, unsigned int total_concurrent_streams_no,
+		unsigned int channel_count, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die,
+		unsigned int block_no_per_plane, unsigned int page_no_per_block)
+		: Flash_Block_Manager_Base(gc_and_wl_unit, MaxAllowedBlockEraseCount, total_concurrent_streams_no, channel_count, chip_no_per_channel, die_no_per_chip,
+			plane_no_per_die, block_no_per_plane, page_no_per_block)
 	{
-		plane_manager = new PlaneBookKeepingType***[channel_count];
-		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
-		{
-			plane_manager[channelID] = new PlaneBookKeepingType**[chip_no_per_channel];
-			for (unsigned int chipID = 0; chipID < chip_no_per_channel; chipID++)
-			{
-				plane_manager[channelID][chipID] = new PlaneBookKeepingType*[die_no_per_chip];
-				for (unsigned int dieID = 0; dieID < die_no_per_chip; dieID++)
-				{
-					plane_manager[channelID][chipID][dieID] = new PlaneBookKeepingType[plane_no_per_die];
-					for (unsigned int planeID = 0; planeID < plane_no_per_die; planeID++)
-					{
-						plane_manager[channelID][chipID][dieID][planeID].Total_pages_count = block_no_per_plane * pages_no_per_block;
-						plane_manager[channelID][chipID][dieID][planeID].Free_pages_count = block_no_per_plane * pages_no_per_block;
-						plane_manager[channelID][chipID][dieID][planeID].Valid_pages_count = 0;
-						plane_manager[channelID][chipID][dieID][planeID].Invalid_pages_count = 0;
-						plane_manager[channelID][chipID][dieID][planeID].Ongoing_erase_operations.clear();
-						plane_manager[channelID][chipID][dieID][planeID].Blocks = new BlockPoolSlotType[block_no_per_plane];
-						for (unsigned int blockID = 0; blockID < block_no_per_plane; blockID++)
-						{
-							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].BlockID = blockID;
-							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Current_page_write_index = 0;
-							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Invalid_page_count = 0;
-							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Erase_count = 0; 
-							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Holds_mapping_data = false;
-							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Erase_transaction = NULL;
-								BlockPoolSlotType::Page_vector_size = pages_no_per_block / 64;
-							plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Invalid_page_bitmap = new uint64_t[BlockPoolSlotType::Page_vector_size];
-							for (unsigned int i = 0; i < BlockPoolSlotType::Page_vector_size; i++)
-								plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID].Invalid_page_bitmap[i] = All_VALID_PAGE;
-							plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.push_back(&plane_manager[channelID][chipID][dieID][planeID].Blocks[blockID]);
-						}
-						plane_manager[channelID][chipID][dieID][planeID].DataWF = new BlockPoolSlotType*[total_concurrent_streams_no];
-						plane_manager[channelID][chipID][dieID][planeID].Translation_wf = new BlockPoolSlotType*[total_concurrent_streams_no];
-						for (unsigned int stream_cntr = 0; stream_cntr < total_concurrent_streams_no; stream_cntr++)
-						{
-							plane_manager[channelID][chipID][dieID][planeID].DataWF[stream_cntr] = plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.front();
-							plane_manager[channelID][chipID][dieID][planeID].Block_usage_history.push(plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.front()->BlockID);
-							plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.pop_front();
-							plane_manager[channelID][chipID][dieID][planeID].DataWF[stream_cntr]->Stream_id = stream_cntr;
-							plane_manager[channelID][chipID][dieID][planeID].DataWF[stream_cntr]->Holds_mapping_data = false;
-							plane_manager[channelID][chipID][dieID][planeID].Translation_wf[stream_cntr] = plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.front();
-							plane_manager[channelID][chipID][dieID][planeID].Block_usage_history.push(plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.front()->BlockID);
-							plane_manager[channelID][chipID][dieID][planeID].Free_block_pool.pop_front();
-							plane_manager[channelID][chipID][dieID][planeID].Translation_wf[stream_cntr]->Stream_id = stream_cntr;;
-							plane_manager[channelID][chipID][dieID][planeID].Translation_wf[stream_cntr]->Holds_mapping_data = true;;
-						}
-					}
-				}
-			}
-		}
+	}
+
+	Flash_Block_Manager::~Flash_Block_Manager()
+	{
 	}
 
 	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_user_write(const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& page_address, bool is_for_gc)

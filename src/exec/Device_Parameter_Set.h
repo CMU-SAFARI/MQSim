@@ -32,7 +32,7 @@ public:
 	static sim_time_type Data_Cache_DRAM_tRP;//tRP parameter to access DRAM in the data cache, the unit is nano-seconds
 	static SSD_Components::Flash_Address_Mapping_Type Address_Mapping;
 	static bool Ideal_Mapping_Table;//If mapping is ideal, then all the mapping entries are found in the DRAM and there is no need to read mapping entries from flash
-	static unsigned int CMT_Capacity;//Size of SRAM/DRAM space that is used to cache address mapping table, the unit is (kB)
+	static unsigned int CMT_Capacity;//Size of SRAM/DRAM space that is used to cache address mapping table, the unit is bytes
 	static SSD_Components::CMT_Sharing_Mode CMT_Sharing_Mode;//How the entire CMT space is shared among concurrently running flows
 	static SSD_Components::Flash_Plane_Allocation_Scheme_Type Plane_Allocation_Scheme;
 	static SSD_Components::Flash_Scheduling_Type Transaction_Scheduling_Policy;

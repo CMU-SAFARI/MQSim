@@ -26,4 +26,6 @@ namespace SSD_Components
 		total_logical_pages_no = (unsigned int)((double)total_physical_pages_no * (1 - overprovisioning_ratio));
 		max_logical_sector_address = (LSA_type)(SectorsPerPage * total_logical_pages_no - 1);
 	}
+
+	Address_Mapping_Unit_Base::~Address_Mapping_Unit_Base() {}
 }

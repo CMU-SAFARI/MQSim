@@ -66,6 +66,16 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 	this->PCIe_root_complex->Set_io_flows(&this->IO_flows);
 }
 
+Host_System::~Host_System() 
+{
+	delete this->Link;
+	delete this->PCIe_root_complex;
+	delete this->PCIe_switch;
+
+	for (uint16_t flow_id = 0; flow_id < this->IO_flows.size(); flow_id++)
+		delete this->IO_flows[flow_id];
+}
+
 void Host_System::Attach_ssd_device(SSD_Device* ssd_device)
 {
 	ssd_device->Attach_to_host(this->PCIe_switch);

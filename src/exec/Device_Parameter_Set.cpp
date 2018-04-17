@@ -467,7 +467,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "SHARED") == 0)
 					CMT_Sharing_Mode = SSD_Components::CMT_Sharing_Mode::SHARED;
-				else if (strcmp(val.c_str(), "EQUAL_SIZE_PARTITIONING") == 0)
+				else if (strcmp(val.c_str(), "EQUAL_PARTITIONING") == 0)
 					CMT_Sharing_Mode = SSD_Components::CMT_Sharing_Mode::EQUAL_SIZE_PARTITIONING;
 				else PRINT_ERROR("Unknown CMT sharing mode specified in the SSD configuration file")
 			}

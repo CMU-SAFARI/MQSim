@@ -46,6 +46,7 @@ namespace Host_Components
 			uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class priority_class,
 			sim_time_type stop_time, unsigned int total_requets_to_be_generated,
 			HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex);
+		~IO_Flow_Base();
 		IO_Flow_Priority_Class Priority_class() { return priority_class; }
 		virtual Host_IO_Reqeust* Generate_next_request() = 0;
 		virtual void NVMe_consume_io_request(Completion_Queue_Entry*);

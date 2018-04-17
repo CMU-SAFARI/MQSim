@@ -20,6 +20,8 @@ namespace SSD_Components
 			this->caching_mode_per_input_stream[i] = caching_mode_per_input_stream[i];
 	}
 
+	Data_Cache_Manager_Base::~Data_Cache_Manager_Base() {}
+
 	void Data_Cache_Manager_Base::Setup_triggers()
 	{
 		Sim_Object::Setup_triggers();

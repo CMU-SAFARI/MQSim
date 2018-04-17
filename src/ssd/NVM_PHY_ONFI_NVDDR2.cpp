@@ -140,13 +140,13 @@ namespace SSD_Components {
 			if (transaction_list.size() == 1) {
 				Stats::IssuedReadCMD++;
 				dieBKE->ActiveCommand->CommandCode = CMD_READ_PAGE;
-				DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending read command to chip for LPA: " << transaction_list.front()->LPA)
+				DEBUG("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending read command to chip for LPA: " << transaction_list.front()->LPA)
 			}
 			else
 			{
 				Stats::IssuedMultiplaneReadCMD++;
 				dieBKE->ActiveCommand->CommandCode = CMD_READ_PAGE_MULTIPLANE;
-				DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending multi-plane read command to chip for LPA: " << transaction_list.front()->LPA)
+				DEBUG("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending multi-plane read command to chip for LPA: " << transaction_list.front()->LPA)
 			}
 
 			for (std::list<NVM_Transaction_Flash*>::iterator it = transaction_list.begin();
@@ -177,13 +177,13 @@ namespace SSD_Components {
 				if (transaction_list.size() == 1) {
 					Stats::IssuedProgramCMD++;
 					dieBKE->ActiveCommand->CommandCode = CMD_PROGRAM_PAGE;
-					DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending program command to chip for LPA: " << transaction_list.front()->LPA)
+					DEBUG("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending program command to chip for LPA: " << transaction_list.front()->LPA)
 				}
 				else
 				{
 					Stats::IssuedMultiplaneProgramCMD++;
 					dieBKE->ActiveCommand->CommandCode = CMD_PROGRAM_PAGE_MULTIPLANE;
-					DEBUG2("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending multi-plane program command to chip for LPA: " << transaction_list.front()->LPA)
+					DEBUG("Chip " << targetChip->ChannelID << ", " << targetChip->ChipID << ", " << transaction_list.front()->Address.DieID << ": Sending multi-plane program command to chip for LPA: " << transaction_list.front()->LPA)
 				}
 
 				sim_time_type data_transfer_time = 0;
@@ -463,7 +463,7 @@ namespace SSD_Components {
 		{
 		case CMD_READ_PAGE:
 		case CMD_READ_PAGE_MULTIPLANE:
-			DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished  read command")
+			DEBUG("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished  read command")
 			chipBKE->No_of_active_dies--;
 			if (chipBKE->No_of_active_dies == 0)//After finishing the last command, the chip state is changed
 				chipBKE->Status = ChipStatus::WAIT_FOR_DATA_OUT;
@@ -540,7 +540,7 @@ namespace SSD_Components {
 		case CMD_PROGRAM_PAGE_COPYBACK:
 		case CMD_PROGRAM_PAGE_COPYBACK_MULTIPLANE:
 		{
-			DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished program command")
+			DEBUG("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished program command")
 			int i = 0;
 			for (std::list<NVM_Transaction_Flash*>::iterator it = dieBKE->ActiveTransactions.begin();
 				it != dieBKE->ActiveTransactions.end(); it++, i++)
@@ -562,7 +562,7 @@ namespace SSD_Components {
 		}
 		case CMD_ERASE_BLOCK:
 		case CMD_ERASE_BLOCK_MULTIPLANE:
-			DEBUG2("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished erase command")
+			DEBUG("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished erase command")
 			for (std::list<NVM_Transaction_Flash*>::iterator it = dieBKE->ActiveTransactions.begin();
 				it != dieBKE->ActiveTransactions.end(); it++)
 				_my_instance->broadcastTransactionServicedSignal(*it);

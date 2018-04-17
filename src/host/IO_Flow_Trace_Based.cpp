@@ -20,6 +20,9 @@ namespace Host_Components
 		}
 	}
 
+	IO_Flow_Trace_Based::~IO_Flow_Trace_Based()
+	{}
+
 	Host_IO_Reqeust* IO_Flow_Trace_Based::Generate_next_request()
 	{
 		if (current_trace_line.size() == 0 || STAT_generated_request_count >= total_requests_to_be_generated)

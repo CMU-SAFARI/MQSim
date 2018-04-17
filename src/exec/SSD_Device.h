@@ -29,6 +29,7 @@ class SSD_Device : public MQSimEngine::Sim_Object, public MQSimEngine::Sim_Repor
 {
 public:
 	SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Parameter_Set*>* io_flows);
+	~SSD_Device();
 	bool Preconditioning_required;
 	NVM::NVM_Type Memory_Type;
 	SSD_Components::Host_Interface_Base *Host_interface;
@@ -44,6 +45,9 @@ public:
 	void Start_simulation();
 	void Validate_simulation_config();
 	void Execute_simulator_event(MQSimEngine::Sim_Event* event);
+
+	unsigned int Channel_count;
+	unsigned int Chip_no_per_channel;
 };
 
 #endif //!SSD_DEVICE_H

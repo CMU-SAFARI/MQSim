@@ -100,6 +100,17 @@ namespace Host_Components
 		}
 	}
 
+	IO_Flow_Base::~IO_Flow_Base()
+	{
+		for (auto req : enqueued_requests)
+			if (req.second)
+				delete req.second;
+
+		for(auto req : waiting_requests)
+			if (req)
+				delete req;
+	}
+
 	void IO_Flow_Base::NVMe_consume_io_request(Completion_Queue_Entry* cqe)
 	{
 		//Find the request and update statistics
@@ -119,6 +130,12 @@ namespace Host_Components
 		if (request_delay < STAT_min_request_delay)
 			STAT_min_request_delay = request_delay;
 		STAT_transferred_bytes_total = request->LBA_count * SECTOR_SIZE_IN_BYTE;
+		
+		if (STAT_serviced_request_count % 50000 == 0)
+		{
+			//DEBUG2("The request delay is:" << device_response_time /SIM_TIME_TO_MICROSECONDS_COEFF);
+			//DEBUG2("The avg request delay is:" << Get_device_response_time());
+		}
 
 		if (request->Type == Host_IO_Request_Type::READ)
 		{

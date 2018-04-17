@@ -16,6 +16,7 @@ namespace Host_Components
 			uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class priority_class,
 			std::string trace_file_path, Trace_Time_Unit time_unit, unsigned int total_replay_count, unsigned int percentage_to_be_simulated,
 			HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex);
+		~IO_Flow_Trace_Based();
 		Host_IO_Reqeust* Generate_next_request();
 		void NVMe_consume_io_request(Completion_Queue_Entry*);
 		void Start_simulation();

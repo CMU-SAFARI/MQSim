@@ -17,6 +17,17 @@ namespace SSD_Components
 			return false;
 		return true;
 	}
+	Cache::~Cache()
+	{
+		for (auto slot : slots)
+		{
+			delete slot.second;
+			slots.erase(slot.first);
+		}
+
+		for (auto slot : lru_list)
+			slots.erase(slot.first);
+	}
 	DataCacheSlotType Cache::Get_slot(const stream_id_type stream_id, const LPA_type lpn)
 	{
 		LPA_type key = LPN_TO_UNIQUE_KEY(stream_id, lpn);
@@ -172,6 +183,28 @@ namespace SSD_Components
 		}
 	}
 
+	Data_Cache_Manager_Flash::~Data_Cache_Manager_Flash()
+	{
+		for (int i = 0; i < stream_count; i++)
+			delete per_stream_cache[i];
+		delete per_stream_cache;
+
+		while (dram_access_request_queue.size())
+		{
+			delete dram_access_request_queue.front();
+			dram_access_request_queue.pop();
+		}
+
+		while (waiting_access_request_queue.size())
+		{
+			delete waiting_access_request_queue.front();
+			waiting_access_request_queue.pop();
+		}
+
+		for (auto req : waiting_user_requests_queue)
+			delete req;
+	}
+
 	void Data_Cache_Manager_Flash::Setup_triggers()
 	{
 		Data_Cache_Manager_Base::Setup_triggers();
@@ -187,6 +220,7 @@ namespace SSD_Components
 			case Caching_Mode::TURNED_OFF:
 				break;
 			case Caching_Mode::READ_CACHE:
+				//Put items on cache based on the accessed addresses
 				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 				{
 				}
@@ -195,14 +229,33 @@ namespace SSD_Components
 				}
 				break;
 			case Caching_Mode::WRITE_CACHE:
+				//Estimate the request arrival rate
+				//Estimate the request service rate
+				//Estimate the average size of requests in the cache
+				//Fillup the cache space based on accessed adddresses to the estimated average cache size
 				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 				{
+					//Estimate average write service rate
+					unsigned int total_pages_accessed = 1;
+					/*double average_write_arrival_rate, stdev_write_arrival_rate;
+					double average_read_arrival_rate, stdev_read_arrival_rate;
+					double average_write_service_time, average_read_service_time;*/
+					switch (stat->Address_distribution_type)
+					{
+					case Utils::Address_Distribution_Type::STREAMING:
+						break;
+					case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+						break;
+					case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+						break;
+					}
 				}
 				else
 				{
 				}
 				break;
 			case Caching_Mode::WRITE_READ_CACHE:
+				//Put items on cache based on the accessed addresses
 				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 				{
 				}
@@ -338,7 +391,9 @@ namespace SSD_Components
 					if (per_stream_cache[user_request->Stream_id]->Check_free_slot_availability(user_request->Cache_slot_to_reserve))
 						write_to_destage_buffer(user_request);
 					else
+					{
 						waiting_user_requests_queue.push_back(user_request);
+					}
 					break;
 				}
 				case Caching_Mode::WRITE_READ_CACHE:
@@ -556,6 +611,7 @@ namespace SSD_Components
 						//The number of required free cache slots should be calculated every time that MQSim wants to service a user requests,
 						//since the content of cache may be changed from time to time.
 						user_request->Cache_slot_to_reserve = 0;
+						user_request->Sectors_serviced_from_cache = 0;
 						for (auto tr : user_request->Transaction_list)
 						{
 							if (!((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[tr->Stream_id]->Exists(tr->Stream_id, ((NVM_Transaction_Flash_WR*)tr)->LPA))//If the logical address already exists in the cache

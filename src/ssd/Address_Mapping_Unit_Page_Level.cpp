@@ -10,6 +10,21 @@ namespace SSD_Components
 	Cached_Mapping_Table::Cached_Mapping_Table(unsigned int capacity) : capacity(capacity)
 	{}
 
+	Cached_Mapping_Table::~Cached_Mapping_Table()
+	{
+		std::unordered_map<LPA_type, CMTSlotType*> addressMap;
+		std::list<std::pair<LPA_type, CMTSlotType*>> lruList;
+
+		for (auto entry : addressMap)
+		{
+			delete entry.second;
+			addressMap.erase(entry.first);
+		}
+
+		for (auto entry : lruList)
+			lruList.remove(entry);
+	}
+
 	inline bool Cached_Mapping_Table::Exists(const stream_id_type streamID, const LPA_type lpa)
 	{
 		LPA_type key = LPN_TO_UNIQUE_KEY(streamID, lpa);
@@ -169,6 +184,29 @@ namespace SSD_Components
 			GlobalTranslationDirectory[i].MPPN = (MPPN_type) NO_MPPN;
 			GlobalTranslationDirectory[i].TimeStamp = INVALID_TIME_STAMP;
 		}
+	}
+
+	AddressMappingDomain::~AddressMappingDomain()
+	{
+		delete CMT;
+		delete[] GlobalMappingTable;
+		delete[] GlobalTranslationDirectory;
+
+		for (auto entry : Waiting_unmapped_read_transactions)
+		{
+			delete entry.second;
+			Waiting_unmapped_read_transactions.erase(entry.first);
+		}
+		for (auto entry : Waiting_unmapped_program_transactions)
+		{
+			delete entry.second;
+			Waiting_unmapped_program_transactions.erase(entry.first);
+		}
+
+		delete[] ChannelIDs;
+		delete[] ChipIDs;
+		delete[] DieIDs;
+		delete[] PlaneIDs;
 	}
 
 	inline void AddressMappingDomain::Update_mapping_info(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa, const PPA_type ppa, const page_status_type page_status_bitmap)
@@ -336,6 +374,13 @@ namespace SSD_Components
 				ChannelIDs, stream_channel_ids[domainID].size(), ChipIDs, stream_chip_ids[domainID].size(), dieIDs, stream_die_ids[domainID].size(), planeIDs, stream_plane_ids[domainID].size(),
 				(resource_sharing ? 1 / (double)no_of_input_streams : 1), block_no_per_plane, pages_no_per_block, sector_no_per_page, overprovisioning_ratio);
 		}
+	}
+
+	Address_Mapping_Unit_Page_Level::~Address_Mapping_Unit_Page_Level()
+	{
+		for (int i = 0; i < no_of_input_streams; i++)
+			delete domains[i];
+		delete[] domains;
 	}
 
 	void Address_Mapping_Unit_Page_Level::Setup_triggers()

@@ -31,19 +31,85 @@ namespace SSD_Components
 		{
 			//First generate enough number of LPAs that are accessed in the steady-state
 			std::vector<LPA_type> accessed_lpas;
-			unsigned int required_logical_pages = (unsigned int) (stat->Occupancy * Address_Mapping_Unit->Get_logical_pages_count(stat->Stream_id));
+			bool is_read = false;
+			unsigned int size = 0;
+			LSA_type start_LBA = 0, streaming_next_address = 0, hot_region_end_lsa = 0;
+			Utils::RandomGenerator* random_request_type_generator = new Utils::RandomGenerator(stat->random_request_type_generator_seed);
+			Utils::RandomGenerator* random_address_generator = new Utils::RandomGenerator(stat->random_address_generator_seed);
+			Utils::RandomGenerator* random_hot_address_generator = NULL;
+			Utils::RandomGenerator* random_hot_cold_generator = NULL;
+			Utils::RandomGenerator* random_request_size_generator = NULL;
+			unsigned int no_of_logical_pages_in_staedystate = (unsigned int) (stat->Occupancy * Address_Mapping_Unit->Get_logical_pages_count(stat->Stream_id));
 			unsigned int total_accessed_logical_pages = stat->Write_address_access_pattern.size() + stat->Read_address_access_pattern.size() - stat->Write_address_access_pattern.size();
-			while (total_accessed_logical_pages < required_logical_pages)
+		
+			while (total_accessed_logical_pages < no_of_logical_pages_in_staedystate)
 			{
 				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 				{
+					if (stat->address_distribution == Utils::Address_Distribution_Type::HOTCOLD_RANDOM)
+					{
+						random_hot_address_generator = new Utils::RandomGenerator(stat->random_hot_address_generator_seed);
+						random_hot_cold_generator = new Utils::RandomGenerator(stat->random_hot_cold_generator_seed);
+						hot_region_end_lsa = stat->Smallest_Accessed_Address + (LSA_type)((double)(stat->Largest_Accessed_Address - stat->Smallest_Accessed_Address) * stat->Hot_region_ratio);
+					}
+					else if (stat->address_distribution == Utils::Address_Distribution_Type::STREAMING)
+						streaming_next_address = random_address_generator->Uniform_ulong(stat->Smallest_Accessed_Address, stat->Largest_Accessed_Address);
+
+					if (stat->Request_size_distribution_type == Utils::Request_Size_Distribution_Type::NORMAL)
+					{
+						random_request_size_generator = new Utils::RandomGenerator(stat->random_request_size_generator_seed);
+					}
+
+					if (random_request_type_generator->Uniform(0, 1) <= stat->Read_ratio)
+						is_read = true;
+
+					switch (stat->Request_size_distribution_type)
+					{
+						case Utils::Request_Size_Distribution_Type::FIXED:
+							size = stat->Average_request_size;
+							break;
+						case Utils::Request_Size_Distribution_Type::NORMAL:
+						{
+							double temp_request_size = random_request_size_generator->Normal(stat->Average_request_size, stat->STDEV_reuqest_size);
+							size = (unsigned int)(ceil(temp_request_size));
+							if (size <= 0)
+								size = 1;
+							break;
+						}
+					}
+
 					switch (stat->Address_distribution_type)
 					{
-					case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
-						break;
 					case Utils::Address_Distribution_Type::STREAMING:
+						start_LBA = streaming_next_address;
+						if (start_LBA + size > stat->Largest_Accessed_Address)
+							start_LBA = stat->Smallest_Accessed_Address;
+						streaming_next_address += size;
+						if (streaming_next_address > stat->Largest_Accessed_Address)
+							streaming_next_address = stat->Largest_Accessed_Address;
+						break;
+					case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+						if (random_hot_cold_generator->Uniform(0, 1) < stat->Hot_region_ratio)// (100-hot)% of requests going to hot% of the address space
+						{
+							start_LBA = random_hot_address_generator->Uniform_ulong(hot_region_end_lsa + 1, stat->Largest_Accessed_Address);
+							if (start_LBA < hot_region_end_lsa + 1 || start_LBA > stat->Largest_Accessed_Address)
+								PRINT_ERROR("Out of range address is generated in IO_Flow_Synthetic!\n")
+								if (start_LBA + size > stat->Largest_Accessed_Address)
+									start_LBA = hot_region_end_lsa + 1;
+						}
+						else
+						{
+							start_LBA = random_hot_address_generator->Uniform_ulong(stat->Smallest_Accessed_Address, hot_region_end_lsa);
+							if (start_LBA < stat->Smallest_Accessed_Address || start_LBA > hot_region_end_lsa)
+								PRINT_ERROR("Out of range address is generated in IO_Flow_Synthetic!\n")
+						}
 						break;
 					case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+						start_LBA = random_address_generator->Uniform_ulong(stat->Smallest_Accessed_Address, stat->Largest_Accessed_Address);
+						if (start_LBA < stat->Smallest_Accessed_Address || start_LBA > stat->Largest_Accessed_Address)
+							PRINT_ERROR("Out of range address is generated in IO_Flow_Synthetic!\n")
+							if (start_LBA + size > stat->Largest_Accessed_Address)
+								start_LBA = stat->Smallest_Accessed_Address;
 						break;
 					}
 				}
@@ -52,7 +118,7 @@ namespace SSD_Components
 
 				}
 
-				required_logical_pages++;
+				total_accessed_logical_pages++;
 			}
 
 			//Assign PPAs to LPAs based on the steady-state status of pages

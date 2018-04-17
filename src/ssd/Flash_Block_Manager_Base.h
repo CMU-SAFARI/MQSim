@@ -49,7 +49,10 @@ namespace SSD_Components
 		friend class GC_and_WL_Unit_Page_Level;
 		friend class GC_and_WL_Unit_Base;
 	public:
-		Flash_Block_Manager_Base(GC_and_WL_Unit_Base* gc_and_wl_unit, unsigned int MaxAllowedBlockEraseCount, unsigned int total_concurrent_streams_no);
+		Flash_Block_Manager_Base(GC_and_WL_Unit_Base* gc_and_wl_unit, unsigned int MaxAllowedBlockEraseCount, unsigned int total_concurrent_streams_no,
+			unsigned int channel_count, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die,
+			unsigned int block_no_per_plane, unsigned int page_no_per_block);
+		virtual ~Flash_Block_Manager_Base();
 		virtual void Allocate_block_and_page_in_plane_for_user_write(const stream_id_type streamID, NVM::FlashMemory::Physical_Page_Address& address, bool is_for_gc) = 0;
 		virtual void Allocate_block_and_page_in_plane_for_translation_write(const stream_id_type streamID, NVM::FlashMemory::Physical_Page_Address& address, bool is_for_gc) = 0;
 		virtual void Allocate_Pages_in_block_and_invalidate_remaining_for_preconditioning(const stream_id_type stream_id, const std::vector<NVM::FlashMemory::Physical_Page_Address>& page_addresses) = 0;
@@ -64,6 +67,12 @@ namespace SSD_Components
 		GC_and_WL_Unit_Base *gc_and_wl_unit;
 		unsigned int max_allowed_block_erase_count;
 		unsigned int total_concurrent_streams_no;
+		unsigned int channel_count;
+		unsigned int chip_no_per_channel;
+		unsigned int die_no_per_chip;
+		unsigned int plane_no_per_die;
+		unsigned int block_no_per_plane;
+		unsigned int pages_no_per_block;
 	};
 }
 

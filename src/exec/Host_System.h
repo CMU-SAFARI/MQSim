@@ -19,6 +19,7 @@ class Host_System : public MQSimEngine::Sim_Object, public MQSimEngine::Sim_Repo
 {
 public:
 	Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_Interface_Base* ssd_host_interface);
+	~Host_System();
 	void Start_simulation();
 	void Validate_simulation_config();
 	void Execute_simulator_event(MQSimEngine::Sim_Event* event);
