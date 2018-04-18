@@ -16,7 +16,7 @@ namespace NVM
 			Die(unsigned int PlanesNoPerDie, unsigned int BlocksNoPerPlane, unsigned int PagesNoPerBlock);
 			~Die();
 			Plane** Planes;
-			unsigned int PlaneNo;
+			unsigned int Plane_no;
 			DieStatus Status;
 			MQSimEngine::Sim_Event* CommandFinishEvent;
 			sim_time_type ExpectedFinishTime;

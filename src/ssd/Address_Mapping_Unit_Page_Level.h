@@ -73,8 +73,8 @@ namespace SSD_Components
 		AddressMappingDomain(unsigned int cmt_capacity, unsigned int cmt_entry_size,  unsigned int no_of_translation_entries_per_page,
 			Cached_Mapping_Table* CMT, 
 			Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
-			flash_channel_ID_type* ChannelIDs, unsigned int ChannelNo, flash_chip_ID_type* ChipIDs, unsigned int ChipNo,
-			flash_die_ID_type* DieIDs, unsigned int DieNo, flash_plane_ID_type* PlaneIDs, unsigned int PlaneNo,
+			flash_channel_ID_type* Channel_ids, unsigned int Channel_no, flash_chip_ID_type* Chip_ids, unsigned int Chip_no,
+			flash_die_ID_type* Die_ids, unsigned int Die_no, flash_plane_ID_type* Plane_ids, unsigned int Plane_no,
 			double Share_per_plane,
 			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int Sectors_no_per_page,
 			double Overprovisioning_ratio);
@@ -110,14 +110,14 @@ namespace SSD_Components
 		std::set<MVPN_type> Locked_MVPNs;//Used to manage race conditions
 
 		Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme;
-		flash_channel_ID_type* ChannelIDs;
-		unsigned int ChannelNo;
-		flash_chip_ID_type* ChipIDs;
-		unsigned int ChipNo;
-		flash_die_ID_type* DieIDs;
-		unsigned int DieNo;
-		flash_plane_ID_type* PlaneIDs;
-		unsigned int PlaneNo;
+		flash_channel_ID_type* Channel_ids;
+		unsigned int Channel_no;
+		flash_chip_ID_type* Chip_ids;
+		unsigned int Chip_no;
+		flash_die_ID_type* Die_ids;
+		unsigned int Die_no;
+		flash_plane_ID_type* Plane_ids;
+		unsigned int Plane_no;
 
 		LSA_type max_logical_sector_address;
 		unsigned int Total_logical_pages_no;

@@ -18,7 +18,7 @@ namespace SSD_Components
 	{
 	public:
 		TSU_Base(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI_NVDDR2* NVMController, Flash_Scheduling_Type Type,
-			unsigned int ChannelNo, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
+			unsigned int Channel_no, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 			bool EraseSuspensionEnabled, bool ProgramSuspensionEnabled,
 			sim_time_type WriteReasonableSuspensionTimeForRead,
 			sim_time_type EraseReasonableSuspensionTimeForRead,

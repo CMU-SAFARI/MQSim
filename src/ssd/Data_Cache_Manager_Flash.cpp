@@ -185,9 +185,23 @@ namespace SSD_Components
 
 	Data_Cache_Manager_Flash::~Data_Cache_Manager_Flash()
 	{
-		for (int i = 0; i < stream_count; i++)
-			delete per_stream_cache[i];
+
+		switch (sharing_mode)
+		{
+		case SSD_Components::Cache_Sharing_Mode::SHARED:
+		{
+			delete per_stream_cache[0];
+			break;
+		}
+		case SSD_Components::Cache_Sharing_Mode::EQUAL_PARTITIONING:
+			for (int i = 0; i < stream_count; i++)
+				delete per_stream_cache[i];
+			break;
+		default:
+			break;
+		}
 		delete per_stream_cache;
+
 
 		while (dram_access_request_queue.size())
 		{

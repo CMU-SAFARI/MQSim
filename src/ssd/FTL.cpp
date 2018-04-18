@@ -72,7 +72,7 @@ namespace SSD_Components
 						case Utils::Request_Size_Distribution_Type::NORMAL:
 						{
 							double temp_request_size = random_request_size_generator->Normal(stat->Average_request_size, stat->STDEV_reuqest_size);
-							size = (unsigned int)(ceil(temp_request_size));
+							size = (unsigned int)(std::ceil(temp_request_size));
 							if (size <= 0)
 								size = 1;
 							break;
