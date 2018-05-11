@@ -156,10 +156,10 @@ The following parameters are used to define a trace-based workload:
 20. **Total_Requests_To_Generate:** if Stop_Time is set to zero, then MQSim's request generator considers Total_Requests_To_Generate to decide when to stop generating I/O requests.
 
 
-##Analyze MQSim's XML Output
-You can use an XML processor to easily read and analyze an MQSim output file. For example, you can open an MQSim output file in MS Excel. Then, MS Excel shows a set of options and you should choose "Use the XML Source task pane". The XML file is processed in MS Excel and a task pane is shown with all output parameters listed in it. In the task pane on the reight, you see different types of statistics available in the MQSim's output file. To read the value of the parameter, you should:<br />
+## Analyze MQSim's XML Output
+You can use an XML processor to easily read and analyze an MQSim output file. For example, you can open an MQSim output file in MS Excel. Then, MS Excel shows a set of options and you should choose "Use the XML Source task pane". The XML file is processed in MS Excel and a task pane is shown with all output parameters listed in it. In the task pane on the right, you see different types of statistics available in the MQSim's output file. To read the value of a parameter, you should:<br />
 1. Drag and drop that parameter from the task souce pane to the Excel sheet.,<br />
-2. Right click on the cell that you have dropped the parameter and select: XML > Refresh XML Data.
+2. Right click on the cell that you have dropped the parameter and select: *XML* > *Refresh XML Data*.
 
 
 
