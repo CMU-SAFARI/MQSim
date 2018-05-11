@@ -44,7 +44,7 @@ namespace Host_Components
 			random_request_size_generator_seed = seed++;
 			random_request_size_generator = new Utils::RandomGenerator(random_request_size_generator_seed);
 		}
-		if (generator_type == Utils::Request_Generator_Type::ARRIVAL_RATE)
+		if (generator_type == Utils::Request_Generator_Type::BANDWIDTH)
 		{
 			random_time_interval_generator_seed = seed++;
 			random_time_interval_generator = new Utils::RandomGenerator(random_time_interval_generator_seed);
@@ -166,7 +166,7 @@ namespace Host_Components
 
 		if (address_distribution == Utils::Address_Distribution_Type::STREAMING)
 			streaming_next_address = random_address_generator->Uniform_ulong(start_lsa_on_device, end_lsa_on_device);
-		if (generator_type == Utils::Request_Generator_Type::ARRIVAL_RATE)
+		if (generator_type == Utils::Request_Generator_Type::BANDWIDTH)
 			Simulator->Register_sim_event((sim_time_type)random_time_interval_generator->Exponential((double)Average_inter_arrival_time_nano_sec), this, 0, 0);
 		else
 			Simulator->Register_sim_event((sim_time_type)1, this, 0, 0);
@@ -176,7 +176,7 @@ namespace Host_Components
 
 	void IO_Flow_Synthetic::Execute_simulator_event(MQSimEngine::Sim_Event* event)
 	{
-		if (generator_type == Utils::Request_Generator_Type::ARRIVAL_RATE)
+		if (generator_type == Utils::Request_Generator_Type::BANDWIDTH)
 		{
 			Host_IO_Reqeust* req = Generate_next_request();
 			if (req != NULL)

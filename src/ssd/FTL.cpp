@@ -126,7 +126,7 @@ namespace SSD_Components
 			{
 				switch (stat->generator_type)
 				{
-				case Utils::Request_Generator_Type::ARRIVAL_RATE:
+				case Utils::Request_Generator_Type::BANDWIDTH:
 					overall_rate += 1.0 / double(stat->Average_inter_arrival_time_nano_sec) * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
 					break;
 				case Utils::Request_Generator_Type::QUEUE_DEPTH:
@@ -677,7 +677,7 @@ namespace SSD_Components
 						{
 							switch (stat->generator_type)
 							{
-							case Utils::Request_Generator_Type::ARRIVAL_RATE:
+							case Utils::Request_Generator_Type::BANDWIDTH:
 								flow_rate = 1.0 / double(stat->Average_inter_arrival_time_nano_sec) * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
 								break;
 							case Utils::Request_Generator_Type::QUEUE_DEPTH:
