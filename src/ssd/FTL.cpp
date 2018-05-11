@@ -160,7 +160,7 @@ namespace SSD_Components
 			LHA_type max_lha = stat->Max_LHA;
 			LPA_type min_lpa = Convert_host_logical_address_to_device_address(min_lha);
 			LPA_type max_lpa = Convert_host_logical_address_to_device_address(max_lha);
-			total_accessed_cmt_entries += unsigned int(Convert_host_logical_address_to_device_address(max_lha) / page_size_in_sectors - Convert_host_logical_address_to_device_address(min_lha) / page_size_in_sectors) + 1;
+			total_accessed_cmt_entries += (unsigned int)(Convert_host_logical_address_to_device_address(max_lha) / page_size_in_sectors - Convert_host_logical_address_to_device_address(min_lha) / page_size_in_sectors) + 1;
 			bool hot_range_finished = false;//Used for fast address generation in hot/cold traffic mode
 			LHA_type last_hot_address = min_lha;//Used for fast address generation in hot/cold traffic mode
 
@@ -202,7 +202,7 @@ namespace SSD_Components
 
 					if ((max_lpa - min_lpa) < 1.1 * no_of_logical_pages_in_steadystate)
 					{
-						no_of_logical_pages_in_steadystate = unsigned int(double(max_lpa - min_lpa) * 0.9);
+						no_of_logical_pages_in_steadystate = (unsigned int)(double(max_lpa - min_lpa) * 0.9);
 					}
 				}
 
@@ -313,7 +313,7 @@ namespace SSD_Components
 						if (lpa_set_for_preconditioning.find(lpa) == lpa_set_for_preconditioning.end())
 						{
 							lpa_set_for_preconditioning[lpa] = access_status_bitmap;
-							if (lpa <= Convert_host_logical_address_to_device_address(stat->Max_LHA))
+							if (lpa <= Convert_host_logical_address_to_device_address(stat->Max_LHA))//The lpas in trace_lpas_sorted_histogram are those that are actually accessed by the application
 							{
 								if (!is_hot_address && hot_region_last_index_in_histogram == 0)
 									hot_region_last_index_in_histogram = unsigned int(trace_lpas_sorted_histogram.size());
@@ -651,164 +651,117 @@ namespace SSD_Components
 			//Step 4: Touch the LPAs and bring them to CMT to warmup address mapping unit
 			if (!Address_Mapping_Unit->Is_ideal_mapping_table())
 			{
-				for (auto &stat : workload_stats)
+				//Step 4-1: Determine how much share of the entire CMT should be filled based on the flow arrival rate and access pattern
+				unsigned int no_of_entries_in_cmt = 0;
+				LPA_type min_LPA = Convert_host_logical_address_to_device_address(stat->Min_LHA);
+				LPA_type max_LPA = Convert_host_logical_address_to_device_address(stat->Max_LHA);
+
+				switch (Address_Mapping_Unit->Get_CMT_sharing_mode())
 				{
-					//Step 4-1: Determine how much share of the entire CMT should be filled based on the flow arrival rate and access pattern
-					unsigned int no_of_entries_in_cmt = 0;
-					LPA_type min_LPA = Convert_host_logical_address_to_device_address(stat->Min_LHA);
-					LPA_type max_LPA = Convert_host_logical_address_to_device_address(stat->Max_LHA);
-
-					if (total_accessed_cmt_entries <= Address_Mapping_Unit->Get_cmt_capacity())
+				case CMT_Sharing_Mode::SHARED:
+				{
+					double flow_rate = 0;
+					if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 					{
-						while (min_LPA <= max_LPA)
+						switch (stat->generator_type)
 						{
-							Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, min_LPA);
-							min_LPA++;
-						}
-						continue;
-					}
-
-					switch (Address_Mapping_Unit->Get_CMT_sharing_mode())
-					{
-					case CMT_Sharing_Mode::SHARED:
-					{
-						double flow_rate = 0;
-						if (stat->Type == Utils::Workload_Type::SYNTHETIC)
-						{
-							switch (stat->generator_type)
-							{
-							case Utils::Request_Generator_Type::BANDWIDTH:
-								flow_rate = 1.0 / double(stat->Average_inter_arrival_time_nano_sec) * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
-								break;
-							case Utils::Request_Generator_Type::QUEUE_DEPTH:
-							{
-								sim_time_type max_arrival_time = sim_time_type(stat->Read_ratio * double(avg_flash_read_latency) + (1 - stat->Read_ratio) * double(avg_flash_program_latency));
-								double avg_arrival_time = double(max_arrival_time) / double(stat->Request_queue_depth);
-								flow_rate = 1.0 / avg_arrival_time * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
-								break;
-							}
-							default:
-								PRINT_ERROR("Unhandled request type generator in FTL preconditioning function.")
-							}
-						}
-						else
-						{
+						case Utils::Request_Generator_Type::BANDWIDTH:
 							flow_rate = 1.0 / double(stat->Average_inter_arrival_time_nano_sec) * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
+							break;
+						case Utils::Request_Generator_Type::QUEUE_DEPTH:
+						{
+							sim_time_type max_arrival_time = sim_time_type(stat->Read_ratio * double(avg_flash_read_latency) + (1 - stat->Read_ratio) * double(avg_flash_program_latency));
+							double avg_arrival_time = double(max_arrival_time) / double(stat->Request_queue_depth);
+							flow_rate = 1.0 / avg_arrival_time * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
+							break;
 						}
+						default:
+							PRINT_ERROR("Unhandled request type generator in FTL preconditioning function.")
+						}
+					}
+					else
+					{
+						flow_rate = 1.0 / double(stat->Average_inter_arrival_time_nano_sec) * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
+					}
 
-						no_of_entries_in_cmt = unsigned int(double(flow_rate) / double(overall_rate) * Address_Mapping_Unit->Get_cmt_capacity());
-						break;
-					}
-					case CMT_Sharing_Mode::EQUAL_SIZE_PARTITIONING:
-						no_of_entries_in_cmt = unsigned int(1.0 / double(workload_stats.size()) * Address_Mapping_Unit->Get_cmt_capacity());
-						if (max_LPA - min_LPA + 1 <LPA_type(no_of_entries_in_cmt))
-							no_of_entries_in_cmt = max_LPA - min_LPA + 1;
-						break;
-					default:
-						PRINT_ERROR("Unhandled mapping table sharing mode in the FTL preconditioning function.")
+					no_of_entries_in_cmt = (unsigned int)(double(flow_rate) / double(overall_rate) * Address_Mapping_Unit->Get_cmt_capacity());
+					break;
+				}
+				case CMT_Sharing_Mode::EQUAL_SIZE_PARTITIONING:
+					no_of_entries_in_cmt = (unsigned int)(1.0 / double(workload_stats.size()) * Address_Mapping_Unit->Get_cmt_capacity());
+					if (max_LPA - min_LPA + 1 < LPA_type(no_of_entries_in_cmt))
+						no_of_entries_in_cmt = max_LPA - min_LPA + 1;
+					break;
+				default:
+					PRINT_ERROR("Unhandled mapping table sharing mode in the FTL preconditioning function.")
+				}
+
+				//Step 4-2: Bring the LPAs into CMT based on the flow access pattern
+				switch (stat->Address_distribution_type)
+				{
+				case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+				{
+					//First bring hot addresses to CMT
+					unsigned int required_no_of_hot_cmt_entries = (unsigned int)(stat->Ratio_of_hot_addresses_to_whole_working_set * no_of_entries_in_cmt);
+					unsigned int entries_to_bring_into_cmt = required_no_of_hot_cmt_entries;
+					if (required_no_of_hot_cmt_entries > hot_region_last_index_in_histogram)
+						entries_to_bring_into_cmt = hot_region_last_index_in_histogram;
+					auto itr = trace_lpas_sorted_histogram.begin();
+					while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < entries_to_bring_into_cmt)
+					{
+						Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).second);
+						trace_lpas_sorted_histogram.erase(itr++);
 					}
 
-					//Step 4-2: Bring the LPAs into CMT based on the flow access pattern
-					switch (stat->Address_distribution_type)
+					//If there is free space in the CMT, then bring the remaining addresses to CMT
+					no_of_entries_in_cmt -= entries_to_bring_into_cmt;
+					auto itr2 = trace_lpas_sorted_histogram.begin();
+					std::advance(itr2, hot_region_last_index_in_histogram);
+					while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
 					{
-					case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+						Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr2++).second);
+						if (itr2 == trace_lpas_sorted_histogram.end())
+							break;
+					}
+					break;
+				}
+				case Utils::Address_Distribution_Type::STREAMING:
+				{
+					LPA_type lpa;
+					LPA_type first_lpa_streaming = Convert_host_logical_address_to_device_address(stat->First_Accessed_Address);
+					auto itr = lpa_set_for_preconditioning.find(lpa);
+					if (itr != lpa_set_for_preconditioning.begin())
+						itr--;
+					while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
 					{
-						if (max_LPA - min_LPA + 1 <= no_of_entries_in_cmt && max_LPA - min_LPA + 1 <= lpa_set_for_preconditioning.size())
+						Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).first);
+						if (itr == lpa_set_for_preconditioning.begin())
 						{
-							while (min_LPA <= max_LPA)
-							{
-								Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, min_LPA);
-								min_LPA++;
-							}
+							itr = lpa_set_for_preconditioning.end();
+							itr--;
 						}
-						else
-						{
-							//First bring hot addresses to CMT
-							unsigned int required_no_of_hot_cmt_entries = unsigned int(stat->Ratio_of_hot_addresses_to_whole_working_set * no_of_entries_in_cmt);
-							unsigned int entries_to_bring_into_cmt = required_no_of_hot_cmt_entries;
-							if (required_no_of_hot_cmt_entries > hot_region_last_index_in_histogram)
-								entries_to_bring_into_cmt = hot_region_last_index_in_histogram;
-							auto itr = trace_lpas_sorted_histogram.begin();
-							while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < entries_to_bring_into_cmt)
-							{
-								Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).second);
-								trace_lpas_sorted_histogram.erase(itr++);
-							}
-
-							//If there is free space in the CMT, then bring the remaining addresses to CMT
-							no_of_entries_in_cmt -= entries_to_bring_into_cmt;
-							auto itr2 = trace_lpas_sorted_histogram.begin();
-							std::advance(itr2, hot_region_last_index_in_histogram);
-							while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
-							{
-								Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr2++).second);
-								if (itr2 == trace_lpas_sorted_histogram.end())
-									break;
-							}
-						}
-						break;
+						else itr--;
 					}
-					case Utils::Address_Distribution_Type::STREAMING:
+					break;
+				}
+				case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+				{
+					int random_walker = int(random_generator.Uniform(0, uint32_t(trace_lpas_sorted_histogram.size()) - 2));
+					int random_step = random_generator.Uniform_uint(0, trace_lpas_sorted_histogram.size() / no_of_entries_in_cmt);
+					auto itr = trace_lpas_sorted_histogram.begin();
+					while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
 					{
-						if (max_LPA - min_LPA + 1 <= no_of_entries_in_cmt && max_LPA - min_LPA + 1 <= lpa_set_for_preconditioning.size())
-						{
-							while (min_LPA <= max_LPA)
-							{
-								Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, min_LPA);
-								min_LPA++;
-							}
-						}
-						else
-						{
-							LPA_type lpa;
-							LPA_type first_lpa_streaming = Convert_host_logical_address_to_device_address(stat->First_Accessed_Address);
-							auto itr = lpa_set_for_preconditioning.find(lpa);
-							if (itr != lpa_set_for_preconditioning.begin())
-								itr--;
-							while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
-							{
-								Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).first);
-								if (itr == lpa_set_for_preconditioning.begin())
-								{
-									itr = lpa_set_for_preconditioning.end();
-									itr--;
-								}
-								else itr--;
-							}
-						}
-						break;
+						std::advance(itr, random_step);
+						Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).second);
+						trace_lpas_sorted_histogram.erase(itr++);
+						if (random_walker + random_step >= trace_lpas_sorted_histogram.size() - 1 || random_walker + random_step < 0)
+							random_step *= -1;
+						random_walker += random_step;
 					}
-					case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
-					{
-						if (max_LPA - min_LPA + 1 <= no_of_entries_in_cmt && max_LPA - min_LPA + 1 <= lpa_set_for_preconditioning.size())
-						{
-							while (min_LPA <= max_LPA)
-							{
-								Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, min_LPA);
-								min_LPA++;
-							}
-						}
-						else
-						{
-							int random_walker = int(random_generator.Uniform(0, uint32_t(trace_lpas_sorted_histogram.size()) - 2));
-							int random_step = random_generator.Uniform_uint(0, trace_lpas_sorted_histogram.size() / no_of_entries_in_cmt);
-							auto itr = trace_lpas_sorted_histogram.begin();
-							while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
-							{
-								std::advance(itr, random_step);
-								Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).second);
-								trace_lpas_sorted_histogram.erase(itr++);
-								if(random_walker + random_step >= trace_lpas_sorted_histogram.size() - 1 || random_walker + random_step < 0)
-									random_step *= -1;
-								random_walker += random_step;
-							}
-						}
-						break;
-					}
-					}
+					break;
+				}
 				}
 			}
-
 		}
 	}
 	

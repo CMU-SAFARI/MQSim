@@ -386,7 +386,7 @@ namespace SSD_Components
 			domains[domainID] = new AddressMappingDomain(per_stream_cmt_capacity, CMT_entry_size, no_of_translation_entries_per_page,
 				sharedCMT,
 				PlaneAllocationScheme,
-				channel_ids, unsigned int(stream_channel_ids[domainID].size()), chip_ids, unsigned int(stream_chip_ids[domainID].size()), die_ids, unsigned int(stream_die_ids[domainID].size()), plane_ids, unsigned int(stream_plane_ids[domainID].size()),
+				channel_ids, (unsigned int)(stream_channel_ids[domainID].size()), chip_ids, (unsigned int)(stream_chip_ids[domainID].size()), die_ids, (unsigned int)(stream_die_ids[domainID].size()), plane_ids, (unsigned int)(stream_plane_ids[domainID].size()),
 				(resource_sharing ? 1 / (double)no_of_input_streams : 1), block_no_per_plane, pages_no_per_block, sector_no_per_page, overprovisioning_ratio);
 			delete[] channel_ids;
 			delete[] chip_ids;
@@ -607,8 +607,16 @@ namespace SSD_Components
 		for (auto const &lpa : lpa_list)
 		{
 			PPA_type ppa = domains[stream_id]->Get_ppa_for_preconditioning(stream_id, lpa.first);
+			if (lpa.first == 3900702)
+			{
+				for (int i = 0; i < domains[stream_id]->Total_logical_pages_no && i < 3900710; i++)
+					PRINT_MESSAGE("Entry " << i << " value is" << domains[stream_id]->GlobalMappingTable[i].PPA << " and the status is: " << domains[stream_id]->GlobalMappingTable[i].WrittenStateBitmap);
+				PRINT_MESSAGE("Stream ID:" << stream_id << " LPA:" << lpa.first << " PPA:" << ppa)
+			}
 			if (ppa != NO_LPA)
+			{
 				PRINT_ERROR("Calling address allocation for a previously allocated LPA during preconditioning!")
+			}
 				allocate_plane_for_preconditioning(stream_id, lpa.first, plane_address);
 			assigned_lpas[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID].push_back(lpa.first);
 		}
@@ -631,16 +639,16 @@ namespace SSD_Components
 						//Check if it is possible to find a PPA for each LPA with current proability assignments 
 						unsigned int total_valid_pages = 0;
 						for (int valid_pages_in_block = pages_no_per_block; valid_pages_in_block >= 0; valid_pages_in_block--)
-							total_valid_pages += valid_pages_in_block * unsigned int(steady_state_distribution[valid_pages_in_block] * (block_no_per_plane - safe_guard_band));
+							total_valid_pages += valid_pages_in_block * (unsigned int)(steady_state_distribution[valid_pages_in_block] * (block_no_per_plane - safe_guard_band));
 						unsigned int pages_need_PPA = 0;//The number of LPAs that remain unassigned due to imperfect probability assignments
 						if (total_valid_pages < assigned_lpas[channel_cntr][chip_cntr][die_cntr][plane_cntr].size())
-							pages_need_PPA = unsigned int(assigned_lpas[channel_cntr][chip_cntr][die_cntr][plane_cntr].size()) - total_valid_pages;
+							pages_need_PPA = (unsigned int)(assigned_lpas[channel_cntr][chip_cntr][die_cntr][plane_cntr].size()) - total_valid_pages;
 
 						unsigned int total_physical_blocks_to_consume = block_no_per_plane - safe_guard_band;
 
 						for (int valid_pages_in_block = pages_no_per_block; valid_pages_in_block >= 0; valid_pages_in_block--)
 						{
-							unsigned int block_no_with_x_valid_page = unsigned int(steady_state_distribution[valid_pages_in_block] * (block_no_per_plane - safe_guard_band));
+							unsigned int block_no_with_x_valid_page = (unsigned int)(steady_state_distribution[valid_pages_in_block] * (block_no_per_plane - safe_guard_band));
 							if (block_no_with_x_valid_page > 0 && pages_need_PPA > 0)
 							{
 								block_no_with_x_valid_page += (pages_need_PPA / valid_pages_in_block) + (pages_need_PPA % valid_pages_in_block == 0 ? 0 : 1);
@@ -674,6 +682,8 @@ namespace SSD_Components
 									LPA_type lpa = assigned_lpas[channel_cntr][chip_cntr][die_cntr][plane_cntr].back();
 									assigned_lpas[channel_cntr][chip_cntr][die_cntr][plane_cntr].pop_back();
 									PPA_type ppa = Convert_address_to_ppa(address);
+									if (lpa == 3900702)
+										PRINT_MESSAGE("Stream ID:" << stream_id << " LPA:" << lpa << " PPA:" << ppa)
 									flash_controller->Change_memory_status_preconditioning(&address, &lpa);
 									domains[stream_id]->GlobalMappingTable[lpa].PPA = ppa;
 									domains[stream_id]->GlobalMappingTable[lpa].WrittenStateBitmap = (*lpa_list.find(lpa)).second;
