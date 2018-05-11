@@ -200,7 +200,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Plane_IDs = new flash_plane_ID_type[2];
 		io_flow_2->Plane_IDs[0] = 0; io_flow_2->Plane_IDs[1] = 1;
 		io_flow_2->Working_Set_Percentage = 50;
-		io_flow_2->Read_Percentage = 131072;
+		io_flow_2->Read_Percentage = 100;
 		io_flow_2->Address_Distribution = Utils::Address_Distribution_Type::STREAMING;
 		io_flow_2->Percentage_of_Hot_Region = 0;
 		io_flow_2->Request_Size_Distribution = Utils::Request_Size_Distribution_Type::FIXED;
@@ -208,7 +208,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Variance_Request_Size = 0;
 		io_flow_2->Seed = 6533;
 		io_flow_2->Average_No_of_Reqs_in_Queue = 2;
-		io_flow_2->Bandwidth = 100;
+		io_flow_2->Bandwidth = 131072;
 		io_flow_2->Stop_Time = 1000000000;
 		io_flow_2->Total_Requests_To_Generate = 0;
 		scenario_definition->push_back(io_flow_2);

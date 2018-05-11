@@ -284,7 +284,7 @@ namespace SSD_Components
 		plane_record->Blocks[block_address.BlockID].Has_ongoing_gc = true;
 	}
 
-	void Flash_Block_Manager_Base::Program_transaction_issued(const NVM::FlashMemory::Physical_Page_Address& page_address)
+	void Flash_Block_Manager_Base::program_transaction_issued(const NVM::FlashMemory::Physical_Page_Address& page_address)
 	{
 		PlaneBookKeepingType *plane_record = &plane_manager[page_address.ChannelID][page_address.ChipID][page_address.DieID][page_address.PlaneID];
 		plane_record->Blocks[page_address.BlockID].Ongoing_user_program_count++;

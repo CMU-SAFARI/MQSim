@@ -90,7 +90,6 @@ namespace SSD_Components
 		void GC_started(const NVM::FlashMemory::Physical_Page_Address& block_address);//Updates the block bookkeeping record
 		void GC_finished(const NVM::FlashMemory::Physical_Page_Address& block_address);//Updates the block bookkeeping record
 		void Read_transaction_issued(const NVM::FlashMemory::Physical_Page_Address& page_address);//Updates the block bookkeeping record
-		void Program_transaction_issued(const NVM::FlashMemory::Physical_Page_Address& page_address);//Updates the block bookkeeping record
 		void Read_transaction_serviced(const NVM::FlashMemory::Physical_Page_Address& page_address);//Updates the block bookkeeping record
 		void Program_transaction_serviced(const NVM::FlashMemory::Physical_Page_Address& page_address);//Updates the block bookkeeping record
 		bool Is_having_ongoing_program(const NVM::FlashMemory::Physical_Page_Address& block_address);//Cheks if block has any ongoing program request
@@ -106,6 +105,7 @@ namespace SSD_Components
 		unsigned int plane_no_per_die;
 		unsigned int block_no_per_plane;
 		unsigned int pages_no_per_block;
+		void program_transaction_issued(const NVM::FlashMemory::Physical_Page_Address& page_address);//Updates the block bookkeeping record
 	};
 }
 

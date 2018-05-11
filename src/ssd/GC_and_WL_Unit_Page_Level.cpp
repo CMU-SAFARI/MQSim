@@ -125,7 +125,6 @@ namespace SSD_Components
 			if (pbke->Ongoing_erase_operations.find(gc_candidate_block_id) != pbke->Ongoing_erase_operations.end())//This should never happen, but we check it here for safty
 				return;
 			
-
 			NVM::FlashMemory::Physical_Page_Address gc_candidate_address(plane_address);
 			gc_candidate_address.BlockID = gc_candidate_block_id;
 			Block_Pool_Slot_Type* block = &pbke->Blocks[gc_candidate_block_id];

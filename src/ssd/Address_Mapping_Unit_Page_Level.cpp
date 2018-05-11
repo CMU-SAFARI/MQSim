@@ -1148,7 +1148,6 @@ namespace SSD_Components
 			BlockManager->Allocate_block_and_page_in_plane_for_gc_write(transaction->Stream_id, transaction->Address);
 		else
 			BlockManager->Allocate_block_and_page_in_plane_for_user_write(transaction->Stream_id, transaction->Address);
-		BlockManager->Program_transaction_issued(transaction->Address);
 		transaction->PPA = Convert_address_to_ppa(transaction->Address);
 		domain->Update_mapping_info(ideal_mapping_table, transaction->Stream_id, transaction->LPA, transaction->PPA,
 			((NVM_Transaction_Flash_WR*)transaction)->write_sectors_bitmap | domain->Get_page_status(ideal_mapping_table, transaction->Stream_id, transaction->LPA));
@@ -1591,7 +1590,6 @@ namespace SSD_Components
 				mvpn, mppn, NULL, mvpn, readTR, (((page_status_type)0x1) << sector_no_per_page) - 1, CurrentTimeStamp);
 			allocate_plane_for_translation_write(writeTR);
 			allocate_page_in_plane_for_translation_write(writeTR, mvpn, false);
-			BlockManager->Program_transaction_issued(writeTR->Address);//Inform BlockManager as soon as the transaction's target address is determined
 			domains[stream_id]->DepartingMappingEntries.insert(get_MVPN(lpn, stream_id));
 			ftl->TSU->Submit_transaction(writeTR);
 

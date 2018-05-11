@@ -43,7 +43,6 @@ namespace SSD_Components
 	}
 	inline bool Cache::Check_free_slot_availability(unsigned int no_of_slots)
 	{
-		//PRINT_MESSAGE("Cache size is " << slots.size());
 		return slots.size() + no_of_slots <= capacity_in_pages;
 	}
 	inline bool Cache::Empty()
