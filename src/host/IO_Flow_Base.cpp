@@ -123,7 +123,7 @@ namespace Host_Components
 	{
 		next_logging_milestone = logging_period;
 		log_file.open(logging_file_path, std::ofstream::out);
-		log_file << "Time\t" << "ReponseTime(us)\t" << "EndToEndDelay(us)"<< std::endl;
+		log_file << "SimulationTime(us)\t" << "ReponseTime(us)\t" << "EndToEndDelay(us)"<< std::endl;
 		STAT_sum_device_response_time_short_term = 0;
 		STAT_serviced_request_count_short_term = 0;
 	}
@@ -239,7 +239,7 @@ namespace Host_Components
 
 		if (Simulator->Time() > next_logging_milestone)
 		{
-			log_file << Simulator->Time() << "\t" << Get_device_response_time_short_term() << "\t" << Get_end_to_end_request_delay_short_term() << std::endl;
+			log_file << Simulator->Time() / SIM_TIME_TO_MICROSECONDS_COEFF << "\t" << Get_device_response_time_short_term() << "\t" << Get_end_to_end_request_delay_short_term() << std::endl;
 			STAT_sum_device_response_time_short_term = 0;
 			STAT_sum_request_delay_short_term = 0;
 			STAT_serviced_request_count_short_term = 0;

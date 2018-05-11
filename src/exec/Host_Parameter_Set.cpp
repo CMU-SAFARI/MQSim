@@ -6,6 +6,7 @@ double Host_Parameter_Set::PCIe_Lane_Bandwidth = 0.4;//uint is GB/s
 unsigned int Host_Parameter_Set::PCIe_Lane_Count = 4;
 bool Host_Parameter_Set::Enable_ResponseTime_Logging = false;
 sim_time_type Host_Parameter_Set::ResponseTime_Logging_Period_Length = 100000;//nanoseconds
+std::string Host_Parameter_Set::Input_file_path;
 std::vector<IO_Flow_Parameter_Set*> Host_Parameter_Set::IO_Flow_Definitions;
 
 void Host_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)

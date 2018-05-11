@@ -10,6 +10,14 @@ namespace Utils
 	class Helper_Functions
 	{
 	public:
+		static std::string Path_separator()
+		{
+#ifdef _WIN32
+			return "\\";
+#else
+			return "/";
+#endif
+		}
 		static void Tokenize(const std::string& str, char delimiter, std::vector<std::string>& output_tokens_list)
 		{
 			int size = (int) str.size();

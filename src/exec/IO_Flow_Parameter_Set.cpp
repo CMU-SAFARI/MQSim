@@ -265,8 +265,8 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 	attr = "Synthetic_Generator_Type";
 	switch (Synthetic_Generator_Type)
 	{
-	case Utils::Request_Generator_Type::ARRIVAL_RATE:
-		val = "ARRIVAL_RATE";
+	case Utils::Request_Generator_Type::BANDWIDTH:
+		val = "BANDWIDTH";
 		break;
 	case Utils::Request_Generator_Type::QUEUE_DEPTH:
 		val = "QUEUE_DEPTH";
@@ -364,8 +364,8 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 			{
 				std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
-				if (strcmp(val.c_str(), "ARRIVAL_RATE") == 0)
-					Synthetic_Generator_Type = Utils::Request_Generator_Type::ARRIVAL_RATE;
+				if (strcmp(val.c_str(), "BANDWIDTH") == 0)
+					Synthetic_Generator_Type = Utils::Request_Generator_Type::BANDWIDTH;
 				else if (strcmp(val.c_str(), "QUEUE_DEPTH") == 0)
 					Synthetic_Generator_Type = Utils::Request_Generator_Type::QUEUE_DEPTH;
 				else PRINT_ERROR("Wrong synthetic generator type for input synthetic flow")

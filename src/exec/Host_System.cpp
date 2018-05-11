@@ -5,6 +5,7 @@
 #include "../host/PCIe_Root_Complex.h"
 #include "../host/IO_Flow_Synthetic.h"
 #include "../host/IO_Flow_Trace_Based.h"
+#include "../utils/StringTools.h"
 
 Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_Interface_Base* ssd_host_interface):
 	MQSimEngine::Sim_Object("Host")
@@ -40,10 +41,10 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 				((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth(),
 				flow_param->Priority_Class, flow_param->Read_Percentage / double(100.0), flow_param->Address_Distribution, flow_param->Percentage_of_Hot_Region / double(100.0),
 				flow_param->Request_Size_Distribution, flow_param->Average_Request_Size, flow_param->Variance_Request_Size,
-				flow_param->Synthetic_Generator_Type, (flow_param->Intensity == 0? 0 :NanoSecondCoeff / (flow_param->Intensity / flow_param->Average_Request_Size)),
+				flow_param->Synthetic_Generator_Type, (flow_param->Bandwidth == 0? 0 :NanoSecondCoeff / ((flow_param->Bandwidth / SECTOR_SIZE_IN_BYTE) / flow_param->Average_Request_Size)),
 				flow_param->Average_No_of_Reqs_in_Queue,
 				flow_param->Seed, flow_param->Stop_Time, flow_param->Initial_Occupancy_Percentage / double(100.0), flow_param->Total_Requests_To_Generate, ssd_host_interface->GetType(), this->PCIe_root_complex,
-				parameters->Enable_ResponseTime_Logging, parameters->ResponseTime_Logging_Period_Length, ".IO_Flow.Synth.No_" + std::to_string(flow_id) + ".log");
+				parameters->Enable_ResponseTime_Logging, parameters->ResponseTime_Logging_Period_Length, parameters->Input_file_path + ".IO_Flow.No_" + std::to_string(flow_id) + ".log");
 			this->IO_flows.push_back(io_flow);
 			break;
 		}
@@ -57,7 +58,7 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 				flow_param->Priority_Class, flow_param->Initial_Occupancy_Percentage / double(100.0),
 				flow_param->File_Path, flow_param->Time_Unit, flow_param->Relay_Count, flow_param->Percentage_To_Be_Executed,
 				ssd_host_interface->GetType(), this->PCIe_root_complex,
-				parameters->Enable_ResponseTime_Logging, parameters->ResponseTime_Logging_Period_Length, flow_param->File_Path + ".log");
+				parameters->Enable_ResponseTime_Logging, parameters->ResponseTime_Logging_Period_Length, parameters->Input_file_path + ".IO_Flow.No_" + std::to_string(flow_id) + ".log");
 
 			this->IO_flows.push_back(io_flow);
 			break;

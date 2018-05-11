@@ -177,7 +177,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_1->Variance_Request_Size = 0;
 		io_flow_1->Seed = 12344;
 		io_flow_1->Average_No_of_Reqs_in_Queue = 2;
-		io_flow_1->Intensity = 200;
+		io_flow_1->Bandwidth = 262144;
 		io_flow_1->Stop_Time = 1000000000;
 		io_flow_1->Total_Requests_To_Generate = 0;
 		scenario_definition->push_back(io_flow_1);
@@ -200,7 +200,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Plane_IDs = new flash_plane_ID_type[2];
 		io_flow_2->Plane_IDs[0] = 0; io_flow_2->Plane_IDs[1] = 1;
 		io_flow_2->Working_Set_Percentage = 50;
-		io_flow_2->Read_Percentage = 100;
+		io_flow_2->Read_Percentage = 131072;
 		io_flow_2->Address_Distribution = Utils::Address_Distribution_Type::STREAMING;
 		io_flow_2->Percentage_of_Hot_Region = 0;
 		io_flow_2->Request_Size_Distribution = Utils::Request_Size_Distribution_Type::FIXED;
@@ -208,7 +208,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Variance_Request_Size = 0;
 		io_flow_2->Seed = 6533;
 		io_flow_2->Average_No_of_Reqs_in_Queue = 2;
-		io_flow_2->Intensity = 100;
+		io_flow_2->Bandwidth = 100;
 		io_flow_2->Stop_Time = 1000000000;
 		io_flow_2->Total_Requests_To_Generate = 0;
 		scenario_definition->push_back(io_flow_2);
@@ -301,7 +301,8 @@ int main(int argc, char* argv[])
 		for (auto io_flow_def = (*io_scen)->begin(); io_flow_def != (*io_scen)->end(); io_flow_def++)
 			exec_params->Host_Configuration.IO_Flow_Definitions.push_back(*io_flow_def);
 
-		SSD_Device ssd(&exec_params->SSD_Device_Configuration, &exec_params->Host_Configuration.IO_Flow_Definitions);
+		SSD_Device ssd(&exec_params->SSD_Device_Configuration, &exec_params->Host_Configuration.IO_Flow_Definitions);//Create SSD_Device based on the specified parameters
+		exec_params->Host_Configuration.Input_file_path = workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of("."));//Create Host_System based on the specified parameters
 		Host_System host(&exec_params->Host_Configuration, ssd.Host_interface);
 		host.Attach_ssd_device(&ssd);
 
