@@ -8,21 +8,22 @@
 #include "../sim/Sim_Reporter.h"
 #include "FTL.h"
 #include "NVM_PHY_ONFI_NVDDR2.h"
-#include "FlashTransactionQueue.h"
+#include "Flash_Transaction_Queue.h"
 
 namespace SSD_Components
 {
-	enum class Flash_Scheduling_Type {OUT_OF_ORDER};
+	enum class Flash_Scheduling_Type {OUT_OF_ORDER, FLIN};
 	class FTL;
 	class TSU_Base : public MQSimEngine::Sim_Object
 	{
 	public:
 		TSU_Base(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI_NVDDR2* NVMController, Flash_Scheduling_Type Type,
-			unsigned int Channel_no, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
+			unsigned int Channel_no, unsigned int chip_no_per_channel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 			bool EraseSuspensionEnabled, bool ProgramSuspensionEnabled,
 			sim_time_type WriteReasonableSuspensionTimeForRead,
 			sim_time_type EraseReasonableSuspensionTimeForRead,
 			sim_time_type EraseReasonableSuspensionTimeForWrite);
+		virtual ~TSU_Base();
 		void Setup_triggers();
 
 
@@ -60,14 +61,7 @@ namespace SSD_Components
 		sim_time_type writeReasonableSuspensionTimeForRead;
 		sim_time_type eraseReasonableSuspensionTimeForRead;//the time period 
 		sim_time_type eraseReasonableSuspensionTimeForWrite;
-		flash_chip_ID_type* LastChip;//Used for round-robin service of the chips in channels
-		FlashTransactionQueue** UserReadTRQueue;
-		FlashTransactionQueue** UserWriteTRQueue;
-		FlashTransactionQueue** GCReadTRQueue;
-		FlashTransactionQueue** GCWriteTRQueue;
-		FlashTransactionQueue** GCEraseTRQueue;
-		FlashTransactionQueue** MappingReadTRQueue;
-		FlashTransactionQueue** MappingWriteTRQueue;
+		flash_chip_ID_type* Round_robin_turn_of_channel;//Used for round-robin service of the chips in channels
 
 		static TSU_Base* _my_instance;
 		std::list<NVM_Transaction_Flash*> transaction_receive_slots;//Stores the transactions that are received for sheduling

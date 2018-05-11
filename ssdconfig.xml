@@ -3,10 +3,13 @@
 	<Host_Parameter_Set>
 			 <PCIe_Lane_Bandwidth>0.100000</PCIe_Lane_Bandwidth>
 			 <PCIe_Lane_Count>4</PCIe_Lane_Count>
+			 <Enable_ResponseTime_Logging>true</Enable_ResponseTime_Logging>
+			 <ResponseTime_Logging_Period_Length>1000000</ResponseTime_Logging_Period_Length>
 	</Host_Parameter_Set>
 	<Device_Parameter_Set>
 			 <Seed>321</Seed>
 			 <Enabled_Preconditioning>true</Enabled_Preconditioning>
+			 <Memory_Type>FLASH</Memory_Type>
 			 <HostInterface_Type>NVME</HostInterface_Type>
 			 <IO_Queue_Depth>65535</IO_Queue_Depth>
 			 <Queue_Fetch_Size>512</Queue_Fetch_Size>
@@ -19,7 +22,7 @@
 			 <Data_Cache_DRAM_tCL>13</Data_Cache_DRAM_tCL>
 			 <Data_Cache_DRAM_tRP>13</Data_Cache_DRAM_tRP>
 			 <Address_Mapping>PAGE_LEVEL</Address_Mapping>
-			 <Ideal_Mapping_Table>true</Ideal_Mapping_Table>
+			 <Ideal_Mapping_Table>false</Ideal_Mapping_Table>
 			 <CMT_Capacity>2097152</CMT_Capacity>
 			 <CMT_Sharing_Mode>SHARED</CMT_Sharing_Mode>
 			 <Plane_Allocation_Scheme>CWDP</Plane_Allocation_Scheme>
@@ -30,6 +33,9 @@
 			 <Use_Copyback_for_GC>false</Use_Copyback_for_GC>
 			 <Preemptible_GC_Enabled>false</Preemptible_GC_Enabled>
 			 <GC_Hard_Threshold>0.005000</GC_Hard_Threshold>
+			 <Dynamic_Wearleveling_Enabled>true</Dynamic_Wearleveling_Enabled>
+			 <Static_Wearleveling_Enabled>true</Static_Wearleveling_Enabled>
+			 <Static_Wearleveling_Threshold>100</Static_Wearleveling_Threshold>
 			 <Preferred_suspend_erase_time_for_read>700000</Preferred_suspend_erase_time_for_read>
 			 <Preferred_suspend_erase_time_for_write>700000</Preferred_suspend_erase_time_for_write>
 			 <Preferred_suspend_write_time_for_read>100000</Preferred_suspend_write_time_for_read>

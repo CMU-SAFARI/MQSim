@@ -3,23 +3,104 @@
 namespace SSD_Components
 {
 
-	TSU_OutofOrder::TSU_OutofOrder(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI_NVDDR2* NVMController, unsigned int ChannelCount, unsigned int ChipNoPerChannel,
+	TSU_OutofOrder::TSU_OutofOrder(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI_NVDDR2* NVMController, unsigned int ChannelCount, unsigned int chip_no_per_channel,
 		unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 		sim_time_type WriteReasonableSuspensionTimeForRead,
 		sim_time_type EraseReasonableSuspensionTimeForRead,
 		sim_time_type EraseReasonableSuspensionTimeForWrite, 
 		bool EraseSuspensionEnabled, bool ProgramSuspensionEnabled)
-		: TSU_Base(id, ftl, NVMController, Flash_Scheduling_Type::OUT_OF_ORDER, ChannelCount, ChipNoPerChannel, DieNoPerChip, PlaneNoPerDie,
+		: TSU_Base(id, ftl, NVMController, Flash_Scheduling_Type::OUT_OF_ORDER, ChannelCount, chip_no_per_channel, DieNoPerChip, PlaneNoPerDie,
 			WriteReasonableSuspensionTimeForRead, EraseReasonableSuspensionTimeForRead, EraseReasonableSuspensionTimeForWrite,
 			EraseSuspensionEnabled, ProgramSuspensionEnabled)
-	{}
-
+	{
+		UserReadTRQueue = new Flash_Transaction_Queue*[channel_count];
+		UserWriteTRQueue = new Flash_Transaction_Queue*[channel_count];
+		GCReadTRQueue = new Flash_Transaction_Queue*[channel_count];
+		GCWriteTRQueue = new Flash_Transaction_Queue*[channel_count];
+		GCEraseTRQueue = new Flash_Transaction_Queue*[channel_count];
+		MappingReadTRQueue = new Flash_Transaction_Queue*[channel_count];
+		MappingWriteTRQueue = new Flash_Transaction_Queue*[channel_count];
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+		{
+			UserReadTRQueue[channelID] = new Flash_Transaction_Queue[chip_no_per_channel];
+			UserWriteTRQueue[channelID] = new Flash_Transaction_Queue[chip_no_per_channel];
+			GCReadTRQueue[channelID] = new Flash_Transaction_Queue[chip_no_per_channel];
+			GCWriteTRQueue[channelID] = new Flash_Transaction_Queue[chip_no_per_channel];
+			GCEraseTRQueue[channelID] = new Flash_Transaction_Queue[chip_no_per_channel];
+			MappingReadTRQueue[channelID] = new Flash_Transaction_Queue[chip_no_per_channel];
+			MappingWriteTRQueue[channelID] = new Flash_Transaction_Queue[chip_no_per_channel];
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+			{
+				UserReadTRQueue[channelID][chip_cntr].Set_id("User_Read_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				UserWriteTRQueue[channelID][chip_cntr].Set_id("User_Write_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				GCReadTRQueue[channelID][chip_cntr].Set_id("GC_Read_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				MappingReadTRQueue[channelID][chip_cntr].Set_id("Mapping_Read_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				MappingWriteTRQueue[channelID][chip_cntr].Set_id("Mapping_Write_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				GCWriteTRQueue[channelID][chip_cntr].Set_id("GC_Write_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+				GCEraseTRQueue[channelID][chip_cntr].Set_id("GC_Erase_TR_Queue@" + std::to_string(channelID) + "@" + std::to_string(chip_cntr));
+			}
+		}
+	}
+	
+	TSU_OutofOrder::~TSU_OutofOrder()
+	{
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+		{
+			delete[] UserReadTRQueue[channelID];
+			delete[] UserWriteTRQueue[channelID];
+			delete[] GCReadTRQueue[channelID];
+			delete[] GCWriteTRQueue[channelID];
+			delete[] GCEraseTRQueue[channelID];
+			delete[] MappingReadTRQueue[channelID];
+			delete[] MappingWriteTRQueue[channelID];
+		}
+		delete[] UserReadTRQueue;
+		delete[] UserWriteTRQueue;
+		delete[] GCReadTRQueue;
+		delete[] GCWriteTRQueue;
+		delete[] GCEraseTRQueue;
+		delete[] MappingReadTRQueue;
+		delete[] MappingWriteTRQueue;
+	}
 
 	void TSU_OutofOrder::Start_simulation() {}
 
 	void TSU_OutofOrder::Validate_simulation_config() {}
 
 	void TSU_OutofOrder::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
+
+	void TSU_OutofOrder::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
+	{
+		TSU_Base::Report_results_in_XML(name_prefix, xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				UserReadTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".User_Read_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				UserWriteTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".User_Write_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				MappingReadTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".Mapping_Read_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				MappingWriteTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".Mapping_Write_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				GCReadTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".GC_Read_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				GCWriteTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".GC_Write_TR_Queue", xmlwriter);
+
+		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
+			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
+				GCEraseTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".GC_Erase_TR_Queue", xmlwriter);
+	}
 
 	inline void TSU_OutofOrder::Prepare_for_transaction_submit()
 	{
@@ -96,12 +177,12 @@ namespace SSD_Components
 			if (_NVMController->GetChannelStatus(channelID) == BusChannelStatus::IDLE)
 			{
 				for (unsigned int i = 0; i < chip_no_per_channel; i++) {
-					NVM::FlashMemory::Flash_Chip* chip = _NVMController->GetChip(channelID, LastChip[channelID]);
+					NVM::FlashMemory::Flash_Chip* chip = _NVMController->GetChip(channelID, Round_robin_turn_of_channel[channelID]);
 					//The TSU does not check if the chip is idle or not since it is possible to suspend a busy chip and issue a new command
 					if (!service_read_transaction(chip))
 						if (!service_write_transaction(chip))
 							service_erase_transaction(chip);
-					LastChip[channelID] = (flash_chip_ID_type)(LastChip[channelID] + 1) % chip_no_per_channel;
+					Round_robin_turn_of_channel[channelID] = (flash_chip_ID_type)(Round_robin_turn_of_channel[channelID] + 1) % chip_no_per_channel;
 					if (_NVMController->GetChannelStatus(chip->ChannelID) != BusChannelStatus::IDLE)
 						break;
 				}
@@ -111,7 +192,7 @@ namespace SSD_Components
 	
 	bool TSU_OutofOrder::service_read_transaction(NVM::FlashMemory::Flash_Chip* chip)
 	{
-		FlashTransactionQueue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
+		Flash_Transaction_Queue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
 
 		if (MappingReadTRQueue[chip->ChannelID][chip->ChipID].size() > 0)//Flash transactions that are related to FTL mapping data have the highest priority
 		{
@@ -161,13 +242,13 @@ namespace SSD_Components
 		case ChipStatus::WRITING:
 			if (!programSuspensionEnabled || _NVMController->HasSuspendedCommand(chip))
 				return false;
-			if (_NVMController->ExpectedFinishTime(chip) - Simulator->Time() < writeReasonableSuspensionTimeForRead)
+			if (_NVMController->Expected_finish_time(chip) - Simulator->Time() < writeReasonableSuspensionTimeForRead)
 				return false;
 			suspensionRequired = true;
 		case ChipStatus::ERASING:
 			if (!eraseSuspensionEnabled || _NVMController->HasSuspendedCommand(chip))
 				return false;
-			if (_NVMController->ExpectedFinishTime(chip) - Simulator->Time() < eraseReasonableSuspensionTimeForRead)
+			if (_NVMController->Expected_finish_time(chip) - Simulator->Time() < eraseReasonableSuspensionTimeForRead)
 				return false;
 			suspensionRequired = true;
 		default:
@@ -182,7 +263,7 @@ namespace SSD_Components
 			transaction_dispatch_slots.clear();
 			planeVector = 0;
 
-			for (FlashTransactionQueue::iterator it = sourceQueue1->begin(); it != sourceQueue1->end();)
+			for (Flash_Transaction_Queue::iterator it = sourceQueue1->begin(); it != sourceQueue1->end();)
 			{
 				if ((*it)->Address.DieID == dieID && !(planeVector & 1 << (*it)->Address.PlaneID))
 				{
@@ -199,7 +280,7 @@ namespace SSD_Components
 			}
 
 			if (sourceQueue2 != NULL && transaction_dispatch_slots.size() < plane_no_per_die)
-				for (FlashTransactionQueue::iterator it = sourceQueue2->begin(); it != sourceQueue2->end();)
+				for (Flash_Transaction_Queue::iterator it = sourceQueue2->begin(); it != sourceQueue2->end();)
 				{
 					if ((*it)->Address.DieID == dieID && !(planeVector & 1 << (*it)->Address.PlaneID))
 					{
@@ -226,7 +307,7 @@ namespace SSD_Components
 
 	bool TSU_OutofOrder::service_write_transaction(NVM::FlashMemory::Flash_Chip* chip)
 	{
-		FlashTransactionQueue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
+		Flash_Transaction_Queue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
 
 		if (ftl->GC_and_WL_Unit->GC_is_in_urgent_mode(chip))//If flash transactions related to GC are prioritzed (non-preemptive execution mode of GC), then GC queues are checked first
 		{
@@ -265,7 +346,7 @@ namespace SSD_Components
 		case ChipStatus::ERASING:
 			if (!eraseSuspensionEnabled || _NVMController->HasSuspendedCommand(chip))
 				return false;
-			if (_NVMController->ExpectedFinishTime(chip) - Simulator->Time() < eraseReasonableSuspensionTimeForWrite)
+			if (_NVMController->Expected_finish_time(chip) - Simulator->Time() < eraseReasonableSuspensionTimeForWrite)
 				return false;
 			suspensionRequired = true;
 		default:
@@ -280,7 +361,7 @@ namespace SSD_Components
 			transaction_dispatch_slots.clear();
 			planeVector = 0;
 
-			for (FlashTransactionQueue::iterator it = sourceQueue1->begin(); it != sourceQueue1->end(); )
+			for (Flash_Transaction_Queue::iterator it = sourceQueue1->begin(); it != sourceQueue1->end(); )
 			{
 				if (((NVM_Transaction_Flash_WR*)*it)->RelatedRead == NULL && (*it)->Address.DieID == dieID && !(planeVector & 1 << (*it)->Address.PlaneID))
 				{
@@ -297,7 +378,7 @@ namespace SSD_Components
 			}
 
 			if (sourceQueue2 != NULL)
-				for (FlashTransactionQueue::iterator it = sourceQueue2->begin(); it != sourceQueue2->end(); )
+				for (Flash_Transaction_Queue::iterator it = sourceQueue2->begin(); it != sourceQueue2->end(); )
 				{
 					if (((NVM_Transaction_Flash_WR*)*it)->RelatedRead == NULL && (*it)->Address.DieID == dieID && !(planeVector & 1 << (*it)->Address.PlaneID))
 					{
@@ -326,7 +407,7 @@ namespace SSD_Components
 		if (_NVMController->GetChipStatus(chip) != ChipStatus::IDLE)
 			return false;
 
-		FlashTransactionQueue* source_queue = &GCEraseTRQueue[chip->ChannelID][chip->ChipID];
+		Flash_Transaction_Queue* source_queue = &GCEraseTRQueue[chip->ChannelID][chip->ChipID];
 		if (source_queue->size() == 0)
 			return false;
 
@@ -337,7 +418,7 @@ namespace SSD_Components
 			transaction_dispatch_slots.clear();
 			planeVector = 0;
 
-			for (FlashTransactionQueue::iterator it = source_queue->begin(); it != source_queue->end(); )
+			for (Flash_Transaction_Queue::iterator it = source_queue->begin(); it != source_queue->end(); )
 			{
 				if (((NVM_Transaction_Flash_ER*)*it)->Page_movement_activities.size() == 0 && (*it)->Address.DieID == dieID && !(planeVector & 1 << (*it)->Address.PlaneID))
 				{

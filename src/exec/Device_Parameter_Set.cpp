@@ -29,6 +29,9 @@ SSD_Components::GC_Block_Selection_Policy_Type Device_Parameter_Set::GC_Block_Se
 bool Device_Parameter_Set::Use_Copyback_for_GC = true;
 bool Device_Parameter_Set::Preemptible_GC_Enabled = true;
 double Device_Parameter_Set::GC_Hard_Threshold = 0.005;//The hard gc execution threshold, used to stop preemptible gc execution
+bool Device_Parameter_Set::Dynamic_Wearleveling_Enabled = true;
+bool Device_Parameter_Set::Static_Wearleveling_Enabled = true;
+unsigned int Device_Parameter_Set::Static_Wearleveling_Threshold = 100;
 sim_time_type Device_Parameter_Set::Preferred_suspend_erase_time_for_read = 700000;//in nano-seconds
 sim_time_type Device_Parameter_Set::Preferred_suspend_erase_time_for_write = 700000;//in nano-seconds
 sim_time_type Device_Parameter_Set::Preferred_suspend_write_time_for_read = 100000;//in nano-seconds
@@ -255,6 +258,9 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	case SSD_Components::Flash_Scheduling_Type::OUT_OF_ORDER:
 		val = "OUT_OF_ORDER";
 		break;
+	case SSD_Components::Flash_Scheduling_Type::FLIN:
+		val = "FLIN";
+		break;
 	default:
 		break;
 	}
@@ -306,6 +312,18 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	val = std::to_string(GC_Hard_Threshold);
 	xmlwriter.Write_attribute_string(attr, val);
 
+	attr = "Dynamic_Wearleveling_Enabled";
+	val = (Dynamic_Wearleveling_Enabled ? "true" : "false");
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Static_Wearleveling_Enabled";
+	val = (Static_Wearleveling_Enabled ? "true" : "false");
+	xmlwriter.Write_attribute_string(attr, val);
+	
+	attr = "Static_Wearleveling_Threshold";
+	val = std::to_string(Static_Wearleveling_Threshold);
+	xmlwriter.Write_attribute_string(attr, val);
+	
 	attr = "Preferred_suspend_erase_time_for_read";
 	val = std::to_string(Preferred_suspend_erase_time_for_read);
 	xmlwriter.Write_attribute_string(attr, val);
@@ -533,6 +551,8 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "OUT_OF_ORDER") == 0)
 					Transaction_Scheduling_Policy = SSD_Components::Flash_Scheduling_Type::OUT_OF_ORDER;
+				else if (strcmp(val.c_str(), "FLIN") == 0)
+					Transaction_Scheduling_Policy = SSD_Components::Flash_Scheduling_Type::FLIN;
 				else PRINT_ERROR("Unknown transaction scheduling type specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "Overprovisioning_Ratio") == 0)
@@ -579,6 +599,23 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			{
 				std::string val = param->value();
 				GC_Hard_Threshold = std::stod(val);
+			}
+			else if (strcmp(param->name(), "Dynamic_Wearleveling_Enabled") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				Dynamic_Wearleveling_Enabled = (val.compare("FALSE") == 0 ? false : true);
+			}
+			else if (strcmp(param->name(), "Static_Wearleveling_Enabled") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				Static_Wearleveling_Enabled = (val.compare("FALSE") == 0 ? false : true);
+			}
+			else if (strcmp(param->name(), "Static_Wearleveling_Threshold") == 0)
+			{
+				std::string val = param->value();
+				Static_Wearleveling_Threshold = std::stoul(val);
 			}
 			else if (strcmp(param->name(), "Prefered_suspend_erase_time_for_read") == 0)
 			{

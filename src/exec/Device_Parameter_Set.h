@@ -42,6 +42,9 @@ public:
 	static bool Use_Copyback_for_GC;
 	static bool Preemptible_GC_Enabled;
 	static double GC_Hard_Threshold;//The hard gc execution threshold, used to stop preemptible gc execution
+	static bool Dynamic_Wearleveling_Enabled;
+	static bool Static_Wearleveling_Enabled;
+	static unsigned int Static_Wearleveling_Threshold;
 	static sim_time_type Preferred_suspend_erase_time_for_read;//in nano-seconds, if the remaining time of the ongoing erase is smaller than Prefered_suspend_erase_time_for_read, then the ongoing erase operation will be suspended
 	static sim_time_type Preferred_suspend_erase_time_for_write;//in nano-seconds, if the remaining time of the ongoing erase is smaller than Prefered_suspend_erase_time_for_write, then the ongoing erase operation will be suspended
 	static sim_time_type Preferred_suspend_write_time_for_read;//in nano-seconds, if the remaining time of the ongoing write is smaller than Prefered_suspend_write_time_for_read, then the ongoing erase operation will be suspended

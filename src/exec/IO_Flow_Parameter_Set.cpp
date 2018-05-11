@@ -101,8 +101,8 @@ void IO_Flow_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	}
 	xmlwriter.Write_attribute_string(attr, val);
 
-	attr = "Working_Set_Percentage";
-	val = std::to_string(Working_Set_Percentage);
+	attr = "Initial_Occupancy_Percentage";
+	val = std::to_string(Initial_Occupancy_Percentage);
 	xmlwriter.Write_attribute_string(attr, val);
 }
 
@@ -126,7 +126,7 @@ void IO_Flow_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::WRITE_READ_CACHE;
 				else PRINT_ERROR("Wrong caching mode definition for input flow")
 			}
-			else if (strcmp(param->name(), "Type") == 0)
+			else if (strcmp(param->name(), "Type") == 0)//It is automatically assigned when the child objects are initialized
 			{
 				/*std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
@@ -238,10 +238,10 @@ void IO_Flow_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				for (auto it = ids.begin(); it != ids.end(); it++)
 					Plane_IDs[i++] = *it;
 			}
-			else if (strcmp(param->name(), "Working_Set_Percentage") == 0)
+			else if (strcmp(param->name(), "Initial_Occupancy_Percentage") == 0)
 			{
 				std::string val = param->value();
-				Working_Set_Percentage = std::stoi(val);
+				Initial_Occupancy_Percentage = std::stoul(val);
 			}
 		}
 	}
@@ -258,8 +258,24 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 	xmlwriter.Write_open_tag(tmp);
 	IO_Flow_Parameter_Set::XML_serialize(xmlwriter);
 
-	std::string attr = "Read_Percentage";
-	std::string val = std::to_string(Read_Percentage);
+	std::string attr = "Working_Set_Percentage";
+	std::string val = std::to_string(Working_Set_Percentage);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Synthetic_Generator_Type";
+	switch (Synthetic_Generator_Type)
+	{
+	case Utils::Request_Generator_Type::ARRIVAL_RATE:
+		val = "ARRIVAL_RATE";
+		break;
+	case Utils::Request_Generator_Type::QUEUE_DEPTH:
+		val = "QUEUE_DEPTH";
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Read_Percentage";
+	val = std::to_string(Read_Percentage);
 	xmlwriter.Write_attribute_string(attr, val);
 
 
@@ -315,6 +331,11 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 	xmlwriter.Write_attribute_string(attr, val);
 
 
+	attr = "Intensity";
+	val = std::to_string(Intensity);
+	xmlwriter.Write_attribute_string(attr, val);
+
+
 	attr = "Stop_Time";
 	val = std::to_string(Stop_Time);
 	xmlwriter.Write_attribute_string(attr, val);
@@ -334,7 +355,22 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 	{
 		for (auto param = node->first_node(); param; param = param->next_sibling())
 		{
-			if (strcmp(param->name(), "Read_Percentage") == 0)
+			if (strcmp(param->name(), "Working_Set_Percentage") == 0)
+			{
+				std::string val = param->value();
+				Working_Set_Percentage = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Synthetic_Generator_Type") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "ARRIVAL_RATE") == 0)
+					Synthetic_Generator_Type = Utils::Request_Generator_Type::ARRIVAL_RATE;
+				else if (strcmp(val.c_str(), "QUEUE_DEPTH") == 0)
+					Synthetic_Generator_Type = Utils::Request_Generator_Type::QUEUE_DEPTH;
+				else PRINT_ERROR("Wrong synthetic generator type for input synthetic flow")
+			}
+			else if (strcmp(param->name(), "Read_Percentage") == 0)
 			{
 				std::string val = param->value();
 				Read_Percentage = std::stoi(val);
@@ -385,6 +421,11 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 			{
 				std::string val = param->value();
 				Average_No_of_Reqs_in_Queue = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Intensity") == 0)
+			{
+				std::string val = param->value();
+				Intensity = std::stoi(val);
 			}
 			else if (strcmp(param->name(), "Stop_Time") == 0)
 			{

@@ -5,10 +5,12 @@
 #include "../nvm_chip/NVM_Types.h"
 #include "NVM_Transaction_Flash.h"
 #include "NVM_Transaction_Flash_RD.h"
+#include "NVM_Transaction_Flash_ER.h"
 
 namespace SSD_Components
 {
 	enum class WriteExecutionModeType { SIMPLE, COPYBACK };
+	class NVM_Transaction_Flash_ER;
 	class NVM_Transaction_Flash_WR : public NVM_Transaction_Flash
 	{
 	public:
@@ -23,6 +25,7 @@ namespace SSD_Components
 			page_status_type write_sectors_bitmap, data_timestamp_type data_timestamp);
 		NVM::memory_content_type Content; //The content of this transaction
 		NVM_Transaction_Flash_RD* RelatedRead; //If this write request must be preceded by a read (for partial page write), this variable is used to point to the corresponding read request
+		NVM_Transaction_Flash_ER* RelatedErase;
 		page_status_type write_sectors_bitmap;
 		data_timestamp_type DataTimeStamp;
 		WriteExecutionModeType ExecutionMode;

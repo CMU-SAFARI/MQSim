@@ -29,6 +29,14 @@ namespace MQSimEngine
 			throw std::invalid_argument("Duplicate object key: " + obj->ID());
 		_ObjectList.insert(std::pair<sim_object_id_type, Sim_Object*>(obj->ID(), obj));
 	}
+	
+	Sim_Object* Engine::GetObject(sim_object_id_type object_id)
+	{
+		auto itr = _ObjectList.find(object_id);
+		if (itr == _ObjectList.end())
+			return NULL;
+		return (*itr).second;
+	}
 
 	void Engine::RemoveObject(Sim_Object* obj)
 	{

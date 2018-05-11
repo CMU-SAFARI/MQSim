@@ -24,6 +24,7 @@ namespace MQSimEngine {
 		void Ignore_sim_event(Sim_Event*);
 		void Reset();
 		void AddObject(Sim_Object* obj);
+		Sim_Object* GetObject(sim_object_id_type object_id);
 		void RemoveObject(Sim_Object* obj);
 		void Start_simulation();
 		void Stop_simulation();

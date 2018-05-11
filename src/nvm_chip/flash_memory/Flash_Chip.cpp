@@ -68,7 +68,6 @@ namespace NVM
 		void Flash_Chip::Change_memory_status_preconditioning(const NVM_Memory_Address* address, const void* status_info)
 		{
 			Physical_Page_Address* flash_address = (Physical_Page_Address*)address;
-
 			Dies[flash_address->DieID]->Planes[flash_address->PlaneID]->Blocks[flash_address->BlockID]->Pages[flash_address->PageID].Metadata.LPA = *(LPA_type*)status_info;
 		}
 		
@@ -87,6 +86,13 @@ namespace NVM
 			}
 		}
 
+		LPA_type Flash_Chip::Get_lpa(flash_die_ID_type die_id, flash_plane_ID_type plane_id, flash_block_ID_type block_id, flash_page_ID_type page_id)//A hack for gc!!!!! It should be removed
+		{
+			Page* page = &(Dies[die_id]->Planes[plane_id]->Blocks[block_id]->Pages[page_id]);
+			
+			return Dies[die_id]->Planes[plane_id]->Blocks[block_id]->Pages[page_id].Metadata.LPA;
+		}
+
 		void Flash_Chip::start_command_execution(Flash_Command* command)
 		{
 			Die* targetDie = Dies[command->Address[0].DieID];
@@ -98,8 +104,8 @@ namespace NVM
 					|| command->CommandCode == CMD_ERASE_BLOCK))
 				PRINT_ERROR("Executing operation on a busy die")
 
-			targetDie->ExpectedFinishTime = Simulator->Time() + Get_command_execution_latency(command->CommandCode, command->Address[0].PageID);
-			targetDie->CommandFinishEvent = Simulator->Register_sim_event(targetDie->ExpectedFinishTime,
+			targetDie->Expected_finish_time = Simulator->Time() + Get_command_execution_latency(command->CommandCode, command->Address[0].PageID);
+			targetDie->CommandFinishEvent = Simulator->Register_sim_event(targetDie->Expected_finish_time,
 				this, command, static_cast<int>(Chip_Sim_Event_Type::COMMAND_FINISHED));
 			targetDie->CurrentCMD = command;
 			targetDie->Status = DieStatus::BUSY;
@@ -108,7 +114,7 @@ namespace NVM
 			if (status == Internal_Status::IDLE)
 			{
 				executionStartTime = Simulator->Time();
-				expectedFinishTime = targetDie->ExpectedFinishTime;
+				expectedFinishTime = targetDie->Expected_finish_time;
 				status = Internal_Status::BUSY;
 			}
 
@@ -120,7 +126,7 @@ namespace NVM
 			Die* targetDie = Dies[command->Address[0].DieID];
 
 			targetDie->STAT_TotalReadTime += Get_command_execution_latency(command->CommandCode, command->Address[0].PageID);
-			targetDie->ExpectedFinishTime = INVALID_TIME;
+			targetDie->Expected_finish_time = INVALID_TIME;
 			targetDie->CommandFinishEvent = NULL;
 			targetDie->CurrentCMD = NULL;
 			targetDie->Status = DieStatus::IDLE;
@@ -202,7 +208,7 @@ namespace NVM
 			/*if (targetDie->CurrentCMD & CMD_READ != 0)
 			throw "Suspend is not supported for read operations!";*/
 
-			targetDie->RemainingSuspendedExecTime = targetDie->ExpectedFinishTime - Simulator->Time();
+			targetDie->RemainingSuspendedExecTime = targetDie->Expected_finish_time - Simulator->Time();
 			Simulator->Ignore_sim_event(targetDie->CommandFinishEvent);//The simulator engine should not execute the finish event for the suspended command
 			targetDie->CommandFinishEvent = NULL;
 
@@ -232,11 +238,11 @@ namespace NVM
 			targetDie->Suspended = false;
 			STAT_totalResumeCount++;
 
-			targetDie->ExpectedFinishTime = Simulator->Time() + targetDie->RemainingSuspendedExecTime;
-			targetDie->CommandFinishEvent = Simulator->Register_sim_event(targetDie->ExpectedFinishTime,
+			targetDie->Expected_finish_time = Simulator->Time() + targetDie->RemainingSuspendedExecTime;
+			targetDie->CommandFinishEvent = Simulator->Register_sim_event(targetDie->Expected_finish_time,
 				this, targetDie->CurrentCMD, static_cast<int>(Chip_Sim_Event_Type::COMMAND_FINISHED));
-			if (targetDie->ExpectedFinishTime > this->expectedFinishTime)
-				this->expectedFinishTime = targetDie->ExpectedFinishTime;
+			if (targetDie->Expected_finish_time > this->expectedFinishTime)
+				this->expectedFinishTime = targetDie->Expected_finish_time;
 
 
 
@@ -254,6 +260,30 @@ namespace NVM
 		sim_time_type Flash_Chip::GetSuspendEraseTime()
 		{
 			return _suspendEraseLatency;
+		}
+
+		void Flash_Chip::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
+		{
+			std::string tmp = name_prefix;
+			xmlwriter.Write_start_element_tag(tmp);
+
+			std::string attr = "Name";
+			std::string val = "@" + std::to_string(ChannelID) + "@" + std::to_string(ChipID);
+			xmlwriter.Write_attribute_string_inline(attr, val);
+
+			attr = "Total_In_Execution";
+			val = std::to_string(STAT_totalExecTime / double(Simulator->Time()));
+			xmlwriter.Write_attribute_string_inline(attr, val);
+
+			attr = "Fraction_of_Time_in_DataXfer";
+			val = std::to_string(STAT_totalXferTime / double(Simulator->Time()));
+			xmlwriter.Write_attribute_string_inline(attr, val);
+
+			attr = "Fraction_of_Time_in_DataXfer_and_Execution";
+			val = std::to_string(STAT_totalOverlappedXferExecTime / double(Simulator->Time()));
+			xmlwriter.Write_attribute_string_inline(attr, val);
+		
+			xmlwriter.Write_end_element_tag();
 		}
 	}
 }

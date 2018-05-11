@@ -5,12 +5,13 @@
 namespace Host_Components
 {
 	//unsigned int InputStreamBase::lastId = 0;
-	IO_Flow_Base::IO_Flow_Base(const sim_object_id_type& name, LSA_type start_lsa_on_device, LSA_type end_lsa_on_device, uint16_t io_queue_id,
+	IO_Flow_Base::IO_Flow_Base(const sim_object_id_type& name, LHA_type start_lsa_on_device, LHA_type end_lsa_on_device, uint16_t io_queue_id,
 		uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size,
-		IO_Flow_Priority_Class priority_class, sim_time_type stop_time, unsigned int total_requets_to_be_generated,
-		HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex) :
-		MQSimEngine::Sim_Object(name), input_file_processed(false), start_lsa_on_device(start_lsa_on_device), end_lsa_on_device(end_lsa_on_device), io_queue_id(io_queue_id),
-		priority_class(priority_class), stop_time(stop_time), total_requests_to_be_generated(total_requets_to_be_generated), SSD_device_type(SSD_device_type), pcie_root_complex(pcie_root_complex),
+		IO_Flow_Priority_Class priority_class, sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_requets_to_be_generated,
+		HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex,
+		bool enabled_logging, sim_time_type logging_period, std::string logging_file_path) : 
+		MQSimEngine::Sim_Object(name), start_lsa_on_device(start_lsa_on_device), end_lsa_on_device(end_lsa_on_device), io_queue_id(io_queue_id),
+		priority_class(priority_class), stop_time(stop_time), initial_occupancy_ratio(initial_occupancy_ratio), total_requests_to_be_generated(total_requets_to_be_generated), SSD_device_type(SSD_device_type), pcie_root_complex(pcie_root_complex),
 		STAT_generated_request_count(0), STAT_generated_read_request_count(0), STAT_generated_write_request_count(0),
 		STAT_ignored_request_count(0),
 		STAT_serviced_request_count(0), STAT_serviced_read_request_count(0), STAT_serviced_write_request_count(0),
@@ -20,8 +21,15 @@ namespace Host_Components
 		STAT_sum_request_delay(0), STAT_sum_request_delay_read(0), STAT_sum_request_delay_write(0),
 		STAT_min_request_delay(MAXIMUM_TIME), STAT_min_request_delay_read(MAXIMUM_TIME), STAT_min_request_delay_write(MAXIMUM_TIME),
 		STAT_max_request_delay(0), STAT_max_request_delay_read(0), STAT_max_request_delay_write(0),
-		STAT_transferred_bytes_total(0), STAT_transferred_bytes_read(0), STAT_transferred_bytes_write(0), progress(0), next_progress_step(0)
+		STAT_transferred_bytes_total(0), STAT_transferred_bytes_read(0), STAT_transferred_bytes_write(0), progress(0), next_progress_step(0),
+		enabled_logging(enabled_logging), logging_period(logging_period), logging_file_path(logging_file_path)
 	{
+		for (uint16_t cmdid = 0; cmdid < (uint16_t)(0xffffffff); cmdid++)
+			available_command_ids.insert(cmdid);
+		Host_IO_Reqeust* t= NULL;
+		for (uint16_t cmdid = 0; cmdid < nvme_submission_queue_size; cmdid++)
+			request_queue_in_memory.push_back(t);
+
 		switch (SSD_device_type)
 		{
 		case HostInterfaceType::SATA:
@@ -99,28 +107,42 @@ namespace Host_Components
 			break;
 		}
 	}
-
+	
 	IO_Flow_Base::~IO_Flow_Base()
 	{
-		for (auto req : enqueued_requests)
+		log_file.close();
+		for (auto &req : software_request_queue)
 			if (req.second)
 				delete req.second;
 
-		for(auto req : waiting_requests)
+		for(auto &req : waiting_requests)
 			if (req)
 				delete req;
+	}
+	void IO_Flow_Base::Start_simulation()
+	{
+		next_logging_milestone = logging_period;
+		log_file.open(logging_file_path, std::ofstream::out);
+		log_file << "Time\t" << "ReponseTime(us)\t" << "EndToEndDelay(us)"<< std::endl;
+		STAT_sum_device_response_time_short_term = 0;
+		STAT_serviced_request_count_short_term = 0;
 	}
 
 	void IO_Flow_Base::NVMe_consume_io_request(Completion_Queue_Entry* cqe)
 	{
 		//Find the request and update statistics
-		Host_IO_Reqeust* request = enqueued_requests[cqe->Command_Identifier];
-		enqueued_requests.erase(cqe->Command_Identifier);
+		Host_IO_Reqeust* request = software_request_queue[cqe->Command_Identifier];
+		software_request_queue.erase(cqe->Command_Identifier);
+		available_command_ids.insert(cqe->Command_Identifier);
 		sim_time_type device_response_time = Simulator->Time() - request->Enqueue_time;
 		sim_time_type request_delay = Simulator->Time() - request->Arrival_time;
 		STAT_serviced_request_count++;
+		STAT_serviced_request_count_short_term++;
+
 		STAT_sum_device_response_time += device_response_time;
+		STAT_sum_device_response_time_short_term += device_response_time;
 		STAT_sum_request_delay += request_delay;
+		STAT_sum_request_delay_short_term += request_delay;
 		if (device_response_time > STAT_max_device_response_time)
 			STAT_max_device_response_time = device_response_time;
 		if (device_response_time < STAT_min_device_response_time)
@@ -131,12 +153,6 @@ namespace Host_Components
 			STAT_min_request_delay = request_delay;
 		STAT_transferred_bytes_total = request->LBA_count * SECTOR_SIZE_IN_BYTE;
 		
-		if (STAT_serviced_request_count % 50000 == 0)
-		{
-			//DEBUG2("The request delay is:" << device_response_time /SIM_TIME_TO_MICROSECONDS_COEFF);
-			//DEBUG2("The avg request delay is:" << Get_device_response_time());
-		}
-
 		if (request->Type == Host_IO_Request_Type::READ)
 		{
 			STAT_serviced_read_request_count++;
@@ -176,14 +192,20 @@ namespace Host_Components
 
 		//If the submission queue is not full anymore, then enqueue waiting requests
 		if(waiting_requests.size() > 0)
-			if (!NVME_SQ_FULL(nvme_queue_pair))
+			if (!NVME_SQ_FULL(nvme_queue_pair) && available_command_ids.size() > 0)
 			{
 				Host_IO_Reqeust* new_req = waiting_requests.front();
 				waiting_requests.pop_front();
-				new_req->IO_queue_info = nvme_queue_pair.Submission_queue_tail++;
-				if (nvme_queue_pair.Submission_queue_tail == nvme_queue_pair.Submission_queue_size)
-					nvme_queue_pair.Submission_queue_tail = 0;
-				enqueued_requests[new_req->IO_queue_info] = new_req;
+				if (software_request_queue[*available_command_ids.begin()] != NULL)
+					PRINT_ERROR("Unexpteced situation in IO_Flow_Base! Overwriting a previously I/O request in the queue!")
+				else
+				{
+					new_req->IO_queue_info = *available_command_ids.begin();
+					software_request_queue[*available_command_ids.begin()] = new_req;
+					available_command_ids.erase(available_command_ids.begin());
+					request_queue_in_memory[nvme_queue_pair.Submission_queue_tail] = new_req;
+					UPDATE_SQ_TAIL(nvme_queue_pair);
+				}
 				new_req->Enqueue_time = Simulator->Time();
 				pcie_root_complex->Write_to_device(nvme_queue_pair.Submission_tail_register_address_on_device, nvme_queue_pair.Submission_queue_tail);//Based on NVMe protocol definition, the updated tail pointer should be informed to the device
 			}
@@ -214,12 +236,20 @@ namespace Host_Components
 			PRINT_MESSAGE(progress_bar << " " << progress << "% progress in " << ID() << std::endl)
 			next_progress_step += 5;
 		}
-	}
 
+		if (Simulator->Time() > next_logging_milestone)
+		{
+			log_file << Simulator->Time() << "\t" << Get_device_response_time_short_term() << "\t" << Get_end_to_end_request_delay_short_term() << std::endl;
+			STAT_sum_device_response_time_short_term = 0;
+			STAT_sum_request_delay_short_term = 0;
+			STAT_serviced_request_count_short_term = 0;
+			next_logging_milestone = Simulator->Time() + logging_period;
+		}
+	}
 	Submission_Queue_Entry* IO_Flow_Base::NVMe_read_sqe(uint64_t address)
 	{
 		Submission_Queue_Entry* sqe = new Submission_Queue_Entry;
-		Host_IO_Reqeust* request = enqueued_requests[(uint16_t)((address - nvme_queue_pair.Submission_queue_memory_base_address) / sizeof(Submission_Queue_Entry))];
+		Host_IO_Reqeust* request = request_queue_in_memory[(uint16_t)((address - nvme_queue_pair.Submission_queue_memory_base_address) / sizeof(Submission_Queue_Entry))];
 		if (request == NULL)
 			throw std::invalid_argument(this->ID() + ": Request to access a submission queue entry that does not exist.");
 		sqe->Command_Identifier = request->IO_queue_info;
@@ -243,20 +273,25 @@ namespace Host_Components
 		}
 		return sqe;
 	}
-
 	void IO_Flow_Base::submit_io_request(Host_IO_Reqeust* request)
 	{
 		switch (SSD_device_type)
 		{
 		case HostInterfaceType::NVME:
-			if (NVME_SQ_FULL(nvme_queue_pair))
+			if (NVME_SQ_FULL(nvme_queue_pair) || available_command_ids.size() == 0)//If either of software or hardware queue is full
 				waiting_requests.push_back(request);
 			else
 			{
-				request->IO_queue_info = nvme_queue_pair.Submission_queue_tail++;
-				if (nvme_queue_pair.Submission_queue_tail == nvme_queue_pair.Submission_queue_size)
-					nvme_queue_pair.Submission_queue_tail = 0;
-				enqueued_requests[request->IO_queue_info] = request;
+				if (software_request_queue[*available_command_ids.begin()] != NULL)
+					PRINT_ERROR("Unexpteced situation in IO_Flow_Base! Overwriting a previously I/O request in the queue!")
+				else
+				{
+					request->IO_queue_info = *available_command_ids.begin();
+					software_request_queue[*available_command_ids.begin()] = request;
+					available_command_ids.erase(available_command_ids.begin());
+					request_queue_in_memory[nvme_queue_pair.Submission_queue_tail] = request;
+					UPDATE_SQ_TAIL(nvme_queue_pair);
+				}
 				request->Enqueue_time = Simulator->Time();
 				pcie_root_complex->Write_to_device(nvme_queue_pair.Submission_tail_register_address_on_device, nvme_queue_pair.Submission_queue_tail);//Based on NVMe protocol definition, the updated tail pointer should be informed to the device
 			}
@@ -265,7 +300,6 @@ namespace Host_Components
 			break;
 		}
 	}
-
 	void IO_Flow_Base::NVMe_update_and_submit_completion_queue_tail()
 	{
 		nvme_queue_pair.Completion_queue_head++;
@@ -273,60 +307,66 @@ namespace Host_Components
 			nvme_queue_pair.Completion_queue_head = 0;
 		pcie_root_complex->Write_to_device(nvme_queue_pair.Completion_head_register_address_on_device, nvme_queue_pair.Completion_queue_head);//Based on NVMe protocol definition, the updated head pointer should be informed to the device
 	}
-	
 	const NVMe_Queue_Pair* IO_Flow_Base::Get_nvme_queue_pair_info()
 	{
 		return &nvme_queue_pair;
 	}
-
-	LSA_type IO_Flow_Base::Get_start_lsa_on_device() 
+	
+	LHA_type IO_Flow_Base::Get_start_lsa_on_device() 
 	{
 		return start_lsa_on_device;
 	}
-	
-	LSA_type IO_Flow_Base::Get_end_lsa_address_on_device()
+	LHA_type IO_Flow_Base::Get_end_lsa_address_on_device()
 	{
 		return end_lsa_on_device;
 	}
-
 	uint32_t IO_Flow_Base::Get_generated_request_count()
 	{
 		return STAT_generated_request_count;
 	}
-
 	uint32_t IO_Flow_Base::Get_serviced_request_count()
 	{
 		return STAT_serviced_request_count;
 	}
-
 	uint32_t IO_Flow_Base::Get_device_response_time()
 	{
+		if (STAT_serviced_request_count == 0)
+			return 0;
 		return (uint32_t)(STAT_sum_device_response_time / STAT_serviced_request_count / SIM_TIME_TO_MICROSECONDS_COEFF);
 	}
-
 	uint32_t IO_Flow_Base::Get_min_device_response_time()
 	{
 		return (uint32_t)(STAT_min_device_response_time / SIM_TIME_TO_MICROSECONDS_COEFF);
 	}
-
 	uint32_t IO_Flow_Base::Get_max_device_response_time()
 	{
 		return (uint32_t)(STAT_max_device_response_time / SIM_TIME_TO_MICROSECONDS_COEFF);
 	}
-
 	uint32_t IO_Flow_Base::Get_end_to_end_request_delay()
 	{
+		if (STAT_serviced_request_count == 0)
+			return 0;
 		return (uint32_t)(STAT_sum_request_delay / STAT_serviced_request_count / SIM_TIME_TO_MICROSECONDS_COEFF);
 	}
-
 	uint32_t IO_Flow_Base::Get_min_end_to_end_request_delay()
 	{
 		return (uint32_t)(STAT_min_request_delay / SIM_TIME_TO_MICROSECONDS_COEFF);
 	}
-
 	uint32_t IO_Flow_Base::Get_max_end_to_end_request_delay()
 	{
 		return (uint32_t)(STAT_max_request_delay / SIM_TIME_TO_MICROSECONDS_COEFF);
+	}
+	uint32_t IO_Flow_Base::Get_device_response_time_short_term()
+	{
+		if (STAT_serviced_request_count_short_term == 0)
+			return 0;
+		return (uint32_t)(STAT_sum_device_response_time_short_term / STAT_serviced_request_count_short_term / SIM_TIME_TO_MICROSECONDS_COEFF);
+	}
+	uint32_t IO_Flow_Base::Get_end_to_end_request_delay_short_term()
+	{
+		if (STAT_serviced_request_count == 0)
+			return 0;
+		return (uint32_t)(STAT_sum_request_delay_short_term / STAT_serviced_request_count_short_term / SIM_TIME_TO_MICROSECONDS_COEFF);
 	}
 
 	void IO_Flow_Base::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)

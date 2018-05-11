@@ -6,7 +6,7 @@ namespace NVM
 	{
 		Die::Die(unsigned int PlanesNoPerDie, unsigned int BlocksNoPerPlane, unsigned int PagesNoPerBlock) :
 			Plane_no(PlanesNoPerDie),
-			Status(DieStatus::IDLE), CommandFinishEvent(NULL), ExpectedFinishTime(INVALID_TIME), RemainingSuspendedExecTime(INVALID_TIME),
+			Status(DieStatus::IDLE), CommandFinishEvent(NULL), Expected_finish_time(INVALID_TIME), RemainingSuspendedExecTime(INVALID_TIME),
 			CurrentCMD(NULL), SuspendedCMD(NULL), Suspended(false),
 			STAT_TotalProgramTime(0), STAT_TotalReadTime(0), STAT_TotalEraseTime(0), STAT_TotalXferTime(0)
 		{

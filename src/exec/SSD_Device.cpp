@@ -8,14 +8,17 @@
 #include "../ssd/Address_Mapping_Unit_Hybrid.h"
 #include "../ssd/GC_and_WL_Unit_Page_Level.h"
 #include "../ssd/TSU_OutofOrder.h"
+#include "../ssd/TSU_FLIN.h"
 #include "../ssd/ONFI_Channel_NVDDR2.h"
 #include "../ssd/NVM_PHY_ONFI_NVDDR2.h"
 
+SSD_Device * SSD_Device::my_instance;//Used in static functions
 
 SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Parameter_Set*>* io_flows) :
 	MQSimEngine::Sim_Object("SSDDevice")
 {
 	SSD_Device* device = this;
+	my_instance = device;//used for static functions
 	Simulator->AddObject(device);
 
 	device->Preconditioning_required = parameters->Enabled_Preconditioning;
@@ -26,6 +29,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 	case NVM::NVM_Type::FLASH:
 	{
 		sim_time_type * read_latencies, *write_latencies;
+		sim_time_type average_flash_read_latency = 0, average_flash_write_latency = 0;//Required for FTL initialization
 
 		//Step 1: create memory chips (flash chips in our case)
 		switch (parameters->Flash_Parameters.Flash_Technology)
@@ -35,6 +39,8 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 			read_latencies[0] = parameters->Flash_Parameters.Page_Read_Latency_LSB;
 			write_latencies = new sim_time_type[1];
 			write_latencies[0] = parameters->Flash_Parameters.Page_Program_Latency_LSB;
+			average_flash_read_latency = read_latencies[0];
+			average_flash_write_latency = write_latencies[0];
 			break;
 		case Flash_Technology_Type::MLC:
 			read_latencies = new sim_time_type[2];
@@ -43,6 +49,8 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 			write_latencies = new sim_time_type[2];
 			write_latencies[0] = parameters->Flash_Parameters.Page_Program_Latency_LSB;
 			write_latencies[1] = parameters->Flash_Parameters.Page_Program_Latency_MSB;
+			average_flash_read_latency = (read_latencies[0] + read_latencies[1]) / 2;
+			average_flash_write_latency = (write_latencies[0] + write_latencies[1]) / 2;
 			break;
 		case Flash_Technology_Type::TLC:
 			read_latencies = new sim_time_type[3];
@@ -53,6 +61,8 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 			write_latencies[0] = parameters->Flash_Parameters.Page_Program_Latency_LSB;
 			write_latencies[1] = parameters->Flash_Parameters.Page_Program_Latency_CSB;
 			write_latencies[2] = parameters->Flash_Parameters.Page_Program_Latency_MSB;
+			average_flash_read_latency = (read_latencies[0] + read_latencies[1] + read_latencies[2]) / 3;
+			average_flash_write_latency = (write_latencies[0] + write_latencies[1] + write_latencies[2]) / 3;
 			break;
 		default:
 			throw std::invalid_argument("The specified flash technologies is not supported");
@@ -97,7 +107,12 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		delete[] write_latencies;
 
 		//Steps 4 - 8: create FTL components and connect them together
-		SSD_Components::FTL* ftl = new SSD_Components::FTL(device->ID() + ".FTL", NULL, parameters->Seed++);
+		SSD_Components::FTL* ftl = new SSD_Components::FTL(device->ID() + ".FTL", NULL, parameters->Flash_Channel_Count,
+			parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
+			parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
+			parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, average_flash_read_latency, average_flash_write_latency, parameters->Overprovisioning_Ratio,
+			parameters->Flash_Parameters.Block_PE_Cycles_Limit, parameters->Seed++);
+		ftl->PHY = (SSD_Components::NVM_PHY_ONFI*)PHY;
 		Simulator->AddObject(ftl);
 		device->Firmware = ftl;
 
@@ -122,6 +137,26 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 				parameters->Preferred_suspend_write_time_for_read, parameters->Preferred_suspend_erase_time_for_read, parameters->Preferred_suspend_erase_time_for_write,
 				erase_suspension, program_suspension);
 			break;
+		case SSD_Components::Flash_Scheduling_Type::FLIN:
+		{
+			unsigned int * stream_count_per_priority_class = new unsigned int[4];
+			for (int i = 0; i < 4; i++)
+				stream_count_per_priority_class[i] = 0;
+			for (auto &flow : (*io_flows))
+				stream_count_per_priority_class[(int)flow->Priority_Class]++;
+			stream_id_type** stream_ids_per_priority_class = new stream_id_type*[4];
+			for (int i = 0; i < 4; i++)
+				stream_ids_per_priority_class[i] = new stream_id_type[stream_count_per_priority_class[i]];
+
+			tsu = new SSD_Components::TSU_FLIN(ftl->ID() + ".TSU", ftl, static_cast<SSD_Components::NVM_PHY_ONFI_NVDDR2*>(device->PHY),
+				parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel,
+				parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die, parameters->Flash_Parameters.Page_Capacity,
+				10000000, 33554432, 262144, 4, (unsigned int)io_flows->size(), stream_count_per_priority_class, stream_ids_per_priority_class,
+				0.6,
+				parameters->Preferred_suspend_write_time_for_read, parameters->Preferred_suspend_erase_time_for_read, parameters->Preferred_suspend_erase_time_for_write,
+				erase_suspension, program_suspension);
+			break;
+		}
 		default:
 			throw std::invalid_argument("No implementation is available for the specified transaction scheduling algorithm");
 		}
@@ -186,18 +221,23 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		}
 		Simulator->AddObject(amu);
 		ftl->Address_Mapping_Unit = amu;
-		LSA_type total_logical_sectors_in_SSD = 0;
+		LHA_type total_logical_sectors_in_SSD = 0;
 		for (stream_id_type stream_id = 0; stream_id < io_flows->size(); stream_id++)
 			total_logical_sectors_in_SSD += amu->Get_logical_sectors_count(stream_id);
 
 		//Step 8: create GC_and_WL_unit
+		double max_rho = 0;
+		for (unsigned int i = 0; i < io_flows->size(); i++)
+			if ((*io_flows)[i]->Initial_Occupancy_Percentage > max_rho)
+				max_rho = (*io_flows)[i]->Initial_Occupancy_Percentage;
+		max_rho /= 100;//Convert from percentage to a value between zero and 1
 		SSD_Components::GC_and_WL_Unit_Base* gcwl;
 		gcwl = new SSD_Components::GC_and_WL_Unit_Page_Level(ftl->ID() + ".GCandWLUnit", amu, fbm, tsu, (SSD_Components::NVM_PHY_ONFI*)device->PHY,
 			parameters->GC_Block_Selection_Policy, parameters->GC_Exec_Threshold, parameters->Preemptible_GC_Enabled, parameters->GC_Hard_Threshold,
 			parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel,
 			parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 			parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
-			parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Use_Copyback_for_GC, 
+			parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Use_Copyback_for_GC, max_rho, 10,
 			parameters->Seed++);
 		Simulator->AddObject(gcwl);
 		fbm->Set_GC_and_WL_Unit(gcwl);
@@ -267,8 +307,10 @@ void SSD_Device::Perform_preconditioning(std::vector<Preconditioning::Workload_S
 {
 	if (Preconditioning_required)
 	{
+		PRINT_MESSAGE("SSD Device preconditioning started.........");
 		this->Cache_manager->Do_warmup(workload_stats);
-		((SSD_Components::FTL*)this->Firmware)->Perform_precondition(workload_stats);
+		this->Firmware->Perform_precondition(workload_stats);
+		PRINT_MESSAGE("Finished preconditioning.");
 	}
 }
 
@@ -284,15 +326,30 @@ void SSD_Device::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter
 	tmp = ID();
 	xmlwriter.Write_open_tag(tmp);
 
+	this->Host_interface->Report_results_in_XML(ID(), xmlwriter);
 	if (Memory_Type == NVM::NVM_Type::FLASH)
 	{
 		((SSD_Components::FTL*)this->Firmware)->Report_results_in_XML(ID(), xmlwriter);
 		((SSD_Components::FTL*)this->Firmware)->TSU->Report_results_in_XML(ID(), xmlwriter);
+
+		for (unsigned int channel_cntr = 0; channel_cntr < Channel_count; channel_cntr++)
+			for (unsigned int chip_cntr = 0; chip_cntr < Chip_no_per_channel; chip_cntr++)
+				((SSD_Components::ONFI_Channel_NVDDR2*)Channels[channel_cntr])->Chips[chip_cntr]->Report_results_in_XML(ID(), xmlwriter);
 	}
 	xmlwriter.Write_close_tag();
 }
 
-unsigned int SSD_Device::Get_NVM_write_unit_size_in_sectors()
+unsigned int SSD_Device::Get_no_of_LHAs_in_an_NVM_write_unit()
 {
-	return Host_interface->Get_sector_no_per_NVM_write_unit();
+	return Host_interface->Get_no_of_LHAs_in_an_NVM_write_unit();
+}
+
+LPA_type SSD_Device::Convert_host_logical_address_to_device_address(LHA_type lha)
+{
+	return my_instance->Firmware->Convert_host_logical_address_to_device_address(lha);
+}
+
+page_status_type SSD_Device::Find_NVM_subunit_access_bitmap(LHA_type lha)
+{
+	return my_instance->Firmware->Find_NVM_subunit_access_bitmap(lha);
 }

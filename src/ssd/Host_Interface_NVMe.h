@@ -14,15 +14,17 @@ namespace SSD_Components
 	class Input_Stream_NVMe : public Input_Stream_Base
 	{
 	public:
-		Input_Stream_NVMe(LSA_type start_logical_sector_address, LSA_type end_logical_sector_address,
+		Input_Stream_NVMe(IO_Flow_Priority_Class priority_class, LHA_type start_logical_sector_address, LHA_type end_logical_sector_address,
 			uint64_t submission_queue_base_address, uint16_t submission_queue_size,
 			uint64_t completion_queue_base_address, uint16_t completion_queue_size) : Input_Stream_Base(),
+			Priority_class(priority_class),
 			Start_logical_sector_address(start_logical_sector_address), End_logical_sector_address(end_logical_sector_address),
 			Submission_queue_base_address(submission_queue_base_address), Submission_queue_size(submission_queue_size),
 			Completion_queue_base_address(completion_queue_base_address), Completion_queue_size(completion_queue_size),
 			Submission_head(0), Submission_head_informed_to_host(0), Submission_tail(0), Completion_head(0), Completion_tail(0), On_the_fly_requests(0){}
-		LSA_type Start_logical_sector_address;
-		LSA_type End_logical_sector_address;
+		IO_Flow_Priority_Class Priority_class;
+		LHA_type Start_logical_sector_address;
+		LHA_type End_logical_sector_address;
 		uint64_t Submission_queue_base_address;
 		uint16_t Submission_queue_size;
 		uint64_t Completion_queue_base_address;
@@ -43,7 +45,7 @@ namespace SSD_Components
 	public:
 		Input_Stream_Manager_NVMe(Host_Interface_Base* host_interface, uint16_t queue_fetch_szie);
 		unsigned int Queue_fetch_size;
-		stream_id_type Create_new_stream(LSA_type start_logical_sector_address, LSA_type end_logical_sector_address,
+		stream_id_type Create_new_stream(IO_Flow_Priority_Class priority_class, LHA_type start_logical_sector_address, LHA_type end_logical_sector_address,
 			uint64_t submission_queue_base_address, uint16_t submission_queue_size,
 			uint64_t completion_queue_base_address, uint16_t completion_queue_size);
 		void Submission_queue_tail_pointer_update(stream_id_type stream_id, uint16_t tail_pointer_value);
@@ -53,6 +55,7 @@ namespace SSD_Components
 		void Handle_serviced_request(User_Request* request);
 		uint16_t Get_submission_queue_depth(stream_id_type stream_id);
 		uint16_t Get_completion_queue_depth(stream_id_type stream_id);
+		IO_Flow_Priority_Class Get_priority_class(stream_id_type stream_id);
 	private:
 		void segment_user_request(User_Request* user_request);
 		void inform_host_request_completed(stream_id_type stream_id, User_Request* request);
@@ -78,10 +81,10 @@ namespace SSD_Components
 		friend class Input_Stream_Manager_NVMe;
 		friend class Request_Fetch_Unit_NVMe;
 	public:
-		Host_Interface_NVMe(const sim_object_id_type& id, LSA_type max_logical_sector_address,
+		Host_Interface_NVMe(const sim_object_id_type& id, LHA_type max_logical_sector_address,
 			uint16_t submission_queue_depth, uint16_t completion_queue_depth,
 			unsigned int no_of_input_streams, uint16_t queue_fetch_size, unsigned int sectors_per_page, Data_Cache_Manager_Base* cache);
-		stream_id_type Create_new_stream(LSA_type start_logical_sector_address, LSA_type end_logical_sector_address,
+		stream_id_type Create_new_stream(IO_Flow_Priority_Class priority_class, LHA_type start_logical_sector_address, LHA_type end_logical_sector_address,
 			uint64_t submission_queue_base_address, uint64_t completion_queue_base_address);
 		void Start_simulation();
 		void Validate_simulation_config();
@@ -89,6 +92,7 @@ namespace SSD_Components
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
 		uint16_t Get_submission_queue_depth();
 		uint16_t Get_completion_queue_depth();
+		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 	private:
 		uint16_t submission_queue_depth, completion_queue_depth;
 		unsigned int no_of_input_streams;

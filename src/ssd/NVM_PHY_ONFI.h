@@ -19,9 +19,9 @@ namespace SSD_Components
 	{
 	public:
 		NVM_PHY_ONFI(sim_object_id_type id,
-			unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie)
+			unsigned int ChannelCount, unsigned int chip_no_per_channel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie)
 			: NVM_PHY_Base(id),
-			channel_count(ChannelCount), ChipNoPerChannel(ChipNoPerChannel), die_no_per_chip(DieNoPerChip), plane_no_per_die(PlaneNoPerDie){}
+			channel_count(ChannelCount), chip_no_per_channel(chip_no_per_channel), die_no_per_chip(DieNoPerChip), plane_no_per_die(PlaneNoPerDie){}
 		~NVM_PHY_ONFI() {};
 
 
@@ -29,7 +29,7 @@ namespace SSD_Components
 		virtual NVM::FlashMemory::Flash_Chip* GetChip(flash_channel_ID_type channelID, flash_chip_ID_type chipID) = 0;
 		virtual bool HasSuspendedCommand(NVM::FlashMemory::Flash_Chip* chip) = 0;
 		virtual ChipStatus GetChipStatus(NVM::FlashMemory::Flash_Chip* chip) = 0;
-		virtual sim_time_type ExpectedFinishTime(NVM::FlashMemory::Flash_Chip* chip) = 0;
+		virtual sim_time_type Expected_finish_time(NVM::FlashMemory::Flash_Chip* chip) = 0;
 		/// Provides communication between controller and NVM chips for a simple read/write/erase command.
 		virtual void Send_command_to_chip(std::list<NVM_Transaction_Flash*>& transactionList) = 0;
 		virtual void Change_flash_page_status_for_preconditioning(const NVM::FlashMemory::Physical_Page_Address& page_address, const LPA_type lpa) = 0;
@@ -42,7 +42,7 @@ namespace SSD_Components
 		void ConnectToChipIdleSignal(ChipIdleHandlerType);
 	protected:
 		unsigned int channel_count;
-		unsigned int ChipNoPerChannel;
+		unsigned int chip_no_per_channel;
 		unsigned int die_no_per_chip;
 		unsigned int plane_no_per_die;
 		std::vector<TransactionServicedHandlerType> connectedTransactionServicedHandlers;

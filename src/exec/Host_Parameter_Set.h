@@ -10,6 +10,8 @@ class Host_Parameter_Set : public Parameter_Set_Base
 public:
 	static double PCIe_Lane_Bandwidth;//uint is GB/s
 	static unsigned int PCIe_Lane_Count;
+	static bool Enable_ResponseTime_Logging;
+	static sim_time_type ResponseTime_Logging_Period_Length;
 	static std::vector<IO_Flow_Parameter_Set*> IO_Flow_Definitions;
 
 	void XML_serialize(Utils::XmlWriter& xmlwriter);

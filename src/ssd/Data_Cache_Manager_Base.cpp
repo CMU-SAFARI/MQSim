@@ -44,6 +44,18 @@ namespace SSD_Components
 			(*it)(nvm_transaction);
 	}
 
+	void Data_Cache_Manager_Base::Connect_to_user_memory_transaction_serviced_signal(MemoryTransactionServicedSignalHanderType function)
+	{
+		connected_user_memory_transaction_serviced_signal_handlers.push_back(function);
+	}
+
+	void Data_Cache_Manager_Base::broadcast_user_memory_transaction_serviced_signal(NVM_Transaction* transaction)
+	{
+		for (std::vector<MemoryTransactionServicedSignalHanderType>::iterator it = connected_user_memory_transaction_serviced_signal_handlers.begin();
+			it != connected_user_memory_transaction_serviced_signal_handlers.end(); it++)
+			(*it)(transaction);
+	}
+
 	void Data_Cache_Manager_Base::handle_user_request_arrived_signal(User_Request* user_request)
 	{
 		_my_instance->process_new_user_request(user_request);

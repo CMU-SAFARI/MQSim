@@ -32,6 +32,8 @@ namespace SSD_Components
 
 		typedef void(*UserRequestServicedSignalHanderType) (User_Request*);
 		void Connect_to_user_request_serviced_signal(UserRequestServicedSignalHanderType);
+		typedef void(*MemoryTransactionServicedSignalHanderType) (NVM_Transaction*);
+		void Connect_to_user_memory_transaction_serviced_signal(MemoryTransactionServicedSignalHanderType);
 		void Set_host_interface(Host_Interface_Base* host_interface);
 		virtual void Do_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats) = 0;
 	protected:
@@ -49,6 +51,9 @@ namespace SSD_Components
 
 		std::vector<UserRequestServicedSignalHanderType> connected_user_request_serviced_signal_handlers;
 		void broadcast_user_request_serviced_signal(User_Request* user_request);
+
+		std::vector<MemoryTransactionServicedSignalHanderType> connected_user_memory_transaction_serviced_signal_handlers;
+		void broadcast_user_memory_transaction_serviced_signal(NVM_Transaction* transaction);
 
 		static void handle_user_request_arrived_signal(User_Request* user_request);
 		virtual void process_new_user_request(User_Request* user_request) = 0;

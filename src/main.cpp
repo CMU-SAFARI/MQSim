@@ -177,6 +177,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_1->Variance_Request_Size = 0;
 		io_flow_1->Seed = 12344;
 		io_flow_1->Average_No_of_Reqs_in_Queue = 2;
+		io_flow_1->Intensity = 200;
 		io_flow_1->Stop_Time = 1000000000;
 		io_flow_1->Total_Requests_To_Generate = 0;
 		scenario_definition->push_back(io_flow_1);
@@ -207,6 +208,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Variance_Request_Size = 0;
 		io_flow_2->Seed = 6533;
 		io_flow_2->Average_No_of_Reqs_in_Queue = 2;
+		io_flow_2->Intensity = 100;
 		io_flow_2->Stop_Time = 1000000000;
 		io_flow_2->Total_Requests_To_Generate = 0;
 		scenario_definition->push_back(io_flow_2);
@@ -316,6 +318,6 @@ int main(int argc, char* argv[])
 		collect_results(ssd, host, (workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of(".")) + "_scenario_" + std::to_string(cntr) + ".xml").c_str());
 	}
 
-	//cin.get();
+	cin.get();
 	return 0;
 }

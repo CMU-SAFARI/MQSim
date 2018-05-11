@@ -17,7 +17,8 @@ namespace SSD_Components
 			GC_Block_Selection_Policy_Type block_selection_policy, double gc_threshold, bool preemptible_gc_enabled, double gc_hard_threshold,
 			unsigned int channel_count, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die,
 			unsigned int block_no_per_plane, unsigned int page_no_per_block, unsigned int sectors_per_page, 
-			bool use_copyback, int seed = 432, unsigned int max_ongoing_gc_reqs_per_plane = 10);
+			bool use_copyback, double rho, unsigned int max_ongoing_gc_reqs_per_plane = 10, 
+			bool dynamic_wearleveling_enabled = true, bool static_wearleveling_enabled = true, unsigned int static_wearleveling_threshold = 100, int seed = 432);
 
 		/*This function is used for implementing preemptible GC execution. If for a flash chip the free block
 		* pool becomes close to empty, then the GC requests for that flash chip should be prioritized and
@@ -28,15 +29,7 @@ namespace SSD_Components
 		void Check_wl_required(const double static_wl_factor, const NVM::FlashMemory::Physical_Page_Address plane_address);
 	private:
 		NVM_PHY_ONFI * flash_controller;
-		bool use_copyback;
-		bool is_wf(PlaneBookKeepingType* pbke, flash_block_ID_type gc_candidate_block_id);
 
-		//Following variabels are used based on the type of GC block selection policy
-		unsigned int rga_set_size;//The number of random flash blocks that are radnomly selected 
-		Utils::RandomGenerator random_generator;
-		unsigned int random_pp_threshold;
-		std::queue<BlockPoolSlotType*> block_usage_fifo;
-		unsigned int max_ongoing_gc_reqs_per_plane;
 	};
 }
 #endif // !GC_AND_WL_UNIT_PAGE_LEVEL_H

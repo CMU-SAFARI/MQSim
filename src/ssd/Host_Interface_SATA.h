@@ -7,6 +7,7 @@ namespace SSD_Components
 {
 	class Host_Interface_SATA : public Host_Interface_Base
 	{
+		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 	};
 }
 

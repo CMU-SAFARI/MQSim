@@ -19,7 +19,7 @@ namespace NVM
 			unsigned int Plane_no;
 			DieStatus Status;
 			MQSimEngine::Sim_Event* CommandFinishEvent;
-			sim_time_type ExpectedFinishTime;
+			sim_time_type Expected_finish_time;
 			sim_time_type RemainingSuspendedExecTime;//used to support suspend command
 			Flash_Command* CurrentCMD, *SuspendedCMD;
 			bool Suspended;

@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-enum class IO_Flow_Priority_Class { URGENT, HIGH, MEDIUM, LOW };
+enum class IO_Flow_Priority_Class { URGENT = 1, HIGH = 2, MEDIUM = 3, LOW = 4};
 enum class HostInterfaceType { SATA, NVME };
 
 #define NVME_FLUSH_OPCODE 0x0000
@@ -33,7 +33,7 @@ struct Completion_Queue_Entry
 {
 	uint32_t Command_specific;
 	uint32_t Reserved;
-	uint16_t SQ_Head; //SQ Head Pointer, ndicates the current Submission Queue Head pointer for the Submission Queue indicated in the SQ Identifier field
+	uint16_t SQ_Head; //SQ Head Pointer, Indicates the current Submission Queue Head pointer for the Submission Queue indicated in the SQ Identifier field
 	uint16_t SQ_ID;//SQ Identifier, Indicates the Submission Queue to which the associated command was issued to.
 	uint16_t Command_Identifier;//Command Identifier, Indicates the identifier of the command that is being completed
 	uint16_t SF_P; //Status Field (SF)+ Phase Tag(P)

@@ -9,7 +9,7 @@
 //enum class Memory_Type {FLASH};
 
 typedef uint32_t host_pointer_type;
-typedef uint64_t LSA_type;
+typedef uint64_t LHA_type;//Logical Host Address, the addresses unit on the host-side. As of 2018, LHA is mainly a sector (i.e., 512B) but it could be as small as a cache-line (i.e., 64B) in future NVMs.
 typedef std::string io_request_type;
 typedef uint64_t data_cache_content_type;
 #define SECTOR_SIZE_IN_BYTE 512

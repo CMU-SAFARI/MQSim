@@ -29,6 +29,8 @@ namespace SSD_Components
 	class Flash_Block_Manager_Base;
 	class TSU_Base;
 	class NVM_PHY_ONFI;
+	class PlaneBookKeepingType;
+	class Block_Pool_Slot_Type;
 	/*
 	* This class implements thet the Garbage Collection and Wear Leveling module of MQSim.
 	*/
@@ -39,7 +41,9 @@ namespace SSD_Components
 			Address_Mapping_Unit_Base* address_mapping_unit, Flash_Block_Manager_Base* block_manager, TSU_Base* tsu, NVM_PHY_ONFI* flash_controller,
 			GC_Block_Selection_Policy_Type block_selection_policy, double gc_threshold,	bool preemptible_gc_enabled, double gc_hard_threshold,
 			unsigned int channel_count, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die,
-			unsigned int block_no_per_plane, unsigned int page_no_per_block, unsigned int sector_no_per_page);
+			unsigned int block_no_per_plane, unsigned int page_no_per_block, unsigned int sector_no_per_page,
+			bool use_copyback, double rho, unsigned int max_ongoing_gc_reqs_per_plane,
+			bool dynamic_wearleveling_enabled, bool static_wearleveling_enabled, unsigned int static_wearleveling_threshold, int seed);
 		void Setup_triggers();
 		void Start_simulation();
 		void Validate_simulation_config();
@@ -49,6 +53,10 @@ namespace SSD_Components
 		virtual void Check_gc_required(const unsigned int BlockPoolSize, const NVM::FlashMemory::Physical_Page_Address& planeAddress) = 0;
 		virtual void Check_wl_required(const double staticWLFactor, const NVM::FlashMemory::Physical_Page_Address planeAddress) = 0;
 		GC_Block_Selection_Policy_Type Get_gc_policy();
+		unsigned int Get_GC_policy_specific_parameter();//Returns the parameter specific to the GC block selection policy: threshold for random_pp, set_size for RGA
+		unsigned int Get_minimum_number_of_free_pages_before_GC();
+		bool Use_dynamic_wearleveling();
+		bool Use_static_wearleveling();
 	protected:
 		GC_Block_Selection_Policy_Type block_selection_policy;
 		static GC_and_WL_Unit_Base * _my_instance;
@@ -60,11 +68,23 @@ namespace SSD_Components
 		double gc_threshold;//As the ratio of free pages to the total number of physical pages
 		unsigned int block_pool_gc_threshold;
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
+		bool is_safe_gc_candidate(const PlaneBookKeepingType* pbke, const flash_block_ID_type gc_candidate_block_id);//Checks if block_address is a safe candidate for gc execution, i.e., 1) it is not a write frontier, and 2) there is no ongoing program operation
+		bool use_copyback;
+		bool dynamic_wearleveling_enabled;
+		bool static_wearleveling_enabled;
+		unsigned int static_wearleveling_threshold;
 
 		//Used to implement: "Preemptible I/O Scheduling of Garbage Collection for Solid State Drives", TCAD 2013.
 		bool preemptible_gc_enabled;
 		double gc_hard_threshold;
 		unsigned int block_pool_gc_hard_threshold;
+		unsigned int max_ongoing_gc_reqs_per_plane;
+
+		//Following variabels are used based on the type of GC block selection policy
+		unsigned int rga_set_size;//The number of random flash blocks that are radnomly selected 
+		Utils::RandomGenerator random_generator;
+		std::queue<Block_Pool_Slot_Type*> block_usage_fifo;
+		unsigned int random_pp_threshold;
 
 		unsigned int channel_count;
 		unsigned int chip_no_per_channel;

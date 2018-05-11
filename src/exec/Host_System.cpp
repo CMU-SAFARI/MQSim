@@ -20,7 +20,7 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 	Simulator->AddObject(this->Link);
 
 	//Create IO flows
-	LSA_type address_range_per_flow = ssd_host_interface->Get_max_logical_sector_address() / parameters->IO_Flow_Definitions.size();
+	LHA_type address_range_per_flow = ssd_host_interface->Get_max_logical_sector_address() / parameters->IO_Flow_Definitions.size();
 	for (uint16_t flow_id = 0; flow_id < parameters->IO_Flow_Definitions.size(); flow_id++)
 	{
 		Host_Components::IO_Flow_Base* io_flow = NULL;
@@ -40,8 +40,10 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 				((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth(),
 				flow_param->Priority_Class, flow_param->Read_Percentage / double(100.0), flow_param->Address_Distribution, flow_param->Percentage_of_Hot_Region / double(100.0),
 				flow_param->Request_Size_Distribution, flow_param->Average_Request_Size, flow_param->Variance_Request_Size,
-				Host_Components::Request_Generator_Type::DEMAND_BASED, 0, flow_param->Average_No_of_Reqs_in_Queue,
-				flow_param->Seed, flow_param->Stop_Time, flow_param->Total_Requests_To_Generate, ssd_host_interface->GetType(), this->PCIe_root_complex);
+				flow_param->Synthetic_Generator_Type, (flow_param->Intensity == 0? 0 :NanoSecondCoeff / (flow_param->Intensity / flow_param->Average_Request_Size)),
+				flow_param->Average_No_of_Reqs_in_Queue,
+				flow_param->Seed, flow_param->Stop_Time, flow_param->Initial_Occupancy_Percentage / double(100.0), flow_param->Total_Requests_To_Generate, ssd_host_interface->GetType(), this->PCIe_root_complex,
+				parameters->Enable_ResponseTime_Logging, parameters->ResponseTime_Logging_Period_Length, ".IO_Flow.Synth.No_" + std::to_string(flow_id) + ".log");
 			this->IO_flows.push_back(io_flow);
 			break;
 		}
@@ -52,8 +54,10 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 				address_range_per_flow * flow_id, address_range_per_flow * (flow_id + 1) - 1,
 				FLOW_ID_TO_Q_ID(flow_id), ((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_submission_queue_depth(),
 				((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth(),
-				flow_param->Priority_Class, flow_param->File_Path, flow_param->Time_Unit, flow_param->Relay_Count, flow_param->Percentage_To_Be_Executed,
-				ssd_host_interface->GetType(), this->PCIe_root_complex);
+				flow_param->Priority_Class, flow_param->Initial_Occupancy_Percentage / double(100.0),
+				flow_param->File_Path, flow_param->Time_Unit, flow_param->Relay_Count, flow_param->Percentage_To_Be_Executed,
+				ssd_host_interface->GetType(), this->PCIe_root_complex,
+				parameters->Enable_ResponseTime_Logging, parameters->ResponseTime_Logging_Period_Length, flow_param->File_Path + ".log");
 
 			this->IO_flows.push_back(io_flow);
 			break;
@@ -95,6 +99,7 @@ void Host_System::Start_simulation()
 	case HostInterfaceType::NVME:
 		for (uint16_t flow_cntr = 0; flow_cntr < IO_flows.size(); flow_cntr++)
 			((SSD_Components::Host_Interface_NVMe*) ssd_device->Host_interface)->Create_new_stream(
+				IO_flows[flow_cntr]->Priority_class(),
 				IO_flows[flow_cntr]->Get_start_lsa_on_device(), IO_flows[flow_cntr]->Get_end_lsa_address_on_device(),
 				IO_flows[flow_cntr]->Get_nvme_queue_pair_info()->Submission_queue_memory_base_address, IO_flows[flow_cntr]->Get_nvme_queue_pair_info()->Completion_queue_memory_base_address);
 		break;
@@ -105,7 +110,7 @@ void Host_System::Start_simulation()
 	}
 	std::vector<Preconditioning::Workload_Statistics*> workload_stats = get_workloads_statistics();
 	ssd_device->Perform_preconditioning(workload_stats);
-	for (auto stat : workload_stats)
+	for (auto &stat : workload_stats)
 		delete stat;
 }
 
@@ -131,7 +136,7 @@ void Host_System::Report_results_in_XML(std::string name_prefix, Utils::XmlWrite
 	tmp = ID();
 	xmlwriter.Write_open_tag(tmp);
 
-	for (auto flow : IO_flows)
+	for (auto &flow : IO_flows)
 		flow->Report_results_in_XML("Host", xmlwriter);
 
 	xmlwriter.Write_close_tag();
@@ -141,10 +146,10 @@ std::vector<Preconditioning::Workload_Statistics*> Host_System::get_workloads_st
 {
 	std::vector<Preconditioning::Workload_Statistics*> stats;
 
-	for (auto workload : IO_flows)
+	for (auto &workload : IO_flows)
 	{
 		Preconditioning::Workload_Statistics* s = new Preconditioning::Workload_Statistics;
-		workload->Get_statistics(*s);
+		workload->Get_statistics(*s, ssd_device->Convert_host_logical_address_to_device_address, ssd_device->Find_NVM_subunit_access_bitmap);
 		stats.push_back(s);
 	}
 

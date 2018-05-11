@@ -4,6 +4,7 @@
 #include "../../sim/Sim_Defs.h"
 #include "../../sim/Sim_Event.h"
 #include "../../sim/Engine.h"
+#include "../../sim/Sim_Reporter.h"
 #include "../NVM_Chip.h"
 #include "FlashTypes.h"
 #include "Die.h"
@@ -116,6 +117,8 @@ namespace NVM
 			void Resume(flash_die_ID_type dieID);
 			sim_time_type GetSuspendProgramTime();
 			sim_time_type GetSuspendEraseTime();
+			void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
+			LPA_type Get_lpa(flash_die_ID_type die_id, flash_plane_ID_type plane_id, flash_block_ID_type block_id, flash_page_ID_type page_id);//A hack for gc!!!!! It should be removed
 		private:
 			Flash_Technology_Type flash_technology;
 			Internal_Status status;

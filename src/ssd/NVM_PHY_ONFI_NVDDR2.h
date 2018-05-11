@@ -8,7 +8,7 @@
 #include "../nvm_chip/flash_memory/Flash_Command.h"
 #include "NVM_PHY_ONFI.h"
 #include "ONFI_Channel_NVDDR2.h"
-#include "FlashTransactionQueue.h"
+#include "Flash_Transaction_Queue.h"
 
 namespace SSD_Components
 {
@@ -34,14 +34,14 @@ namespace SSD_Components
 		NVM_Transaction_Flash* ActiveTransfer; //The current transaction 
 		bool Free;
 		bool Suspended;
-		sim_time_type ExpectedFinishTime;
+		sim_time_type Expected_finish_time;
 		sim_time_type RemainingExecTime;
 		sim_time_type DieInterleavedTime;//If the command transfer is done in die-interleaved mode, the transfer time is recorded in this temporary variable
 
 		void PrepareSuspend()
 		{
 			SuspendedCommand = ActiveCommand;
-			RemainingExecTime = ExpectedFinishTime - Simulator->Time();
+			RemainingExecTime = Expected_finish_time - Simulator->Time();
 			SuspendedTransactions.insert(SuspendedTransactions.begin(), ActiveTransactions.begin(), ActiveTransactions.end());
 			Suspended = true;
 			ActiveCommand = NULL;
@@ -51,7 +51,7 @@ namespace SSD_Components
 		void PrepareResume()
 		{
 			ActiveCommand = SuspendedCommand;
-			ExpectedFinishTime = Simulator->Time() + RemainingExecTime;
+			Expected_finish_time = Simulator->Time() + RemainingExecTime;
 			ActiveTransactions.insert(ActiveTransactions.begin(), SuspendedTransactions.begin(), SuspendedTransactions.end());
 			Suspended = false;
 			SuspendedCommand = NULL;
@@ -87,7 +87,7 @@ namespace SSD_Components
 	{
 	public:
 		NVM_PHY_ONFI_NVDDR2(const sim_object_id_type& id, ONFI_Channel_NVDDR2** channels,
-			unsigned int ChannelCount, unsigned int ChipNoPerChannel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie);
+			unsigned int ChannelCount, unsigned int chip_no_per_channel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie);
 		void Setup_triggers();
 		void Validate_simulation_config();
 		void Start_simulation();
@@ -99,7 +99,12 @@ namespace SSD_Components
 		NVM::FlashMemory::Flash_Chip* GetChip(flash_channel_ID_type channelID, flash_chip_ID_type chipID);
 		bool HasSuspendedCommand(NVM::FlashMemory::Flash_Chip* chip);
 		ChipStatus GetChipStatus(NVM::FlashMemory::Flash_Chip* chip);
-		sim_time_type ExpectedFinishTime(NVM::FlashMemory::Flash_Chip* chip);
+		sim_time_type Expected_finish_time(NVM::FlashMemory::Flash_Chip* chip);
+		sim_time_type Expected_finish_time(NVM_Transaction_Flash* transaction);
+		sim_time_type Expected_transfer_time(NVM_Transaction_Flash* transaction);
+		NVM_Transaction_Flash* Is_chip_busy_with_stream(NVM_Transaction_Flash* transaction);
+		bool Is_chip_busy(NVM_Transaction_Flash* transaction);
+		void Change_memory_status_preconditioning(const NVM::NVM_Memory_Address* address, const void* status_info);
 	private:
 		void transfer_read_data_from_chip(ChipBookKeepingEntry* chipBKE, DieBookKeepingEntry* dieBKE, NVM_Transaction_Flash* tr);
 		void perform_interleaved_cmd_data_transfer(NVM::FlashMemory::Flash_Chip* chip, DieBookKeepingEntry* bookKeepingEntry);
@@ -109,7 +114,7 @@ namespace SSD_Components
 		static NVM_PHY_ONFI_NVDDR2* _my_instance;
 		ONFI_Channel_NVDDR2** _Channels;
 		ChipBookKeepingEntry** bookKeepingTable;
-		FlashTransactionQueue *WaitingReadTX, *WaitingGCRead_TX, *WaitingMappingRead_TX;
+		Flash_Transaction_Queue *WaitingReadTX, *WaitingGCRead_TX, *WaitingMappingRead_TX;
 		std::list<DieBookKeepingEntry*> *WaitingCopybackWrites;
 	};
 }

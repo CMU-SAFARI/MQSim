@@ -19,13 +19,13 @@ namespace SSD_Components
 	}
 	Cache::~Cache()
 	{
-		for (auto slot : slots)
+		for (auto &slot : slots)
 		{
 			delete slot.second;
 			slots.erase(slot.first);
 		}
 
-		for (auto slot : lru_list)
+		for (auto &slot : lru_list)
 			slots.erase(slot.first);
 	}
 	DataCacheSlotType Cache::Get_slot(const stream_id_type stream_id, const LPA_type lpn)
@@ -194,7 +194,7 @@ namespace SSD_Components
 			break;
 		}
 		case SSD_Components::Cache_Sharing_Mode::EQUAL_PARTITIONING:
-			for (int i = 0; i < stream_count; i++)
+			for (unsigned int i = 0; i < stream_count; i++)
 				delete per_stream_cache[i];
 			break;
 		default:
@@ -215,7 +215,7 @@ namespace SSD_Components
 			waiting_access_request_queue.pop();
 		}
 
-		for (auto req : waiting_user_requests_queue)
+		for (auto &req : waiting_user_requests_queue)
 			delete req;
 	}
 
@@ -227,57 +227,111 @@ namespace SSD_Components
 
 	void Data_Cache_Manager_Flash::Do_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats)
 	{
-		for (auto stat : workload_stats)
+		double total_write_arrival_rate = 0, total_read_arrival_rate = 0;
+		switch (sharing_mode)
 		{
-			switch (caching_mode_per_input_stream[stat->Stream_id])
+		case Cache_Sharing_Mode::SHARED:
+			//Estimate read arrival and write arrival rate
+			//Estimate the queue length based on the arrival rate
+			for (auto &stat : workload_stats)
 			{
-			case Caching_Mode::TURNED_OFF:
-				break;
-			case Caching_Mode::READ_CACHE:
-				//Put items on cache based on the accessed addresses
-				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
+				switch (caching_mode_per_input_stream[stat->Stream_id])
 				{
-				}
-				else
-				{
-				}
-				break;
-			case Caching_Mode::WRITE_CACHE:
-				//Estimate the request arrival rate
-				//Estimate the request service rate
-				//Estimate the average size of requests in the cache
-				//Fillup the cache space based on accessed adddresses to the estimated average cache size
-				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
-				{
-					//Estimate average write service rate
-					unsigned int total_pages_accessed = 1;
-					/*double average_write_arrival_rate, stdev_write_arrival_rate;
-					double average_read_arrival_rate, stdev_read_arrival_rate;
-					double average_write_service_time, average_read_service_time;*/
-					switch (stat->Address_distribution_type)
+				case Caching_Mode::TURNED_OFF:
+					break;
+				case Caching_Mode::READ_CACHE:
+					if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 					{
-					case Utils::Address_Distribution_Type::STREAMING:
-						break;
-					case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
-						break;
-					case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
-						break;
 					}
+					else
+					{
+					}
+					break;
+				case Caching_Mode::WRITE_CACHE:
+					if (stat->Type == Utils::Workload_Type::SYNTHETIC)
+					{
+						unsigned int total_pages_accessed = 1;
+						switch (stat->Address_distribution_type)
+						{
+						case Utils::Address_Distribution_Type::STREAMING:
+							break;
+						case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+							break;
+						case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+							break;
+						}
+					}
+					else
+					{
+
+					}
+					break;
+				case Caching_Mode::WRITE_READ_CACHE:
+					//Put items on cache based on the accessed addresses
+					if (stat->Type == Utils::Workload_Type::SYNTHETIC)
+					{
+					}
+					else
+					{
+					}
+					break;
 				}
-				else
-				{
-				}
-				break;
-			case Caching_Mode::WRITE_READ_CACHE:
-				//Put items on cache based on the accessed addresses
-				if (stat->Type == Utils::Workload_Type::SYNTHETIC)
-				{
-				}
-				else
-				{
-				}
-				break;
 			}
+			break;
+		case Cache_Sharing_Mode::EQUAL_PARTITIONING:
+			for (auto &stat : workload_stats)
+			{
+				switch (caching_mode_per_input_stream[stat->Stream_id])
+				{
+				case Caching_Mode::TURNED_OFF:
+					break;
+				case Caching_Mode::READ_CACHE:
+					//Put items on cache based on the accessed addresses
+					if (stat->Type == Utils::Workload_Type::SYNTHETIC)
+					{
+					}
+					else
+					{
+					}
+					break;
+				case Caching_Mode::WRITE_CACHE:
+					//Estimate the request arrival rate
+					//Estimate the request service rate
+					//Estimate the average size of requests in the cache
+					//Fillup the cache space based on accessed adddresses to the estimated average cache size
+					if (stat->Type == Utils::Workload_Type::SYNTHETIC)
+					{
+						//Estimate average write service rate
+						unsigned int total_pages_accessed = 1;
+						/*double average_write_arrival_rate, stdev_write_arrival_rate;
+						double average_read_arrival_rate, stdev_read_arrival_rate;
+						double average_write_service_time, average_read_service_time;*/
+						switch (stat->Address_distribution_type)
+						{
+						case Utils::Address_Distribution_Type::STREAMING:
+							break;
+						case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+							break;
+						case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+							break;
+						}
+					}
+					else
+					{
+					}
+					break;
+				case Caching_Mode::WRITE_READ_CACHE:
+					//Put items on cache based on the accessed addresses
+					if (stat->Type == Utils::Workload_Type::SYNTHETIC)
+					{
+					}
+					else
+					{
+					}
+					break;
+				}
+			}
+			break;
 		}
 	}
 
@@ -321,7 +375,7 @@ namespace SSD_Components
 
 		if (back_pressure_buffer_depth < back_pressure_buffer_max_depth)//Eagerly write back the data while the back pressure bufer is not full
 		{
-			for (auto tr : user_request->Transaction_list)
+			for (auto &tr : user_request->Transaction_list)
 				per_stream_cache[user_request->Stream_id]->Change_slot_status_to_writeback(tr->Stream_id, ((NVM_Transaction_Flash_WR*)tr)->LPA);
 			back_pressure_buffer_depth += user_request->Sectors_serviced_from_cache;//All sectors written to the detage buffer (DRAM) should be written back
 			static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Translate_lpa_to_ppa_and_dispatch(user_request->Transaction_list);
@@ -394,7 +448,7 @@ namespace SSD_Components
 				case Caching_Mode::WRITE_CACHE://The data cache manger unit performs like a destage buffer
 				{
 					user_request->Cache_slot_to_reserve = 0;
-					for (auto tr : user_request->Transaction_list)
+					for (auto &tr : user_request->Transaction_list)
 					{
 						if (!per_stream_cache[tr->Stream_id]->Exists(tr->Stream_id, ((NVM_Transaction_Flash_WR*)tr)->LPA))//If the logical address already exists in the cache
 							user_request->Cache_slot_to_reserve++;
@@ -491,6 +545,8 @@ namespace SSD_Components
 		if (transaction->Source != Transaction_Source_Type::USERIO && transaction->Source != Transaction_Source_Type::CACHE)
 			return;
 
+		if (transaction->Source == Transaction_Source_Type::USERIO)
+			_my_instance->broadcast_user_memory_transaction_serviced_signal(transaction);
 		/* This is an update read (a read that is generated for a write request that partially updates page data).
 		*  An update read transaction is issued in Address Mapping Unit, but is consumed in data cache manager.*/
 		if (transaction->Type == Transaction_Type::READ)
@@ -626,7 +682,7 @@ namespace SSD_Components
 						//since the content of cache may be changed from time to time.
 						user_request->Cache_slot_to_reserve = 0;
 						user_request->Sectors_serviced_from_cache = 0;
-						for (auto tr : user_request->Transaction_list)
+						for (auto &tr : user_request->Transaction_list)
 						{
 							if (!((Data_Cache_Manager_Flash*)_my_instance)->per_stream_cache[tr->Stream_id]->Exists(tr->Stream_id, ((NVM_Transaction_Flash_WR*)tr)->LPA))//If the logical address already exists in the cache
 								user_request->Cache_slot_to_reserve++;

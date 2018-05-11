@@ -1,5 +1,5 @@
-#ifndef TSU_OUTOFORDER
-#define TSU_OUTOFORDER
+#ifndef TSU_OUTOFORDER_H
+#define TSU_OUTOFORDER_H
 
 #include <list>
 #include "TSU_Base.h"
@@ -22,12 +22,13 @@ namespace SSD_Components
 	class TSU_OutofOrder : public TSU_Base
 	{
 	public:
-		TSU_OutofOrder(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI_NVDDR2* NVMController, unsigned int Channel_no, unsigned int ChipNoPerChannel,
+		TSU_OutofOrder(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI_NVDDR2* NVMController, unsigned int Channel_no, unsigned int chip_no_per_channel,
 			unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 			sim_time_type WriteReasonableSuspensionTimeForRead,
 			sim_time_type EraseReasonableSuspensionTimeForRead,
 			sim_time_type EraseReasonableSuspensionTimeForWrite,
 			bool EraseSuspensionEnabled, bool ProgramSuspensionEnabled);
+		~TSU_OutofOrder();
 		void Prepare_for_transaction_submit();
 		void Submit_transaction(NVM_Transaction_Flash* transaction);
 		void Schedule();
@@ -35,11 +36,20 @@ namespace SSD_Components
 		void Start_simulation();
 		void Validate_simulation_config();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
+		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 	private:
+		Flash_Transaction_Queue** UserReadTRQueue;
+		Flash_Transaction_Queue** UserWriteTRQueue;
+		Flash_Transaction_Queue** GCReadTRQueue;
+		Flash_Transaction_Queue** GCWriteTRQueue;
+		Flash_Transaction_Queue** GCEraseTRQueue;
+		Flash_Transaction_Queue** MappingReadTRQueue;
+		Flash_Transaction_Queue** MappingWriteTRQueue;
+
 		bool service_read_transaction(NVM::FlashMemory::Flash_Chip* chip);
 		bool service_write_transaction(NVM::FlashMemory::Flash_Chip* chip);
 		bool service_erase_transaction(NVM::FlashMemory::Flash_Chip* chip);
 	};
 }
 
-#endif // TSU_OUTOFORDER
+#endif // TSU_OUTOFORDER_H

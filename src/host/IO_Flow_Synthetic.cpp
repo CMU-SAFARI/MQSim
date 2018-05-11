@@ -6,18 +6,20 @@
 namespace Host_Components
 {
 	IO_Flow_Synthetic::IO_Flow_Synthetic(const sim_object_id_type& name, 
-		LSA_type start_lsa_on_device, LSA_type end_lsa_on_device, double working_set_ratio,
+		LHA_type start_lsa_on_device, LHA_type end_lsa_on_device, double working_set_ratio,
 		uint16_t io_queue_id,
 		uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class priority_class,
 		double read_ratio, Utils::Address_Distribution_Type address_distribution,
 		double hot_region_ratio,
 		Utils::Request_Size_Distribution_Type request_size_distribution, unsigned int average_request_size, unsigned int variance_request_size,
-		Request_Generator_Type generator_type, sim_time_type average_inter_arrival_time, unsigned int average_number_of_enqueued_requests,
-		int seed, sim_time_type stop_time, unsigned int total_req_count, HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex) :
-		IO_Flow_Base(name, start_lsa_on_device * working_set_ratio, end_lsa_on_device * working_set_ratio, io_queue_id, nvme_submission_queue_size, nvme_completion_queue_size, priority_class, stop_time, total_req_count, SSD_device_type, pcie_root_complex), read_ratio(read_ratio), address_distribution(address_distribution),
+		Utils::Request_Generator_Type generator_type, sim_time_type Average_inter_arrival_time_nano_sec, unsigned int average_number_of_enqueued_requests,
+		int seed, sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_req_count, HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex,
+		bool enabled_logging, sim_time_type logging_period, std::string logging_file_path) :
+		IO_Flow_Base(name, start_lsa_on_device * working_set_ratio, end_lsa_on_device * working_set_ratio, io_queue_id, nvme_submission_queue_size, nvme_completion_queue_size, priority_class, stop_time, initial_occupancy_ratio, total_req_count, SSD_device_type, pcie_root_complex, enabled_logging, logging_period, logging_file_path),
+		read_ratio(read_ratio), address_distribution(address_distribution),
 		working_set_ratio(working_set_ratio), hot_region_ratio(hot_region_ratio),
 		request_size_distribution(request_size_distribution), average_request_size(average_request_size), variance_request_size(variance_request_size),
-		generator_type(generator_type), average_inter_arrival_time(average_inter_arrival_time), average_number_of_enqueued_requests(average_number_of_enqueued_requests),
+		generator_type(generator_type), Average_inter_arrival_time_nano_sec(Average_inter_arrival_time_nano_sec), average_number_of_enqueued_requests(average_number_of_enqueued_requests),
 		seed(seed)
 	{
 		if (read_ratio == 0.0)//If read ratio is 0, then we change its value to a negative one so that in request generation we never generate a read request
@@ -35,18 +37,21 @@ namespace Host_Components
 			random_hot_address_generator = new Utils::RandomGenerator(random_hot_address_generator_seed);
 			random_hot_cold_generator_seed = seed++;
 			random_hot_cold_generator = new Utils::RandomGenerator(random_hot_cold_generator_seed);
-			hot_region_end_lsa = this->start_lsa_on_device + (LSA_type)((double)(this->end_lsa_on_device - this->start_lsa_on_device) * hot_region_ratio);
+			hot_region_end_lsa = this->start_lsa_on_device + (LHA_type)((double)(this->end_lsa_on_device - this->start_lsa_on_device) * hot_region_ratio);
 		}
 		if (request_size_distribution == Utils::Request_Size_Distribution_Type::NORMAL)
 		{
 			random_request_size_generator_seed = seed++;
 			random_request_size_generator = new Utils::RandomGenerator(random_request_size_generator_seed);
 		}
-		if (generator_type == Request_Generator_Type::TIMED)
+		if (generator_type == Utils::Request_Generator_Type::ARRIVAL_RATE)
 		{
 			random_time_interval_generator_seed = seed++;
 			random_time_interval_generator = new Utils::RandomGenerator(random_time_interval_generator_seed);
 		}
+
+		if (this->working_set_ratio == 0)
+			PRINT_ERROR("The working set ratio is set zero for workload " << name)
 	}
 
 	IO_Flow_Synthetic::~IO_Flow_Synthetic()
@@ -145,7 +150,7 @@ namespace Host_Components
 	{
 		IO_Flow_Base::NVMe_consume_io_request(io_request);
 		IO_Flow_Base::NVMe_update_and_submit_completion_queue_tail();
-		if (generator_type == Request_Generator_Type::DEMAND_BASED)
+		if (generator_type == Utils::Request_Generator_Type::QUEUE_DEPTH)
 		{
 			Host_IO_Reqeust* request = Generate_next_request();
 			/* In the demand based execution mode, the Generate_next_request() function may return NULL
@@ -157,10 +162,12 @@ namespace Host_Components
 
 	void IO_Flow_Synthetic::Start_simulation() 
 	{
+		IO_Flow_Base::Start_simulation();
+
 		if (address_distribution == Utils::Address_Distribution_Type::STREAMING)
 			streaming_next_address = random_address_generator->Uniform_ulong(start_lsa_on_device, end_lsa_on_device);
-		if (generator_type == Request_Generator_Type::TIMED)
-			Simulator->Register_sim_event((sim_time_type)random_time_interval_generator->Exponential((double)average_inter_arrival_time), this, 0, 0);
+		if (generator_type == Utils::Request_Generator_Type::ARRIVAL_RATE)
+			Simulator->Register_sim_event((sim_time_type)random_time_interval_generator->Exponential((double)Average_inter_arrival_time_nano_sec), this, 0, 0);
 		else
 			Simulator->Register_sim_event((sim_time_type)1, this, 0, 0);
 	}
@@ -169,26 +176,44 @@ namespace Host_Components
 
 	void IO_Flow_Synthetic::Execute_simulator_event(MQSimEngine::Sim_Event* event)
 	{
-		if (generator_type == Request_Generator_Type::TIMED)
+		if (generator_type == Utils::Request_Generator_Type::ARRIVAL_RATE)
 		{
-			submit_io_request(Generate_next_request());
-			Simulator->Register_sim_event(Simulator->Time() + (sim_time_type)random_time_interval_generator->Exponential((double)average_inter_arrival_time), this, 0, 0);
+			Host_IO_Reqeust* req = Generate_next_request();
+			if (req != NULL)
+			{
+				submit_io_request(req);
+				Simulator->Register_sim_event(Simulator->Time() + (sim_time_type)random_time_interval_generator->Exponential((double)Average_inter_arrival_time_nano_sec), this, 0, 0);
+			}
 		}
 		else for (unsigned int i = 0; i < average_number_of_enqueued_requests; i++)
 			submit_io_request(Generate_next_request());
 	}
 
-	void IO_Flow_Synthetic::Get_statistics(Preconditioning::Workload_Statistics& stats)
+	void IO_Flow_Synthetic::Get_statistics(Preconditioning::Workload_Statistics& stats, LPA_type(*Convert_host_logical_address_to_device_address)(LHA_type lha),
+		page_status_type(*Find_NVM_subunit_access_bitmap)(LHA_type lha))
 	{
 		stats.Type = Utils::Workload_Type::SYNTHETIC;
-		stats.Stream_id = io_queue_id;
-		stats.Occupancy = working_set_ratio;
+		stats.generator_type = generator_type;
+		stats.Stream_id = io_queue_id - 1;
+		stats.Initial_occupancy_ratio = initial_occupancy_ratio;
+		stats.Working_set_ratio = working_set_ratio;
 		stats.Read_ratio = read_ratio;
-		stats.Request_queue_depth = average_number_of_enqueued_requests;
+		stats.random_request_type_generator_seed = random_request_type_generator_seed;
 		stats.Address_distribution_type = address_distribution;
-		stats.Hot_region_ratio = hot_region_ratio;
+		stats.Ratio_of_hot_addresses_to_whole_working_set = hot_region_ratio;
+		stats.Ratio_of_traffic_accessing_hot_region = 1 - hot_region_ratio;
+		stats.random_address_generator_seed = random_address_generator_seed;
+		stats.random_hot_address_generator_seed = random_hot_address_generator_seed;
+		stats.random_hot_cold_generator_seed = random_hot_cold_generator_seed;
 		stats.Request_size_distribution_type = request_size_distribution;
-		stats.Average_request_size = average_request_size;
+		stats.Average_request_size_sector = average_request_size;
 		stats.STDEV_reuqest_size = variance_request_size;
+		stats.random_request_size_generator_seed = random_request_size_generator_seed;
+		stats.Request_queue_depth = average_number_of_enqueued_requests;
+		stats.random_time_interval_generator_seed = random_time_interval_generator_seed;
+		stats.Average_inter_arrival_time_nano_sec = Average_inter_arrival_time_nano_sec;
+
+		stats.Min_LHA = start_lsa_on_device;
+		stats.Max_LHA = end_lsa_on_device;
 	}
 }
