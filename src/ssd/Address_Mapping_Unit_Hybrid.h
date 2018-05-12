@@ -30,7 +30,7 @@ namespace SSD_Components
 		void Store_mapping_table_on_flash_at_start();
 		LHA_type Get_logical_sectors_count(stream_id_type stream_id);
 		LPA_type Get_logical_pages_count(stream_id_type stream_id);
-		unsigned int Get_physical_pages_count(stream_id_type stream_id);
+		PPA_type Get_physical_pages_count(stream_id_type stream_id);
 		NVM::FlashMemory::Physical_Page_Address Convert_ppa_to_address(const PPA_type ppa);
 		void Convert_ppa_to_address(const PPA_type ppn, NVM::FlashMemory::Physical_Page_Address& address);
 		PPA_type Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress);

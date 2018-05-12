@@ -140,32 +140,30 @@ namespace SSD_Components
 	void Input_Stream_Manager_NVMe::segment_user_request(User_Request* user_request)
 	{
 		LHA_type lsa = user_request->Start_LBA;
+		LHA_type lsa2 = user_request->Start_LBA;
 		unsigned int req_size = user_request->SizeInSectors;
 
 		page_status_type access_status_bitmap = 0;
 		unsigned int hanled_sectors_count = 0;
 		unsigned int transaction_size = 0;
-
 		while (hanled_sectors_count < req_size)
-		{
+		{			
 			//Check if LSA is in the correct range allocted to the stream
-			if (lsa < ((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->Start_logical_sector_address
-				|| lsa >((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->End_logical_sector_address)
+			if (lsa < ((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->Start_logical_sector_address || lsa >((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->End_logical_sector_address)
 				lsa = ((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->Start_logical_sector_address
-					+ (lsa % (((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->End_logical_sector_address
-					- (((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->Start_logical_sector_address)));
-
-			lsa = lsa - ((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->Start_logical_sector_address;
+				+ (lsa % (((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->End_logical_sector_address - (((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->Start_logical_sector_address)));
+			LHA_type internal_lsa = lsa - ((Input_Stream_NVMe*)input_streams[user_request->Stream_id])->Start_logical_sector_address;//For each flow, all lsa's should be translated into a range starting from zero
+			
 
 			transaction_size = host_interface->sectors_per_page - (unsigned int)(lsa % host_interface->sectors_per_page);
 			if (hanled_sectors_count + transaction_size >= req_size)
 			{
 				transaction_size = req_size - hanled_sectors_count;
 			}
-			LPA_type lpa = lsa / host_interface->sectors_per_page;
+			LPA_type lpa = internal_lsa / host_interface->sectors_per_page;
 
 			page_status_type temp = ~(0xffffffffffffffff << (int)transaction_size);
-			access_status_bitmap = temp << (int)(lsa % host_interface->sectors_per_page);
+			access_status_bitmap = temp << (int)(internal_lsa % host_interface->sectors_per_page);
 
 			if (user_request->Type == UserRequestType::READ)
 			{
@@ -183,7 +181,7 @@ namespace SSD_Components
 			}
 
 			lsa = lsa + transaction_size;
-			hanled_sectors_count += transaction_size;
+			hanled_sectors_count += transaction_size;			
 		}
 	}
 

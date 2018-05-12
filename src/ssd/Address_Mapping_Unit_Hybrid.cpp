@@ -41,7 +41,7 @@ namespace SSD_Components
 		return 0;
 	}
 
-	unsigned int Address_Mapping_Unit_Hybrid::Get_physical_pages_count(stream_id_type stream_id)
+	PPA_type Address_Mapping_Unit_Hybrid::Get_physical_pages_count(stream_id_type stream_id)
 	{
 		return 0;
 	}

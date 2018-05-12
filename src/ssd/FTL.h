@@ -28,7 +28,7 @@ namespace SSD_Components
 			unsigned int block_no_per_plane, unsigned int page_no_per_block, unsigned int page_size_in_sectors, 
 			sim_time_type avg_flash_read_latency, sim_time_type avg_flash_program_latency, double over_provisioning_ratio, unsigned int max_allowed_block_erase_count, int seed);
 		~FTL();
-		void Perform_precondition(std::vector<Preconditioning::Workload_Statistics*> workload_stats);
+		void Perform_precondition(std::vector<Utils::Workload_Statistics*> workload_stats);
 		void Validate_simulation_config();
 		void Start_simulation();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);

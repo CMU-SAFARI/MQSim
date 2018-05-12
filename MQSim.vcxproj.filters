@@ -106,9 +106,6 @@
     <ClCompile Include="src\ssd\Flash_Block_Manager_Base.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
-    <ClCompile Include="src\ssd\FlashTransactionQueue.cpp">
-      <Filter>ssd</Filter>
-    </ClCompile>
     <ClCompile Include="src\ssd\FTL.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
@@ -189,6 +186,15 @@
     </ClCompile>
     <ClCompile Include="src\nvm_chip\flash_memory\Plane.cpp">
       <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Flash_Transaction_Queue.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\TSU_FLIN.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\Logical_Address_Partitioning_Unit.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -292,9 +298,6 @@
       <Filter>ssd</Filter>
     </ClInclude>
     <ClInclude Include="src\ssd\Flash_Block_Manager_Base.h">
-      <Filter>ssd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ssd\FlashTransactionQueue.h">
       <Filter>ssd</Filter>
     </ClInclude>
     <ClInclude Include="src\ssd\FTL.h">
@@ -427,6 +430,15 @@
       <Filter>nvm_chip</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\DistributionTypes.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Flash_Transaction_Queue.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\TSU_FLIN.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Logical_Address_Partitioning_Unit.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

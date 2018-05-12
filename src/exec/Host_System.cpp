@@ -6,9 +6,10 @@
 #include "../host/IO_Flow_Synthetic.h"
 #include "../host/IO_Flow_Trace_Based.h"
 #include "../utils/StringTools.h"
+#include "../utils/Logical_Address_Partitioning_Unit.h"
 
-Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_Interface_Base* ssd_host_interface):
-	MQSimEngine::Sim_Object("Host")
+Host_System::Host_System(Host_Parameter_Set* parameters, bool preconditioning_required, SSD_Components::Host_Interface_Base* ssd_host_interface):
+	MQSimEngine::Sim_Object("Host"), preconditioning_required(preconditioning_required)
 {
 	Simulator->AddObject(this);
 
@@ -35,7 +36,8 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 			if (flow_param->Working_Set_Percentage > 100 || flow_param->Working_Set_Percentage < 1)
 				flow_param->Working_Set_Percentage = 100;
 			io_flow = new Host_Components::IO_Flow_Synthetic(this->ID() + ".IO_Flow.Synth.No_" + std::to_string(flow_id),
-				address_range_per_flow * flow_id, address_range_per_flow * (flow_id + 1) - 1,
+				Utils::Logical_Address_Partitioning_Unit::Start_lha_available_to_flow(flow_id),
+				Utils::Logical_Address_Partitioning_Unit::End_lha_available_to_flow(flow_id),
 				((double)flow_param->Working_Set_Percentage / 100.0),
 				FLOW_ID_TO_Q_ID(flow_id), ((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_submission_queue_depth(),
 				((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth(),
@@ -52,7 +54,7 @@ Host_System::Host_System(Host_Parameter_Set* parameters, SSD_Components::Host_In
 		{
 			IO_Flow_Parameter_Set_Trace_Based * flow_param = (IO_Flow_Parameter_Set_Trace_Based*)parameters->IO_Flow_Definitions[flow_id];
 			io_flow = new Host_Components::IO_Flow_Trace_Based(this->ID() + ".IO_Flow.Trace." + flow_param->File_Path,
-				address_range_per_flow * flow_id, address_range_per_flow * (flow_id + 1) - 1,
+				Utils::Logical_Address_Partitioning_Unit::Start_lha_available_to_flow(flow_id), Utils::Logical_Address_Partitioning_Unit::End_lha_available_to_flow(flow_id),
 				FLOW_ID_TO_Q_ID(flow_id), ((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_submission_queue_depth(),
 				((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth(),
 				flow_param->Priority_Class, flow_param->Initial_Occupancy_Percentage / double(100.0),
@@ -109,10 +111,14 @@ void Host_System::Start_simulation()
 	default:
 		break;
 	}
-	std::vector<Preconditioning::Workload_Statistics*> workload_stats = get_workloads_statistics();
-	ssd_device->Perform_preconditioning(workload_stats);
-	for (auto &stat : workload_stats)
-		delete stat;
+
+	if (preconditioning_required)
+	{
+		std::vector<Utils::Workload_Statistics*> workload_stats = get_workloads_statistics();
+		ssd_device->Perform_preconditioning(workload_stats);
+		for (auto &stat : workload_stats)
+			delete stat;
+	}
 }
 
 void Host_System::Validate_simulation_config() 
@@ -143,13 +149,13 @@ void Host_System::Report_results_in_XML(std::string name_prefix, Utils::XmlWrite
 	xmlwriter.Write_close_tag();
 }
 
-std::vector<Preconditioning::Workload_Statistics*> Host_System::get_workloads_statistics()
+std::vector<Utils::Workload_Statistics*> Host_System::get_workloads_statistics()
 {
-	std::vector<Preconditioning::Workload_Statistics*> stats;
+	std::vector<Utils::Workload_Statistics*> stats;
 
 	for (auto &workload : IO_flows)
 	{
-		Preconditioning::Workload_Statistics* s = new Preconditioning::Workload_Statistics;
+		Utils::Workload_Statistics* s = new Utils::Workload_Statistics;
 		workload->Get_statistics(*s, ssd_device->Convert_host_logical_address_to_device_address, ssd_device->Find_NVM_subunit_access_bitmap);
 		stats.push_back(s);
 	}

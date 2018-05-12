@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include "Engine.h"
+#include "../utils/Logical_Address_Partitioning_Unit.h"
 
 namespace MQSimEngine
 {
@@ -19,6 +20,7 @@ namespace MQSimEngine
 		_sim_time = 0;
 		stop = false;
 		started = false;
+		Utils::Logical_Address_Partitioning_Unit::Reset();
 	}
 
 

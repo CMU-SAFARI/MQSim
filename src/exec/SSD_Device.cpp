@@ -1,5 +1,6 @@
 #include <vector>
 #include <stdexcept>
+#include <ctime>
 #include "SSD_Device.h"
 #include "../ssd/ONFI_Channel_Base.h"
 #include "../ssd/Flash_Block_Manager.h"
@@ -11,6 +12,7 @@
 #include "../ssd/TSU_FLIN.h"
 #include "../ssd/ONFI_Channel_NVDDR2.h"
 #include "../ssd/NVM_PHY_ONFI_NVDDR2.h"
+#include "../utils/Logical_Address_Partitioning_Unit.h"
 
 SSD_Device * SSD_Device::my_instance;//Used in static functions
 
@@ -197,13 +199,17 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 			for (int j = 0; j < (*io_flows)[i]->Plane_No; j++)
 				flow_plane_id_assignments[i].push_back((*io_flows)[i]->Plane_IDs[j]);
 		}
+		Utils::Logical_Address_Partitioning_Unit::Allocate_logical_address_for_flows((unsigned int)io_flows->size(),
+			parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
+			flow_channel_id_assignments, flow_chip_id_assignments, flow_die_id_assignments, flow_plane_id_assignments,
+			parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
+			parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Overprovisioning_Ratio);
 		switch (parameters->Address_Mapping)
 		{
 		case SSD_Components::Flash_Address_Mapping_Type::PAGE_LEVEL:
 			amu = new SSD_Components::Address_Mapping_Unit_Page_Level(ftl->ID() + ".AddressMappingUnit", ftl, (SSD_Components::NVM_PHY_ONFI*) device->PHY,
 				fbm, parameters->Ideal_Mapping_Table, parameters->CMT_Capacity, parameters->Plane_Allocation_Scheme, (unsigned int)io_flows->size(),
-				parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip,
-				parameters->Flash_Parameters.Plane_No_Per_Die,
+				parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 				flow_channel_id_assignments, flow_chip_id_assignments, flow_die_id_assignments, flow_plane_id_assignments,
 				parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
 				parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Parameters.Page_Capacity, parameters->Overprovisioning_Ratio,
@@ -303,14 +309,17 @@ void SSD_Device::Attach_to_host(Host_Components::PCIe_Switch* pcie_switch)
 	this->Host_interface->Attach_to_device(pcie_switch);
 }
 
-void SSD_Device::Perform_preconditioning(std::vector<Preconditioning::Workload_Statistics*> workload_stats)
+void SSD_Device::Perform_preconditioning(std::vector<Utils::Workload_Statistics*> workload_stats)
 {
 	if (Preconditioning_required)
 	{
+		time_t start_time = time(0);
 		PRINT_MESSAGE("SSD Device preconditioning started.........");
 		this->Cache_manager->Do_warmup(workload_stats);
 		this->Firmware->Perform_precondition(workload_stats);
-		PRINT_MESSAGE("Finished preconditioning.");
+		time_t end_time = time(0);
+		uint64_t duration = (uint64_t)difftime(end_time, start_time);
+		PRINT_MESSAGE("Finished preconditioning. Duration of preconditioning: " << duration / 3600 << ":" << (duration % 3600) / 60 << ":" << ((duration % 3600) % 60));
 	}
 }
 

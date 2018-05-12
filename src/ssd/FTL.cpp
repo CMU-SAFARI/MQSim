@@ -115,7 +115,7 @@ namespace SSD_Components
 			mu[i] = w_0[i] - w_0[i + 1];
 	}
 
-	void FTL::Perform_precondition(std::vector<Preconditioning::Workload_Statistics*> workload_stats)
+	void FTL::Perform_precondition(std::vector<Utils::Workload_Statistics*> workload_stats)
 	{
 		Address_Mapping_Unit->Store_mapping_table_on_flash_at_start();
 
@@ -157,9 +157,9 @@ namespace SSD_Components
 			std::multimap<int, LPA_type, std::greater<int>> trace_lpas_sorted_histogram;//only used for trace workloads
 			unsigned int hot_region_last_index_in_histogram = 0;//only used for trace workloads to detect hot addresses
 			LHA_type min_lha = stat->Min_LHA;
-			LHA_type max_lha = stat->Max_LHA;
+			LHA_type max_lha = stat->Max_LHA - 1;
 			LPA_type min_lpa = Convert_host_logical_address_to_device_address(min_lha);
-			LPA_type max_lpa = Convert_host_logical_address_to_device_address(max_lha);
+			LPA_type max_lpa = Convert_host_logical_address_to_device_address(max_lha) - 1;
 			total_accessed_cmt_entries += (unsigned int)(Convert_host_logical_address_to_device_address(max_lha) / page_size_in_sectors - Convert_host_logical_address_to_device_address(min_lha) / page_size_in_sectors) + 1;
 			bool hot_range_finished = false;//Used for fast address generation in hot/cold traffic mode
 			LHA_type last_hot_address = min_lha;//Used for fast address generation in hot/cold traffic mode
@@ -197,7 +197,7 @@ namespace SSD_Components
 				if ((max_lpa - min_lpa) < 1.1 * no_of_logical_pages_in_steadystate)
 				{
 					PRINT_MESSAGE("The specified initial occupancy value could not be satisfied as the working set of workload #" << stat->Stream_id << " is small. I made some adjustments!");
-					max_lha = LHA_type(double(max_lha) / stat->Working_set_ratio);
+					max_lha = min_lha + LHA_type(double(max_lha - min_lha) / stat->Working_set_ratio);
 					max_lpa = Convert_host_logical_address_to_device_address(max_lha);
 
 					if ((max_lpa - min_lpa) < 1.1 * no_of_logical_pages_in_steadystate)
@@ -286,19 +286,18 @@ namespace SSD_Components
 						start_LBA = random_address_generator->Uniform_ulong(min_lha, max_lha);
 						if (start_LBA < min_lha || max_lha < start_LBA)
 							PRINT_ERROR("Out of range address is generated in IO_Flow_Synthetic!\n")
-							if (start_LBA + size > max_lha)
-								start_LBA = min_lha;
+						if (start_LBA + size > max_lha)
+							start_LBA = min_lha;
 						break;
 					}
 
 					unsigned int hanled_sectors_count = 0;
-					LHA_type lsa = start_LBA;
+					LHA_type lsa = start_LBA - min_lha;
 					unsigned int transaction_size = 0;
 					page_status_type access_status_bitmap = 0;
+					LPA_type max_lpa_within_device = Convert_host_logical_address_to_device_address(stat->Max_LHA) - Convert_host_logical_address_to_device_address(stat->Min_LHA);
 					while (hanled_sectors_count < size)
 					{
-						lsa = lsa - min_lha;
-
 						transaction_size = page_size_in_sectors - (unsigned int)(lsa % page_size_in_sectors);
 						if (hanled_sectors_count + transaction_size >= size)
 						{
@@ -313,14 +312,13 @@ namespace SSD_Components
 						if (lpa_set_for_preconditioning.find(lpa) == lpa_set_for_preconditioning.end())
 						{
 							lpa_set_for_preconditioning[lpa] = access_status_bitmap;
-							if (lpa <= Convert_host_logical_address_to_device_address(stat->Max_LHA))//The lpas in trace_lpas_sorted_histogram are those that are actually accessed by the application
+							if (lpa <= max_lpa_within_device)//The lpas in trace_lpas_sorted_histogram are those that are actually accessed by the application
 							{
 								if (!is_hot_address && hot_region_last_index_in_histogram == 0)
-									hot_region_last_index_in_histogram = unsigned int(trace_lpas_sorted_histogram.size());
+									hot_region_last_index_in_histogram = (unsigned int)(trace_lpas_sorted_histogram.size());
 								std::pair<int, LPA_type> entry((is_hot_address ? 1000 : 1), lpa);
 								trace_lpas_sorted_histogram.insert(entry);
 							}
-
 						}
 						else
 							lpa_set_for_preconditioning[lpa] = access_status_bitmap | lpa_set_for_preconditioning[lpa];
@@ -422,25 +420,27 @@ namespace SSD_Components
 					unsigned int transaction_size = 0;
 					while (hanled_sectors_count < size)
 					{
-						lsa = lsa - min_lha;
+						if (lsa < min_lha || lsa > max_lha)
+							lsa = min_lha + (lsa % (max_lha - min_lha + 1));
+						LHA_type internal_lsa = lsa - min_lha;
 
-						transaction_size = page_size_in_sectors - (unsigned int)(lsa % page_size_in_sectors);
+						transaction_size = page_size_in_sectors - (unsigned int)(internal_lsa % page_size_in_sectors);
 						if (hanled_sectors_count + transaction_size >= size)
 						{
 							transaction_size = size - hanled_sectors_count;
 						}
 
-						LPA_type lpa = Convert_host_logical_address_to_device_address(lsa);
-						page_status_type access_status_bitmap = Find_NVM_subunit_access_bitmap(lsa);
-
-
-						lsa = lsa + transaction_size;
-						hanled_sectors_count += transaction_size;
+						LPA_type lpa = Convert_host_logical_address_to_device_address(internal_lsa);
+						page_status_type access_status_bitmap = Find_NVM_subunit_access_bitmap(internal_lsa);
 
 						if (lpa_set_for_preconditioning.find(lpa) != lpa_set_for_preconditioning.end())
 							lpa_set_for_preconditioning[lpa] = access_status_bitmap;
 						else
 							lpa_set_for_preconditioning[lpa] = access_status_bitmap | lpa_set_for_preconditioning[lpa];
+
+
+						lsa = lsa + transaction_size;
+						hanled_sectors_count += transaction_size;
 					}
 				}
 			}//else of if (stat->Type == Utils::Workload_Type::SYNTHETIC)
@@ -690,11 +690,14 @@ namespace SSD_Components
 				case CMT_Sharing_Mode::EQUAL_SIZE_PARTITIONING:
 					no_of_entries_in_cmt = (unsigned int)(1.0 / double(workload_stats.size()) * Address_Mapping_Unit->Get_cmt_capacity());
 					if (max_LPA - min_LPA + 1 < LPA_type(no_of_entries_in_cmt))
-						no_of_entries_in_cmt = max_LPA - min_LPA + 1;
+						no_of_entries_in_cmt = (unsigned int)(max_LPA - min_LPA + 1);
 					break;
 				default:
 					PRINT_ERROR("Unhandled mapping table sharing mode in the FTL preconditioning function.")
 				}
+
+				if (max_LPA - min_LPA + 1 < LPA_type(trace_lpas_sorted_histogram.size()))
+					no_of_entries_in_cmt = (unsigned int)(trace_lpas_sorted_histogram.size());
 
 				//Step 4-2: Bring the LPAs into CMT based on the flow access pattern
 				switch (stat->Address_distribution_type)
@@ -747,16 +750,24 @@ namespace SSD_Components
 				case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
 				{
 					int random_walker = int(random_generator.Uniform(0, uint32_t(trace_lpas_sorted_histogram.size()) - 2));
-					int random_step = random_generator.Uniform_uint(0, trace_lpas_sorted_histogram.size() / no_of_entries_in_cmt);
+					int random_step = random_generator.Uniform_uint(0, (uint32_t)(trace_lpas_sorted_histogram.size()) / no_of_entries_in_cmt);
 					auto itr = trace_lpas_sorted_histogram.begin();
 					while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
 					{
 						std::advance(itr, random_step);
 						Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).second);
-						trace_lpas_sorted_histogram.erase(itr++);
-						if (random_walker + random_step >= trace_lpas_sorted_histogram.size() - 1 || random_walker + random_step < 0)
-							random_step *= -1;
-						random_walker += random_step;
+						if (trace_lpas_sorted_histogram.size() > 1)
+						{
+							trace_lpas_sorted_histogram.erase(itr++);
+							if (random_walker + random_step >= trace_lpas_sorted_histogram.size() - 1 || random_walker + random_step < 0)
+								random_step *= -1;
+							random_walker += random_step;
+						}
+						else
+						{
+							trace_lpas_sorted_histogram.erase(itr);
+							break;
+						}
 					}
 					break;
 				}

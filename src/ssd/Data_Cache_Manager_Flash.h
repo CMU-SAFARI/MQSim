@@ -68,7 +68,7 @@ namespace SSD_Components
 		~Data_Cache_Manager_Flash();
 		void Execute_simulator_event(MQSimEngine::Sim_Event* ev);
 		void Setup_triggers();
-		void Do_warmup(std::vector<Preconditioning::Workload_Statistics*> workload_stats);
+		void Do_warmup(std::vector<Utils::Workload_Statistics*> workload_stats);
 	private:
 		NVM_PHY_ONFI * flash_controller;
 		unsigned int capacity_in_bytes, capacity_in_pages;

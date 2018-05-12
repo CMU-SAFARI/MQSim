@@ -4,6 +4,7 @@
 
 #include "Address_Mapping_Unit_Page_Level.h"
 #include "Stats.h"
+#include "../utils/Logical_Address_Partitioning_Unit.h"
 
 namespace SSD_Components
 {
@@ -148,22 +149,15 @@ namespace SSD_Components
 		Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
 		flash_channel_ID_type* channel_ids, unsigned int channel_no, flash_chip_ID_type* chip_ids, unsigned int chip_no,
 		flash_die_ID_type* die_ids, unsigned int die_no, flash_plane_ID_type* plane_ids, unsigned int plane_no,
-		double Share_per_plane,
-		unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int Sectors_no_per_page,
-		double Overprovisioning_ratio) :
+		PPA_type total_physical_sectors_no, LHA_type total_logical_sectors_no, unsigned int sectors_no_per_page) :
 		CMT_entry_size(cmt_entry_size), Translation_entries_per_page(no_of_translation_entries_per_page), No_of_inserted_entries_in_preconditioning(0),
-		PlaneAllocationScheme(PlaneAllocationScheme),
-		Channel_no(channel_no), Chip_no(chip_no), Die_no(die_no), Plane_no(plane_no),
-		Block_no_per_plane(Block_no_per_plane), Page_no_per_block(Page_no_per_block), Sectors_no_per_page(Sectors_no_per_page),
-		Overprovisioning_ratio(Overprovisioning_ratio)
+		PlaneAllocationScheme(PlaneAllocationScheme), Channel_no(channel_no), Chip_no(chip_no), Die_no(die_no), Plane_no(plane_no)
 	{
-		Pages_no_per_plane = (unsigned int)(((double)Page_no_per_block * Block_no_per_plane) * Share_per_plane);
-		Pages_no_per_die = Pages_no_per_plane * plane_no;
-		Pages_no_per_chip = Pages_no_per_die * die_no;
-		Pages_no_per_channel = Pages_no_per_chip * chip_no;
-		Total_physical_pages_no = Pages_no_per_channel * channel_no;
-		Total_logical_pages_no = (unsigned int)((double)Total_physical_pages_no * (1 - Overprovisioning_ratio));
-		max_logical_sector_address = (LHA_type)(Sectors_no_per_page * Total_logical_pages_no - 1);
+		Total_physical_pages_no = total_physical_sectors_no / sectors_no_per_page;
+		max_logical_sector_address = total_logical_sectors_no;
+		Total_logical_pages_no = (max_logical_sector_address / sectors_no_per_page) + (max_logical_sector_address % sectors_no_per_page == 0? 0 : 1);
+		//Total_logical_pages_no = (unsigned int)((double)Total_physical_pages_no * (1 - Overprovisioning_ratio));
+		//max_logical_sector_address = (LHA_type)(Sectors_no_per_page * Total_logical_pages_no - 1);
 		Channel_ids = new flash_channel_ID_type[channel_no];
 		for (flash_channel_ID_type cid = 0; cid < channel_no; cid++)
 			Channel_ids[cid] = channel_ids[cid];
@@ -190,9 +184,9 @@ namespace SSD_Components
 			this->CMT = new Cached_Mapping_Table(cmt_capacity);//Each flow (address mapping domain) has its own CMT, so CMT is create here in the constructor
 		else this->CMT = CMT;//The entire CMT space is shared among concurrently running flows (i.e., address mapping domains of all flow)
 
-		Total_translation_pages_no = Total_logical_pages_no / Translation_entries_per_page;
+		Total_translation_pages_no = MVPN_type(Total_logical_pages_no / Translation_entries_per_page);
 		GlobalTranslationDirectory = new GTDEntryType[Total_translation_pages_no + 1];
-		for (unsigned int i = 0; i <= Total_translation_pages_no; i++)
+		for (MVPN_type i = 0; i <= Total_translation_pages_no; i++)
 		{
 			GlobalTranslationDirectory[i].MPPN = (MPPN_type)NO_MPPN;
 			GlobalTranslationDirectory[i].TimeStamp = INVALID_TIME_STAMP;
@@ -220,7 +214,6 @@ namespace SSD_Components
 		delete[] Die_ids;
 		delete[] Plane_ids;
 	}
-
 	inline void AddressMappingDomain::Update_mapping_info(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa, const PPA_type ppa, const page_status_type page_status_bitmap)
 	{
 		if (ideal_mapping)
@@ -259,6 +252,7 @@ namespace SSD_Components
 			return CMT->Exists(stream_id, lpa);
 	}
 
+
 	Address_Mapping_Unit_Page_Level* Address_Mapping_Unit_Page_Level::_my_instance = NULL;
 	Address_Mapping_Unit_Page_Level::Address_Mapping_Unit_Page_Level(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* BlockManager,
 		bool ideal_mapping_table, unsigned int cmt_capacity_in_byte, Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
@@ -274,48 +268,6 @@ namespace SSD_Components
 	{
 		_my_instance = this;
 		domains = new AddressMappingDomain*[no_of_input_streams];
-
-		bool****resource_list;
-		resource_list = new bool***[channel_count];
-		bool resource_sharing = false;
-		for (flash_channel_ID_type channel_id = 0; channel_id < channel_count; channel_id++)
-		{
-			resource_list[channel_id] = new bool**[chip_no_per_channel];
-			for (flash_chip_ID_type chip_id = 0; chip_id < chip_no_per_channel; chip_id++)
-			{
-				resource_list[channel_id][chip_id] = new bool*[die_no_per_chip];
-				for (flash_die_ID_type die_id = 0; die_id < die_no_per_chip; die_id++)
-				{
-					resource_list[channel_id][chip_id][die_id] = new bool[plane_no_per_die];
-					for (flash_plane_ID_type plane_id = 0; plane_id < plane_no_per_die; plane_id++)
-						resource_list[channel_id][chip_id][die_id][plane_id] = false;
-				}
-			}
-		}
-
-		for (unsigned int domainID = 0; domainID < no_of_input_streams; domainID++)
-			for (flash_channel_ID_type channel_id = 0; channel_id < stream_channel_ids[domainID].size(); channel_id++)
-				for (flash_chip_ID_type chip_id = 0; chip_id < stream_chip_ids[domainID].size(); chip_id++)
-					for (flash_die_ID_type die_id = 0; die_id < stream_die_ids[domainID].size(); die_id++)
-						for (flash_plane_ID_type plane_id = 0; plane_id < stream_plane_ids[domainID].size(); plane_id++)
-						{
-
-							if (!(stream_channel_ids[domainID][channel_id] < channel_count))
-								PRINT_ERROR("Invalid channel ID specified for I/O flow " << domainID);
-
-							if (!(stream_chip_ids[domainID][chip_id] < chip_no_per_channel))
-								PRINT_ERROR("Invalid chip ID specified for I/O flow " << domainID);
-
-							if (!(stream_die_ids[domainID][die_id] < die_no_per_chip))
-								PRINT_ERROR("Invalid die ID specified for I/O flow " << domainID);
-
-							if (!(stream_plane_ids[domainID][plane_id] < plane_no_per_die))
-								PRINT_ERROR("Invalid plane ID specified for I/O flow " << domainID);
-
-							if (resource_list[stream_channel_ids[domainID][channel_id]][stream_chip_ids[domainID][chip_id]][stream_die_ids[domainID][die_id]][stream_plane_ids[domainID][plane_id]])
-								resource_sharing = true;
-							else resource_list[stream_channel_ids[domainID][channel_id]][stream_chip_ids[domainID][chip_id]][stream_die_ids[domainID][die_id]][stream_plane_ids[domainID][plane_id]] = true;
-						}
 
 		flash_channel_ID_type* channel_ids = NULL;
 		flash_channel_ID_type* chip_ids = NULL;
@@ -386,8 +338,10 @@ namespace SSD_Components
 			domains[domainID] = new AddressMappingDomain(per_stream_cmt_capacity, CMT_entry_size, no_of_translation_entries_per_page,
 				sharedCMT,
 				PlaneAllocationScheme,
-				channel_ids, (unsigned int)(stream_channel_ids[domainID].size()), chip_ids, (unsigned int)(stream_chip_ids[domainID].size()), die_ids, (unsigned int)(stream_die_ids[domainID].size()), plane_ids, (unsigned int)(stream_plane_ids[domainID].size()),
-				(resource_sharing ? 1 / (double)no_of_input_streams : 1), block_no_per_plane, pages_no_per_block, sector_no_per_page, overprovisioning_ratio);
+				channel_ids, (unsigned int)(stream_channel_ids[domainID].size()), chip_ids, (unsigned int)(stream_chip_ids[domainID].size()), die_ids, 
+				(unsigned int)(stream_die_ids[domainID].size()), plane_ids, (unsigned int)(stream_plane_ids[domainID].size()),
+				Utils::Logical_Address_Partitioning_Unit::PDA_count_allocate_to_flow(domainID), Utils::Logical_Address_Partitioning_Unit::LHA_count_allocate_to_flow(domainID),
+				sector_no_per_page);
 			delete[] channel_ids;
 			delete[] chip_ids;
 			delete[] die_ids;
@@ -422,7 +376,7 @@ namespace SSD_Components
 		for (unsigned int stream_id = 0; stream_id < no_of_input_streams; stream_id++)
 		{
 			dummy_tr->Stream_id = stream_id;
-			for (unsigned int translation_page_id = 0; translation_page_id < domains[stream_id]->Total_translation_pages_no; translation_page_id++)
+			for (MVPN_type translation_page_id = 0; translation_page_id < domains[stream_id]->Total_translation_pages_no; translation_page_id++)
 			{
 				dummy_tr->LPA = (LPA_type)translation_page_id;
 				allocate_plane_for_translation_write(dummy_tr);
@@ -606,18 +560,12 @@ namespace SSD_Components
 		NVM::FlashMemory::Physical_Page_Address plane_address;
 		for (auto const &lpa : lpa_list)
 		{
+			if (lpa.first >= domains[stream_id]->Total_logical_pages_no)
+				PRINT_ERROR("Out of range LPA specified for preconditioning! LPA shoud be smaller than " << domains[stream_id]->Total_logical_pages_no << ", but it is " << lpa.first)
 			PPA_type ppa = domains[stream_id]->Get_ppa_for_preconditioning(stream_id, lpa.first);
-			if (lpa.first == 3900702)
-			{
-				for (int i = 0; i < domains[stream_id]->Total_logical_pages_no && i < 3900710; i++)
-					PRINT_MESSAGE("Entry " << i << " value is" << domains[stream_id]->GlobalMappingTable[i].PPA << " and the status is: " << domains[stream_id]->GlobalMappingTable[i].WrittenStateBitmap);
-				PRINT_MESSAGE("Stream ID:" << stream_id << " LPA:" << lpa.first << " PPA:" << ppa)
-			}
 			if (ppa != NO_LPA)
-			{
 				PRINT_ERROR("Calling address allocation for a previously allocated LPA during preconditioning!")
-			}
-				allocate_plane_for_preconditioning(stream_id, lpa.first, plane_address);
+			allocate_plane_for_preconditioning(stream_id, lpa.first, plane_address);
 			assigned_lpas[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID].push_back(lpa.first);
 		}
 
@@ -682,8 +630,6 @@ namespace SSD_Components
 									LPA_type lpa = assigned_lpas[channel_cntr][chip_cntr][die_cntr][plane_cntr].back();
 									assigned_lpas[channel_cntr][chip_cntr][die_cntr][plane_cntr].pop_back();
 									PPA_type ppa = Convert_address_to_ppa(address);
-									if (lpa == 3900702)
-										PRINT_MESSAGE("Stream ID:" << stream_id << " LPA:" << lpa << " PPA:" << ppa)
 									flash_controller->Change_memory_status_preconditioning(&address, &lpa);
 									domains[stream_id]->GlobalMappingTable[lpa].PPA = ppa;
 									domains[stream_id]->GlobalMappingTable[lpa].WrittenStateBitmap = (*lpa_list.find(lpa)).second;
@@ -1391,7 +1337,7 @@ namespace SSD_Components
 	{
 		return this->domains[stream_id]->Total_logical_pages_no;
 	}
-	unsigned int Address_Mapping_Unit_Page_Level::Get_physical_pages_count(stream_id_type stream_id)
+	PPA_type Address_Mapping_Unit_Page_Level::Get_physical_pages_count(stream_id_type stream_id)
 	{
 		return this->domains[stream_id]->Total_physical_pages_no;
 	}
@@ -1615,7 +1561,7 @@ namespace SSD_Components
 	{
 		MVPN_type mvpn = get_MVPN(lpn, stream_id);
 
-		if (mvpn >= (MVPN_type)domains[stream_id]->Total_translation_pages_no)
+		if (mvpn >= domains[stream_id]->Total_translation_pages_no)
 			PRINT_ERROR("Out of range virtual translation page")
 
 		domains[stream_id]->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpn));

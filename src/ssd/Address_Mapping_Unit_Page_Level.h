@@ -75,9 +75,7 @@ namespace SSD_Components
 			Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
 			flash_channel_ID_type* Channel_ids, unsigned int Channel_no, flash_chip_ID_type* Chip_ids, unsigned int Chip_no,
 			flash_die_ID_type* Die_ids, unsigned int Die_no, flash_plane_ID_type* Plane_ids, unsigned int Plane_no,
-			double Share_per_plane,
-			unsigned int Block_no_per_plane, unsigned int Page_no_per_block, unsigned int Sectors_no_per_page,
-			double Overprovisioning_ratio);
+			PPA_type total_physical_sectors_no, LPA_type total_logical_sectors_no, unsigned int sectors_no_per_page);
 		~AddressMappingDomain();
 
 
@@ -125,20 +123,9 @@ namespace SSD_Components
 		unsigned int Plane_no;
 
 		LHA_type max_logical_sector_address;
-		unsigned int Total_logical_pages_no;
-		unsigned int Pages_no_per_channel; //Number of pages in a channel
-		unsigned int Pages_no_per_chip;
-		unsigned int Pages_no_per_die;
-		unsigned int Pages_no_per_plane;
-		unsigned int Total_plane_no;
-		unsigned int Total_physical_pages_no;
-		unsigned int Total_translation_pages_no;
-
-		double Share_per_plane;
-		unsigned int Block_no_per_plane;
-		unsigned int Page_no_per_block;
-		unsigned int Sectors_no_per_page;
-		double Overprovisioning_ratio;		
+		LPA_type Total_logical_pages_no;
+		PPA_type Total_physical_pages_no;
+		MVPN_type Total_translation_pages_no;
 	};
 
 	class Address_Mapping_Unit_Page_Level : public Address_Mapping_Unit_Base
@@ -171,7 +158,7 @@ namespace SSD_Components
 		void Store_mapping_table_on_flash_at_start();
 		LHA_type Get_logical_sectors_count(stream_id_type stream_id);
 		LPA_type Get_logical_pages_count(stream_id_type stream_id);
-		unsigned int Get_physical_pages_count(stream_id_type stream_id);
+		PPA_type Get_physical_pages_count(stream_id_type stream_id);
 		NVM::FlashMemory::Physical_Page_Address Convert_ppa_to_address(const PPA_type ppa);
 		void Convert_ppa_to_address(const PPA_type ppn, NVM::FlashMemory::Physical_Page_Address& address);
 		PPA_type Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress);

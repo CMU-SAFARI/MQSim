@@ -8,7 +8,7 @@
 	</Host_Parameter_Set>
 	<Device_Parameter_Set>
 			 <Seed>321</Seed>
-			 <Enabled_Preconditioning>true</Enabled_Preconditioning>
+			 <Enabled_Preconditioning>false</Enabled_Preconditioning>
 			 <Memory_Type>FLASH</Memory_Type>
 			 <HostInterface_Type>NVME</HostInterface_Type>
 			 <IO_Queue_Depth>65535</IO_Queue_Depth>
@@ -57,9 +57,9 @@
 				 <Block_PE_Cycles_Limit>10000</Block_PE_Cycles_Limit>
 				 <Suspend_Erase_Time>700000</Suspend_Erase_Time>
 				 <Suspend_Program_Time>100000</Suspend_Program_Time>
-				 <Die_No_Per_Chip>1</Die_No_Per_Chip>
+				 <Die_No_Per_Chip>2</Die_No_Per_Chip>
 				 <Plane_No_Per_Die>2</Plane_No_Per_Die>
-				 <Block_No_Per_Plane>512</Block_No_Per_Plane>
+				 <Block_No_Per_Plane>2048</Block_No_Per_Plane>
 				 <Page_No_Per_Block>256</Page_No_Per_Block>
 				 <Page_Capacity>8192</Page_Capacity>
 				 <Page_Metadat_Capacity>448</Page_Metadat_Capacity>

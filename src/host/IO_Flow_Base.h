@@ -14,7 +14,7 @@
 #include "../ssd/Host_Interface_Defs.h"
 #include "Host_IO_Request.h"
 #include "PCIe_Root_Complex.h"
-#include "../precond/Workload_Statistics.h"
+#include "../utils/Workload_Statistics.h"
 
 namespace Host_Components
 {
@@ -70,7 +70,7 @@ namespace Host_Components
 		uint32_t Get_min_end_to_end_request_delay();//in microseconds
 		uint32_t Get_max_end_to_end_request_delay();//in microseconds
 		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
-		virtual void Get_statistics(Preconditioning::Workload_Statistics& stats, LPA_type(*Convert_host_logical_address_to_device_address)(LHA_type lha),
+		virtual void Get_statistics(Utils::Workload_Statistics& stats, LPA_type(*Convert_host_logical_address_to_device_address)(LHA_type lha),
 			page_status_type(*Find_NVM_subunit_access_bitmap)(LHA_type lha)) = 0;
 	protected:
 		LHA_type start_lsa_on_device, end_lsa_on_device;

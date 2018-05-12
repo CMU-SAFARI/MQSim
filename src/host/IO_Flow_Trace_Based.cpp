@@ -130,14 +130,14 @@ namespace Host_Components
 				Utils::Helper_Functions::Remove_cr(trace_line);
 				current_trace_line.clear();
 				Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
-				PRINT_MESSAGE("* Replay ound "<< replay_counter << "of "<< total_replay_no << " started  for" << ID())
+				PRINT_MESSAGE("* Replay round "<< replay_counter << "of "<< total_replay_no << " started  for" << ID())
 			}
 			char* pEnd;
 			Simulator->Register_sim_event(time_offset + std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10), this);
 		}
 	}
 
-	void IO_Flow_Trace_Based::Get_statistics(Preconditioning::Workload_Statistics& stats, LPA_type(*Convert_host_logical_address_to_device_address)(LHA_type lha), 
+	void IO_Flow_Trace_Based::Get_statistics(Utils::Workload_Statistics& stats, LPA_type(*Convert_host_logical_address_to_device_address)(LHA_type lha),
 		page_status_type(*Find_NVM_subunit_access_bitmap)(LHA_type lha))
 	{
 		stats.Type = Utils::Workload_Type::TRACE_BASED;
@@ -149,7 +149,7 @@ namespace Host_Components
 			stats.Write_arrival_time.push_back(0);
 			stats.Read_arrival_time.push_back(0);
 		}
-		for (int i = 0; i < MAX_SIZE_HISTOGRAM + 1; i++)
+		for (int i = 0; i < MAX_REQSIZE_HISTOGRAM_ITEMS + 1; i++)
 		{
 			stats.Write_size_histogram.push_back(0);
 			stats.Read_size_histogram.push_back(0);
@@ -203,7 +203,7 @@ namespace Host_Components
 				{
 					if (stats.Write_address_access_pattern.find(device_address) == stats.Write_address_access_pattern.end())
 					{
-						Preconditioning::Address_Histogram_Unit hist;
+						Utils::Address_Histogram_Unit hist;
 						hist.Access_count = 1;
 						hist.Accessed_sub_units = access_status_bitmap;
 						stats.Write_address_access_pattern[device_address] = hist;
@@ -221,7 +221,7 @@ namespace Host_Components
 				{
 					if (stats.Read_address_access_pattern.find(device_address) == stats.Read_address_access_pattern.end())
 					{
-						Preconditioning::Address_Histogram_Unit hist;
+						Utils::Address_Histogram_Unit hist;
 						hist.Access_count = 1;
 						hist.Accessed_sub_units = access_status_bitmap;
 						stats.Read_address_access_pattern[device_address] = hist;
@@ -248,9 +248,9 @@ namespace Host_Components
 					stats.Write_arrival_time[diff]++;
 				else
 					stats.Write_arrival_time[MAX_ARRIVAL_TIME_HISTOGRAM]++;
-				if (LBA_count < MAX_SIZE_HISTOGRAM)
+				if (LBA_count < MAX_REQSIZE_HISTOGRAM_ITEMS)
 					stats.Write_size_histogram[LBA_count]++;
-				else stats.Write_size_histogram[MAX_SIZE_HISTOGRAM]++;
+				else stats.Write_size_histogram[MAX_REQSIZE_HISTOGRAM_ITEMS]++;
 			}
 			else
 			{
@@ -258,9 +258,9 @@ namespace Host_Components
 					stats.Read_arrival_time[diff]++;
 				else
 					stats.Read_arrival_time[MAX_ARRIVAL_TIME_HISTOGRAM]++;
-				if (LBA_count < MAX_SIZE_HISTOGRAM)
+				if (LBA_count < MAX_REQSIZE_HISTOGRAM_ITEMS)
 					stats.Read_size_histogram[LBA_count]++;
-				else stats.Read_size_histogram[(unsigned int)MAX_SIZE_HISTOGRAM]++;
+				else stats.Read_size_histogram[(unsigned int)MAX_REQSIZE_HISTOGRAM_ITEMS]++;
 			}
 			stats.Total_generated_reqeusts++;
 		}

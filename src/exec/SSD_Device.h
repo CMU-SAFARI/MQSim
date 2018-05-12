@@ -16,7 +16,7 @@
 #include "../nvm_chip/NVM_Types.h"
 #include "Device_Parameter_Set.h"
 #include "IO_Flow_Parameter_Set.h"
-#include "../precond/Workload_Statistics.h"
+#include "../utils/Workload_Statistics.h"
 
 /*********************************************************************************************************
 * An SSD device has the following components:
@@ -41,7 +41,7 @@ public:
 	unsigned int Get_no_of_LHAs_in_an_NVM_write_unit();
 
 	void Attach_to_host(Host_Components::PCIe_Switch* pcie_switch);
-	void Perform_preconditioning(std::vector<Preconditioning::Workload_Statistics*> workload_stats);
+	void Perform_preconditioning(std::vector<Utils::Workload_Statistics*> workload_stats);
 	void Start_simulation();
 	void Validate_simulation_config();
 	void Execute_simulator_event(MQSimEngine::Sim_Event* event);

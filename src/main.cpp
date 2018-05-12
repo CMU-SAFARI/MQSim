@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
 
 		SSD_Device ssd(&exec_params->SSD_Device_Configuration, &exec_params->Host_Configuration.IO_Flow_Definitions);//Create SSD_Device based on the specified parameters
 		exec_params->Host_Configuration.Input_file_path = workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of("."));//Create Host_System based on the specified parameters
-		Host_System host(&exec_params->Host_Configuration, ssd.Host_interface);
+		Host_System host(&exec_params->Host_Configuration, exec_params->SSD_Device_Configuration.Enabled_Preconditioning, ssd.Host_interface);
 		host.Attach_ssd_device(&ssd);
 
 		Simulator->Start_simulation();

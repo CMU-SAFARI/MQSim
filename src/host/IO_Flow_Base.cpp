@@ -122,7 +122,8 @@ namespace Host_Components
 	void IO_Flow_Base::Start_simulation()
 	{
 		next_logging_milestone = logging_period;
-		log_file.open(logging_file_path, std::ofstream::out);
+		if (enabled_logging)
+			log_file.open(logging_file_path, std::ofstream::out);
 		log_file << "SimulationTime(us)\t" << "ReponseTime(us)\t" << "EndToEndDelay(us)"<< std::endl;
 		STAT_sum_device_response_time_short_term = 0;
 		STAT_serviced_request_count_short_term = 0;

@@ -59,7 +59,7 @@ namespace SSD_Components
 		virtual void Store_mapping_table_on_flash_at_start() = 0;
 		virtual LHA_type Get_logical_sectors_count(stream_id_type stream_id) = 0;
 		virtual LPA_type Get_logical_pages_count(stream_id_type stream_id) = 0;
-		virtual unsigned int Get_physical_pages_count(stream_id_type stream_id) = 0;
+		virtual PPA_type Get_physical_pages_count(stream_id_type stream_id) = 0;
 		virtual NVM::FlashMemory::Physical_Page_Address Convert_ppa_to_address(const PPA_type ppa) = 0;
 		virtual void Convert_ppa_to_address(const PPA_type ppa, NVM::FlashMemory::Physical_Page_Address& address) = 0;
 		virtual PPA_type Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress) = 0;

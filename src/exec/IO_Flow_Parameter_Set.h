@@ -6,7 +6,7 @@
 #include "../ssd/Host_Interface_Defs.h"
 #include "../host/IO_Flow_Synthetic.h"
 #include "../host/IO_Flow_Trace_Based.h"
-#include "../precond/Workload_Statistics.h"
+#include "../utils/Workload_Statistics.h"
 #include "../utils/DistributionTypes.h"
 #include "Parameter_Set_Base.h"
 
