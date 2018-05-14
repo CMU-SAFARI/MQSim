@@ -35,7 +35,7 @@ namespace SSD_Components
 		void Convert_ppa_to_address(const PPA_type ppn, NVM::FlashMemory::Physical_Page_Address& address);
 		PPA_type Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress);
 
-		void Lock_physical_block_for_gc(const NVM::FlashMemory::Physical_Page_Address& block_address);
+		void Lock_physical_block_for_gc_wl(const NVM::FlashMemory::Physical_Page_Address& block_address);
 		void Lock_lpa_for_gc(stream_id_type stream_id, LPA_type lpa);
 		void Lock_mvpn_for_gc(stream_id_type stream_id, MVPN_type mpvn);
 		void Unlock_lpa_after_gc(stream_id_type stream_id, LPA_type lpa);

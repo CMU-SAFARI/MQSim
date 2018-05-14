@@ -265,13 +265,13 @@ namespace NVM
 		void Flash_Chip::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
 		{
 			std::string tmp = name_prefix;
-			xmlwriter.Write_start_element_tag(tmp);
+			xmlwriter.Write_start_element_tag(tmp + ".FlashChips");
 
-			std::string attr = "Name";
+			std::string attr = "ID";
 			std::string val = "@" + std::to_string(ChannelID) + "@" + std::to_string(ChipID);
 			xmlwriter.Write_attribute_string_inline(attr, val);
 
-			attr = "Total_In_Execution";
+			attr = "Fraction_of_Time_in_Execution";
 			val = std::to_string(STAT_totalExecTime / double(Simulator->Time()));
 			xmlwriter.Write_attribute_string_inline(attr, val);
 
@@ -281,6 +281,10 @@ namespace NVM
 
 			attr = "Fraction_of_Time_in_DataXfer_and_Execution";
 			val = std::to_string(STAT_totalOverlappedXferExecTime / double(Simulator->Time()));
+			xmlwriter.Write_attribute_string_inline(attr, val);
+
+			attr = "Fraction_of_Time_Idle";
+			val = std::to_string((Simulator->Time() - STAT_totalOverlappedXferExecTime - STAT_totalXferTime) / double(Simulator->Time()));
 			xmlwriter.Write_attribute_string_inline(attr, val);
 		
 			xmlwriter.Write_end_element_tag();

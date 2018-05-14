@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-i ssdconfig.xml -w workload.xml</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-i D:\MQSim\MQSim\fast18\data-cache-contention\ssdconfig-datacache-contention.xml -w D:\MQSim\MQSim\fast18\data-cache-contention\workload-datacache-contention-flow-1.xml</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-i ssdconfig.xml -w workload.xml</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-i D:\MQSim\MQSim\fast18\data-cache-contention\ssdconfig-datacache-contention.xml -w D:\MQSim\MQSim\fast18\data-cache-contention\workload-datacache-contention-flow-1.xml</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

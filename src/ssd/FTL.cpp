@@ -23,10 +23,12 @@ namespace SSD_Components
 		avg_flash_read_latency(avg_flash_read_latency), avg_flash_program_latency(avg_flash_program_latency),
 		over_provisioning_ratio(over_provisioning_ratio), max_allowed_block_erase_count(max_allowed_block_erase_count)
 	{
+		Stats::Init_stats(channel_no, chip_no_per_channel, die_no_per_chip, plane_no_per_die, block_no_per_plane, page_no_per_block, max_allowed_block_erase_count);
 	}
 
 	FTL::~FTL()
 	{
+		Stats::Clear_stats(channel_no, chip_no_per_channel, die_no_per_chip, plane_no_per_die, block_no_per_plane, page_no_per_block, max_allowed_block_erase_count);
 	}
 
 	void FTL::Validate_simulation_config()
@@ -900,6 +902,22 @@ namespace SSD_Components
 
 		attr = "Total_CMT_Queries_For_Writes";
 		val = std::to_string(Stats::total_writeTR_CMT_queries);
+		xmlwriter.Write_attribute_string_inline(attr, val);
+
+		attr = "Total_GC_Executions";
+		val = std::to_string(Stats::Total_gc_executions);
+		xmlwriter.Write_attribute_string_inline(attr, val);
+
+		attr = "Average_Page_Movement_For_GC";
+		val = std::to_string(double(Stats::Total_page_movements_for_gc) / double(Stats::Total_gc_executions));
+		xmlwriter.Write_attribute_string_inline(attr, val);
+
+		attr = "Total_WL_Executions";
+		val = std::to_string(Stats::Total_wl_executions);
+		xmlwriter.Write_attribute_string_inline(attr, val);
+
+		attr = "Average_Page_Movement_For_WL";
+		val = std::to_string(double(Stats::Total_page_movements_for_wl) / double(Stats::Total_wl_executions));
 		xmlwriter.Write_attribute_string_inline(attr, val);
 
 		xmlwriter.Write_end_element_tag();

@@ -51,7 +51,6 @@ namespace SSD_Components
 
 		virtual bool GC_is_in_urgent_mode(const NVM::FlashMemory::Flash_Chip*) = 0;
 		virtual void Check_gc_required(const unsigned int BlockPoolSize, const NVM::FlashMemory::Physical_Page_Address& planeAddress) = 0;
-		virtual void Check_wl_required(const double staticWLFactor, const NVM::FlashMemory::Physical_Page_Address planeAddress) = 0;
 		GC_Block_Selection_Policy_Type Get_gc_policy();
 		unsigned int Get_GC_policy_specific_parameter();//Returns the parameter specific to the GC block selection policy: threshold for random_pp, set_size for RGA
 		unsigned int Get_minimum_number_of_free_pages_before_GC();
@@ -68,7 +67,9 @@ namespace SSD_Components
 		double gc_threshold;//As the ratio of free pages to the total number of physical pages
 		unsigned int block_pool_gc_threshold;
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
-		bool is_safe_gc_candidate(const PlaneBookKeepingType* pbke, const flash_block_ID_type gc_candidate_block_id);//Checks if block_address is a safe candidate for gc execution, i.e., 1) it is not a write frontier, and 2) there is no ongoing program operation
+		bool is_safe_gc_wl_candidate(const PlaneBookKeepingType* pbke, const flash_block_ID_type gc_wl_candidate_block_id);//Checks if block_address is a safe candidate for gc execution, i.e., 1) it is not a write frontier, and 2) there is no ongoing program operation
+		bool check_static_wl_required(const NVM::FlashMemory::Physical_Page_Address plane_address);
+		void run_static_wearleveling(const NVM::FlashMemory::Physical_Page_Address plane_address);
 		bool use_copyback;
 		bool dynamic_wearleveling_enabled;
 		bool static_wearleveling_enabled;

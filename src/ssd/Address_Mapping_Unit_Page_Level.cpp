@@ -1063,7 +1063,7 @@ namespace SSD_Components
 		if (old_ppa == NO_PPA)  /*this is the first access to the logical page*/
 		{
 			if (is_for_gc)
-				PRINT_ERROR("Unexpected situation in allocate_page_in_plane_for_user_write for GC write!")
+				PRINT_ERROR("Unexpected situation in allocate_page_in_plane_for_user_write for GC_WL write!")
 		}
 		else
 		{
@@ -1071,7 +1071,7 @@ namespace SSD_Components
 			{
 				page_status_type page_status_in_cmt = domain->Get_page_status(ideal_mapping_table, transaction->Stream_id, transaction->LPA);
 				if (page_status_in_cmt != transaction->write_sectors_bitmap)
-					PRINT_ERROR("Unexpected situation in allocate_page_in_plane_for_user_write for GC write!")
+					PRINT_ERROR("Unexpected situation in allocate_page_in_plane_for_user_write for GC_WL write!")
 			}
 			else
 			{
@@ -1120,7 +1120,7 @@ namespace SSD_Components
 		if (old_MPPN == NO_MPPN)  /*this is the first access to the mvpn*/
 		{
 			if (is_for_gc)
-				PRINT_ERROR("Unexpected situation occured in allocate_page_in_plane_for_translation_write for GC write!")
+				PRINT_ERROR("Unexpected situation occured in allocate_page_in_plane_for_translation_write for GC_WL write!")
 		}
 		else if (!is_for_gc)
 		{
@@ -1692,7 +1692,7 @@ namespace SSD_Components
 			PRINT_ERROR("Locking an MVPN that has already been locked!");
 		domains[stream_id]->Locked_MVPNs.insert(mvpn);
 	}
-	inline void Address_Mapping_Unit_Page_Level::Lock_physical_block_for_gc(const NVM::FlashMemory::Physical_Page_Address& block_address)
+	inline void Address_Mapping_Unit_Page_Level::Lock_physical_block_for_gc_wl(const NVM::FlashMemory::Physical_Page_Address& block_address)
 	{
 		//This is a hack for now!!!
 		Block_Pool_Slot_Type* block = &(BlockManager->plane_manager[block_address.ChannelID][block_address.ChipID][block_address.DieID][block_address.PlaneID].Blocks[block_address.BlockID]);

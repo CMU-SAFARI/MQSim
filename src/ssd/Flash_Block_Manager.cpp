@@ -11,12 +11,10 @@ namespace SSD_Components
 		: Flash_Block_Manager_Base(gc_and_wl_unit, max_allowed_block_erase_count, total_concurrent_streams_no, channel_count, chip_no_per_channel, die_no_per_chip,
 			plane_no_per_die, block_no_per_plane, page_no_per_block)
 	{
-		Stats::Init_stats(channel_count, chip_no_per_channel, die_no_per_chip, plane_no_per_die, block_no_per_plane, page_no_per_block, max_allowed_block_erase_count);
 	}
 
 	Flash_Block_Manager::~Flash_Block_Manager()
 	{
-		Stats::Clear_stats(channel_count, chip_no_per_channel, die_no_per_chip, plane_no_per_die, block_no_per_plane, pages_no_per_block, max_allowed_block_erase_count);
 	}
 
 	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_user_write(const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& page_address)

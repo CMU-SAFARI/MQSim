@@ -249,7 +249,7 @@ namespace SSD_Components
 				case Transaction_Source_Type::MAPPING:
 					MappingReadTRQueue[channel_id][chip_id].push_back(*it);
 					break;
-				case Transaction_Source_Type::GC:
+				case Transaction_Source_Type::GC_WL:
 					GCReadTRQueue[channel_id][chip_id].push_back(*it);
 					break;
 				default:
@@ -297,7 +297,7 @@ namespace SSD_Components
 				case Transaction_Source_Type::MAPPING:
 					MappingWriteTRQueue[channel_id][chip_id].push_back(*it);
 					break;
-				case Transaction_Source_Type::GC:
+				case Transaction_Source_Type::GC_WL:
 					GCWriteTRQueue[channel_id][chip_id].push_back(*it);
 					break;
 				default:
@@ -585,5 +585,7 @@ namespace SSD_Components
 	{
 		return true;
 	}
+
+	void TSU_FLIN::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter) {}
 
 }

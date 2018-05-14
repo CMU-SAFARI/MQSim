@@ -50,7 +50,7 @@ namespace SSD_Components
 	PPA_type Address_Mapping_Unit_Hybrid::Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress) { return 0; }
 	void Address_Mapping_Unit_Hybrid::Store_mapping_table_on_flash_at_start() {}
 	void Address_Mapping_Unit_Hybrid::Allocate_new_page_for_gc(NVM_Transaction_Flash_WR* transaction, bool is_translation_page) {}
-	void Address_Mapping_Unit_Hybrid::Lock_physical_block_for_gc(const NVM::FlashMemory::Physical_Page_Address& block_address) {}
+	void Address_Mapping_Unit_Hybrid::Lock_physical_block_for_gc_wl(const NVM::FlashMemory::Physical_Page_Address& block_address) {}
 	void Address_Mapping_Unit_Hybrid::Lock_lpa_for_gc(stream_id_type stream_id, LPA_type lpa) {}
 	void Address_Mapping_Unit_Hybrid::Unlock_lpa_after_gc(stream_id_type stream_id, LPA_type lpa) {}
 	void Address_Mapping_Unit_Hybrid::Lock_mvpn_for_gc(stream_id_type stream_id, MVPN_type mpvn) {}

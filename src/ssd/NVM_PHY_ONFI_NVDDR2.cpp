@@ -523,7 +523,7 @@ namespace SSD_Components {
 					case Transaction_Source_Type::USERIO:
 						_my_instance->WaitingReadTX[chip->ChannelID].push_back((*it));
 						break;
-					case Transaction_Source_Type::GC:
+					case Transaction_Source_Type::GC_WL:
 						_my_instance->WaitingGCRead_TX[chip->ChannelID].push_back((*it));
 						break;
 					case Transaction_Source_Type::MAPPING:

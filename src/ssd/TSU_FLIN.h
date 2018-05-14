@@ -53,6 +53,7 @@ namespace SSD_Components
 		void Start_simulation();
 		void Validate_simulation_config();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
+		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 	private:
 		unsigned int* stream_count_per_priority_class;
 		stream_id_type** stream_ids_per_priority_class;

@@ -19,6 +19,7 @@ namespace SSD_Components
 		virtual LPA_type Convert_host_logical_address_to_device_address(LHA_type lha) = 0;
 		virtual page_status_type Find_NVM_subunit_access_bitmap(LHA_type lha) = 0;
 		virtual void Perform_precondition(std::vector<Utils::Workload_Statistics*> workload_stats) = 0;
+		virtual void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter) = 0;
 	};
 }
 

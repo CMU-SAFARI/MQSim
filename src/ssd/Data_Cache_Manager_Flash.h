@@ -55,6 +55,7 @@ namespace SSD_Components
 		unsigned int Size;
 		void* Related_request;
 		Data_Cache_Simulation_Event_Type next_event_type;
+		stream_id_type Stream_id;
 	};
 
 	class Data_Cache_Manager_Flash : public Data_Cache_Manager_Base
@@ -63,8 +64,8 @@ namespace SSD_Components
 		Data_Cache_Manager_Flash(const sim_object_id_type& id, Host_Interface_Base* host_interface, NVM_Firmware* firmware, NVM_PHY_ONFI* flash_controller,
 			unsigned int total_capacity_in_bytes,
 			unsigned int dram_row_size, unsigned int dram_data_rate, unsigned int dram_busrt_size, sim_time_type dram_tRCD, sim_time_type dram_tCL, sim_time_type dram_tRP,
-			Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, unsigned int stream_count,
-			unsigned int sector_no_per_page, unsigned int back_pressure_buffer_max_depth);
+			Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, 
+			unsigned int stream_count, unsigned int sector_no_per_page, unsigned int back_pressure_buffer_max_depth, bool shared_dram_request_queue = false);
 		~Data_Cache_Manager_Flash();
 		void Execute_simulator_event(MQSimEngine::Sim_Event* ev);
 		void Setup_triggers();
@@ -78,9 +79,11 @@ namespace SSD_Components
 		
 		void process_new_user_request(User_Request* user_request);
 		void write_to_destage_buffer(User_Request* user_request);//Used in the WRITE_CACHE execution mode in which the DRAM space is used as a destage buffer
-		std::queue<Memory_Transfer_Info*> dram_access_request_queue;//The list of DRAM transfers that are waiting to be executed
-		std::queue<Memory_Transfer_Info*> waiting_access_request_queue;//The list of user writes that are waiting for the DRAM space to be free
-		std::list<User_Request*> waiting_user_requests_queue;//The list of user requests that are waiting for the free DRAM space
+		std::queue<Memory_Transfer_Info*>* dram_execution_queue;//The list of DRAM transfers that are waiting to be executed
+		std::queue<Memory_Transfer_Info*>* dram_free_slot_waiting_queue;//The list of DRAM transfers that are waiting for free space in DRAM and are not in the execution list
+		std::list<User_Request*>* waiting_user_requests_queue;//The list of user requests that are waiting for slots in the DRAM space
+		bool shared_dram_request_queue;
+		int dram_execution_list_turn;
 
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
 		void service_dram_access_request(Memory_Transfer_Info* request_info);

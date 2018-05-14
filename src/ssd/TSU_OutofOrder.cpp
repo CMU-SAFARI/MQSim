@@ -71,6 +71,9 @@ namespace SSD_Components
 
 	void TSU_OutofOrder::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
 	{
+		name_prefix = name_prefix + +".TSU";
+		xmlwriter.Write_open_tag(name_prefix);
+
 		TSU_Base::Report_results_in_XML(name_prefix, xmlwriter);
 
 		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
@@ -100,6 +103,8 @@ namespace SSD_Components
 		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
 			for (unsigned int chip_cntr = 0; chip_cntr < chip_no_per_channel; chip_cntr++)
 				GCEraseTRQueue[channelID][chip_cntr].Report_results_in_XML(name_prefix + ".GC_Erase_TR_Queue", xmlwriter);
+	
+		xmlwriter.Write_close_tag();
 	}
 
 	inline void TSU_OutofOrder::Prepare_for_transaction_submit()
@@ -140,7 +145,7 @@ namespace SSD_Components
 				case Transaction_Source_Type::MAPPING:
 					MappingReadTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
-				case Transaction_Source_Type::GC:
+				case Transaction_Source_Type::GC_WL:
 					GCReadTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
 				default:
@@ -157,7 +162,7 @@ namespace SSD_Components
 				case Transaction_Source_Type::MAPPING:
 					MappingWriteTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
-				case Transaction_Source_Type::GC:
+				case Transaction_Source_Type::GC_WL:
 					GCWriteTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
 				default:

@@ -5,10 +5,12 @@
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
 				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1,2,3</Chip_IDs>
+				 <Chip_IDs>0,1</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -26,10 +28,12 @@
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
 				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1,2,3</Chip_IDs>
+				 <Chip_IDs>0,1</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -47,10 +51,12 @@
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
 				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1,2,3</Chip_IDs>
+				 <Chip_IDs>0,1</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -68,10 +74,12 @@
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
 				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1,2,3</Chip_IDs>
+				 <Chip_IDs>0,1</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -89,10 +97,12 @@
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
 				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1,2,3</Chip_IDs>
+				 <Chip_IDs>0,1</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
@@ -110,10 +120,12 @@
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
 				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1,2,3</Chip_IDs>
+				 <Chip_IDs>0,1</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
+				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>

@@ -57,7 +57,8 @@ namespace SSD_Components
 
 		static void handle_user_request_arrived_signal(User_Request* user_request);
 		virtual void process_new_user_request(User_Request* user_request) = 0;
-		unsigned int back_pressure_buffer_max_depth, back_pressure_buffer_depth;
+		unsigned int back_pressure_buffer_max_depth;
+		unsigned int *back_pressure_buffer_depth;
 	};
 
 
