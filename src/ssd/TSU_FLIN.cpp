@@ -348,7 +348,7 @@ namespace SSD_Components
 
 		//First pass: from start to end to estimate the slowdown of each transaction in its current position
 		std::stack<double> min_slowdown_list, max_slowdown_list;
-		double slowdown_min = 10000000000000000000, slowdown_max = 0;
+		unsigned long long int slowdown_min = 10000000000000000000ULL, slowdown_max = 0ULL;
 		while (itr != std::next(end))
 		{
 			min_slowdown_list.push(slowdown_min);
@@ -375,7 +375,7 @@ namespace SSD_Components
 		auto final_position = end;
 		auto traverser = end;
 		time_to_finish -= _NVMController->Expected_transfer_time(*end) + _NVMController->Expected_finish_time(*end);
-		double slowdown_min_reverse = 10000000000000000000, slowdown_max_reverse = 0;
+		unsigned long long int slowdown_min_reverse = 10000000000000000000ULL, slowdown_max_reverse = 0ULL;
 
 		while (traverser != std::prev(start) && (*traverser)->Stream_id == (*end)->Stream_id)
 		{
