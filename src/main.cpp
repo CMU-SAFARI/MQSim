@@ -102,8 +102,10 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 	workload_defs_file.open(workload_defs_file_path.c_str());
 	bool use_default_workloads = true;
 	if (!workload_defs_file) {
-		PRINT_MESSAGE("The specified workload definition file does not exist!")
-		PRINT_MESSAGE("Using MQSim's default workload definitions")
+		PRINT_MESSAGE("The specified workload definition file does not exist!");
+		PRINT_MESSAGE("Using MQSim's default workload definitions.");
+		PRINT_MESSAGE("Writing the default workload definitions to the expected workload definition file.");
+		PRINT_MESSAGE("[====================] Done!\n");
 	}
 	else
 	{
@@ -142,8 +144,10 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 			} 
 			else
 			{
-				PRINT_MESSAGE("Error in the workload definition file!")
-				PRINT_MESSAGE("Using MQSim's default workload definitions")
+				PRINT_MESSAGE("Error in the workload definition file!");
+				PRINT_MESSAGE("Using MQSim's default workload definitions.");
+				PRINT_MESSAGE("Writing the default workload definitions to the expected workload definition file.");
+				PRINT_MESSAGE("[====================] Done!\n");
 			}
 		}
 	}
