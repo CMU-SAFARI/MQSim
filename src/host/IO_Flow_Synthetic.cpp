@@ -13,6 +13,7 @@ namespace Host_Components
 		double hot_region_ratio,
 		Utils::Request_Size_Distribution_Type request_size_distribution, unsigned int average_request_size, unsigned int variance_request_size,
 		Utils::Request_Generator_Type generator_type, sim_time_type Average_inter_arrival_time_nano_sec, unsigned int average_number_of_enqueued_requests,
+		bool generate_aligned_addresses, unsigned int alignment_value,
 		int seed, sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_req_count, HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex,
 		bool enabled_logging, sim_time_type logging_period, std::string logging_file_path) :
 		IO_Flow_Base(name, start_lsa_on_device, LHA_type(start_lsa_on_device + (end_lsa_on_device - start_lsa_on_device) * working_set_ratio), io_queue_id, nvme_submission_queue_size, nvme_completion_queue_size, priority_class, stop_time, initial_occupancy_ratio, total_req_count, SSD_device_type, pcie_root_complex, enabled_logging, logging_period, logging_file_path),
@@ -20,7 +21,7 @@ namespace Host_Components
 		working_set_ratio(working_set_ratio), hot_region_ratio(hot_region_ratio),
 		request_size_distribution(request_size_distribution), average_request_size(average_request_size), variance_request_size(variance_request_size),
 		generator_type(generator_type), Average_inter_arrival_time_nano_sec(Average_inter_arrival_time_nano_sec), average_number_of_enqueued_requests(average_number_of_enqueued_requests),
-		seed(seed)
+		seed(seed), generate_aligned_addresses(generate_aligned_addresses), alignment_value(alignment_value)
 	{
 		if (read_ratio == 0.0)//If read ratio is 0, then we change its value to a negative one so that in request generation we never generate a read request
 			read_ratio = -1.0;
@@ -112,6 +113,10 @@ namespace Host_Components
 			streaming_next_address += request->LBA_count;
 			if (streaming_next_address > end_lsa_on_device)
 				streaming_next_address = start_lsa_on_device;
+			if (generate_aligned_addresses)
+				streaming_next_address -= streaming_next_address % alignment_value;
+			if(streaming_next_address == request->Start_LBA)
+				PRINT_MESSAGE("Synthetic Message Generator: The same address is always repeated due to configuration parameters!")
 			break;
 		case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
 			if (random_hot_cold_generator->Uniform(0, 1) < hot_region_ratio)// (100-hot)% of requests going to hot% of the address space
@@ -139,9 +144,11 @@ namespace Host_Components
 		default:
 			PRINT_ERROR("Unknown distribution type for address.\n")
 		}
+		if (generate_aligned_addresses)
+			request->Start_LBA -= request->Start_LBA % alignment_value;
 		STAT_generated_request_count++;
 		request->Arrival_time = Simulator->Time();
-		DEBUG("* Host: Request generated - " << (request->Type == Host_IO_Request_Type::READ ? "Read, " : "Write, ") << "LBA:" << request->Start_LBA << ", Size:" << request->LBA_count << "")
+		DEBUG("* Host: Request generated - " << (request->Type == Host_IO_Request_Type::READ ? "Read, " : "Write, ") << "LBA:" << request->Start_LBA << ", Size_in_bytes:" << request->LBA_count << "")
 
 		return request;
 	}
@@ -165,7 +172,11 @@ namespace Host_Components
 		IO_Flow_Base::Start_simulation();
 
 		if (address_distribution == Utils::Address_Distribution_Type::STREAMING)
+		{
 			streaming_next_address = random_address_generator->Uniform_ulong(start_lsa_on_device, end_lsa_on_device);
+			if (generate_aligned_addresses)
+				streaming_next_address -= streaming_next_address % alignment_value;
+		}
 		if (generator_type == Utils::Request_Generator_Type::BANDWIDTH)
 			Simulator->Register_sim_event((sim_time_type)random_time_interval_generator->Exponential((double)Average_inter_arrival_time_nano_sec), this, 0, 0);
 		else

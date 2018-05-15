@@ -37,6 +37,8 @@ public:
 	char Read_Percentage;
 	Utils::Address_Distribution_Type Address_Distribution;
 	char Percentage_of_Hot_Region;//This parameters used if the address distribution type is hot/cold (i.e., (100-H)% of the whole I/O requests are going to a H% hot region of the storage space)
+	bool Generated_Aligned_Addresses;
+	unsigned int Address_Alignment_Unit;
 	Utils::Request_Size_Distribution_Type Request_Size_Distribution;
 	unsigned int Average_Request_Size;//Average request size in sectors
 	unsigned int Variance_Request_Size;//Variance of request size in sectors

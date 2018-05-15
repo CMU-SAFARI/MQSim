@@ -1,6 +1,6 @@
 #ifndef TSU_FLIN_H
 #define TSU_FLIN_H
-
+/*
 #include <list>
 #include <set>
 #include "TSU_Base.h"
@@ -25,14 +25,14 @@ namespace SSD_Components
 		double Sum_write_slowdown;
 	};
 
-	/*
+	*
 	* This class implements a transaction scheduling unit which supports:
 	* 1. Out-of-order execution of flash transactions, similar to the Sprinkler proposal
 	*    described in "Jung et al., Sprinkler: Maximizing resource utilization in many-chip
 	*    solid state disks, HPCA, 2014".
 	* 2. Program and erase suspension, similar to the proposal described in "G. Wu and X. He,
 	*    Reducing SSD read latency via NAND flash program and erase suspension, FAST 2012".
-	*/
+	*
 	class TSU_FLIN : public TSU_Base
 	{
 	public:
@@ -89,6 +89,6 @@ namespace SSD_Components
 		int current_turn_read, current_turn_write;
 	};
 }
-
+*/
 
 #endif //!TSU_FLIN

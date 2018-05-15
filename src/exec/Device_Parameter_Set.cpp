@@ -23,10 +23,10 @@ unsigned int Device_Parameter_Set::CMT_Capacity = 2 * 1024 * 1024;//Size of SRAM
 SSD_Components::CMT_Sharing_Mode Device_Parameter_Set::CMT_Sharing_Mode = SSD_Components::CMT_Sharing_Mode::SHARED;//How the entire CMT space is shared among concurrently running flows
 SSD_Components::Flash_Plane_Allocation_Scheme_Type Device_Parameter_Set::Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::CWDP;
 SSD_Components::Flash_Scheduling_Type Device_Parameter_Set::Transaction_Scheduling_Policy = SSD_Components::Flash_Scheduling_Type::OUT_OF_ORDER;
-double Device_Parameter_Set::Overprovisioning_Ratio = 0.02;//The ratio of spare space with respect to the whole available storage space of SSD
+double Device_Parameter_Set::Overprovisioning_Ratio = 0.07;//The ratio of spare space with respect to the whole available storage space of SSD
 double Device_Parameter_Set::GC_Exec_Threshold = 0.05;//The threshold for the ratio of free pages that used to trigger GC
 SSD_Components::GC_Block_Selection_Policy_Type Device_Parameter_Set::GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::RGA;
-bool Device_Parameter_Set::Use_Copyback_for_GC = true;
+bool Device_Parameter_Set::Use_Copyback_for_GC = false;
 bool Device_Parameter_Set::Preemptible_GC_Enabled = true;
 double Device_Parameter_Set::GC_Hard_Threshold = 0.005;//The hard gc execution threshold, used to stop preemptible gc execution
 bool Device_Parameter_Set::Dynamic_Wearleveling_Enabled = true;
@@ -559,6 +559,8 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			{
 				std::string val = param->value();
 				Overprovisioning_Ratio = std::stod(val);
+				if(Overprovisioning_Ratio < 0.05)
+					PRINT_MESSAGE("The specified overprovisioning ratio is too small. The simluation may not run correctly.")
 			}
 			else if (strcmp(param->name(), "GC_Exec_Threshold") == 0)
 			{

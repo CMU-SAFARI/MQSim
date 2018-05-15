@@ -298,6 +298,14 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 	attr = "Percentage_of_Hot_Region";
 	val = std::to_string(Percentage_of_Hot_Region);
 	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Generated_Aligned_Addresses";
+	val = (Generated_Aligned_Addresses ? "true" : "false");
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Address_Alignment_Unit";
+	val = std::to_string(Address_Alignment_Unit);
+	xmlwriter.Write_attribute_string(attr, val);
 	
 	attr = "Request_Size_Distribution";
 	switch (Request_Size_Distribution)
@@ -391,6 +399,17 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 			{
 				std::string val = param->value();
 				Percentage_of_Hot_Region = std::stoi(val);
+			}
+			else if (strcmp(param->name(), "Generated_Aligned_Addresses") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				Generated_Aligned_Addresses = (val.compare("FALSE") == 0 ? false : true);
+			}
+			else if (strcmp(param->name(), "Address_Alignment_Unit") == 0)
+			{
+				std::string val = param->value();
+				Address_Alignment_Unit = std::stoi(val);
 			}
 			else if (strcmp(param->name(), "Request_Size_Distribution") == 0)
 			{

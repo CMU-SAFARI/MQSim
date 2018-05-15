@@ -139,7 +139,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 				parameters->Preferred_suspend_write_time_for_read, parameters->Preferred_suspend_erase_time_for_read, parameters->Preferred_suspend_erase_time_for_write,
 				erase_suspension, program_suspension);
 			break;
-		case SSD_Components::Flash_Scheduling_Type::FLIN:
+		/*case SSD_Components::Flash_Scheduling_Type::FLIN:
 		{
 			unsigned int * stream_count_per_priority_class = new unsigned int[4];
 			for (int i = 0; i < 4; i++)
@@ -158,7 +158,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 				parameters->Preferred_suspend_write_time_for_read, parameters->Preferred_suspend_erase_time_for_read, parameters->Preferred_suspend_erase_time_for_write,
 				erase_suspension, program_suspension);
 			break;
-		}
+		}*/
 		default:
 			throw std::invalid_argument("No implementation is available for the specified transaction scheduling algorithm");
 		}

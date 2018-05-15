@@ -42,9 +42,9 @@ void read_configuration_parameters(const string ssd_config_file_path, Execution_
 	ssd_config_file.open(ssd_config_file_path.c_str());
 
 	if (!ssd_config_file) {
-		PRINT_MESSAGE("The specified SSD configuration file does not exits.")
-		PRINT_MESSAGE("Using MQSim's default parameters.")
-		PRINT_MESSAGE("Default parameters will be written to the specified input file.")
+		PRINT_MESSAGE("The specified SSD configuration file does not exist.")
+		PRINT_MESSAGE("Using MQSim's default configuration.")
+		PRINT_MESSAGE("Writing the default configuration parameters to the expected configuration file.\n")
 
 		Utils::XmlWriter xmlwriter;
 		string tmp;
@@ -74,13 +74,13 @@ void read_configuration_parameters(const string ssd_config_file_path, Execution_
 			else
 			{
 				PRINT_MESSAGE("Error in the SSD configuration file!")
-				PRINT_MESSAGE("Using MQSim's default configuration parameters")
+				PRINT_MESSAGE("Using MQSim's default configuration.")
 			}
 		}
 		else
 		{
-			PRINT_MESSAGE("Using MQSim's default parameters")
-			PRINT_MESSAGE("Default parameters will be written to the specified input file.")
+			PRINT_MESSAGE("Using MQSim's default configuration.");
+			PRINT_MESSAGE("Writing the default configuration parameters to the expected configuration file.\n");
 
 			Utils::XmlWriter xmlwriter;
 			string tmp;
@@ -102,7 +102,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 	workload_defs_file.open(workload_defs_file_path.c_str());
 	bool use_default_workloads = true;
 	if (!workload_defs_file) {
-		PRINT_MESSAGE("The specified workload definition file does not exits!")
+		PRINT_MESSAGE("The specified workload definition file does not exist!")
 		PRINT_MESSAGE("Using MQSim's default workload definitions")
 	}
 	else
@@ -168,10 +168,14 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_1->Plane_No = 2;
 		io_flow_1->Plane_IDs = new flash_plane_ID_type[2];
 		io_flow_1->Plane_IDs[0] = 0; io_flow_1->Plane_IDs[1] = 1;
+		io_flow_1->Initial_Occupancy_Percentage = 75;
 		io_flow_1->Working_Set_Percentage = 50;
+		io_flow_1->Synthetic_Generator_Type = Utils::Request_Generator_Type::QUEUE_DEPTH;
 		io_flow_1->Read_Percentage = 100;
 		io_flow_1->Address_Distribution = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
 		io_flow_1->Percentage_of_Hot_Region = 0;
+		io_flow_1->Generated_Aligned_Addresses = true;
+		io_flow_1->Address_Alignment_Unit = 16;
 		io_flow_1->Request_Size_Distribution = Utils::Request_Size_Distribution_Type::FIXED;
 		io_flow_1->Average_Request_Size = 8;
 		io_flow_1->Variance_Request_Size = 0;
@@ -199,10 +203,14 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Plane_No = 2;
 		io_flow_2->Plane_IDs = new flash_plane_ID_type[2];
 		io_flow_2->Plane_IDs[0] = 0; io_flow_2->Plane_IDs[1] = 1;
+		io_flow_2->Initial_Occupancy_Percentage = 75;
 		io_flow_2->Working_Set_Percentage = 50;
+		io_flow_2->Synthetic_Generator_Type = Utils::Request_Generator_Type::QUEUE_DEPTH;
 		io_flow_2->Read_Percentage = 100;
-		io_flow_2->Address_Distribution = Utils::Address_Distribution_Type::STREAMING;
+		io_flow_2->Address_Distribution = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
 		io_flow_2->Percentage_of_Hot_Region = 0;
+		io_flow_2->Generated_Aligned_Addresses = true;
+		io_flow_2->Address_Alignment_Unit = 16;
 		io_flow_2->Request_Size_Distribution = Utils::Request_Size_Distribution_Type::FIXED;
 		io_flow_2->Average_Request_Size = 8;
 		io_flow_2->Variance_Request_Size = 0;

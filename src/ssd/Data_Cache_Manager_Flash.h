@@ -52,12 +52,26 @@ namespace SSD_Components
 		MEMORY_WRITE_FOR_USERIO_FINISHED};
 	struct Memory_Transfer_Info
 	{
-		unsigned int Size;
+		unsigned int Size_in_bytes;
 		void* Related_request;
 		Data_Cache_Simulation_Event_Type next_event_type;
 		stream_id_type Stream_id;
 	};
 
+	/*
+	Assumed hardware structure:
+			dram_free_slot_waiting_queue (a write transfer request enqueued here if DRAM is full. for reads, there is no need for DRAM queue)
+					 |
+					 |
+					\|/
+			dram_execution_queue (the transfer request goes here if DRAM can service it but the memory channel is busy)
+					 |
+					 |
+					\|/
+			 ---------------------------------------------------------
+			|     DRAM Main Data Space     DRAM-back_pressure_buffer  | ---------->To the flash backend
+			 ---------------------------------------------------------
+	*/
 	class Data_Cache_Manager_Flash : public Data_Cache_Manager_Base
 	{
 	public:
@@ -78,12 +92,14 @@ namespace SSD_Components
 		bool memory_channel_is_busy;
 		
 		void process_new_user_request(User_Request* user_request);
-		void write_to_destage_buffer(User_Request* user_request);//Used in the WRITE_CACHE execution mode in which the DRAM space is used as a destage buffer
 		std::queue<Memory_Transfer_Info*>* dram_execution_queue;//The list of DRAM transfers that are waiting to be executed
-		std::queue<Memory_Transfer_Info*>* dram_free_slot_waiting_queue;//The list of DRAM transfers that are waiting for free space in DRAM and are not in the execution list
-		std::list<User_Request*>* waiting_user_requests_queue;//The list of user requests that are waiting for slots in the DRAM space
+		std::list<Memory_Transfer_Info*>* dram_free_slot_waiting_queue;//The list of DRAM transfers that are waiting for free space in DRAM and are not in the execution list
+		//std::list<User_Request*>* waiting_user_requests_queue;//The list of user requests that are waiting for slots in the DRAM space
 		bool shared_dram_request_queue;
 		int dram_execution_list_turn;
+		std::set<LPA_type>* bloom_filter;
+		sim_time_type bloom_filter_reset_step = 1000000000;
+		sim_time_type next_bloom_filter_reset_milestone = 0;
 
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
 		void service_dram_access_request(Memory_Transfer_Info* request_info);
