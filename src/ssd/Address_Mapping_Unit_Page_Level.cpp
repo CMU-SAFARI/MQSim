@@ -49,6 +49,7 @@ namespace SSD_Components
 		auto it = addressMap.find(key);
 		assert(it != addressMap.end());
 		assert(it->second->Status == CMTEntryStatus::VALID);
+
 		lruList.splice(lruList.begin(), lruList, it->second->listPtr);
 		return it->second->PPA;
 	}
@@ -66,10 +67,10 @@ namespace SSD_Components
 		auto it = addressMap.find(key);
 		assert(it != addressMap.end());
 		assert(it->second->Status == CMTEntryStatus::VALID);
-
 		it->second->PPA = ppa;
 		it->second->WrittenStateBitmap = pageWriteState;
 		it->second->Dirty = true;
+		it->second->Stream_id = streamID;
 		DEBUG("Address mapping table update entry - Stream ID:" << streamID << ", LPA:" << lpa << ", PPA:" << ppa)
 	}
 	void Cached_Mapping_Table::Insert_new_mapping_info(const stream_id_type streamID, const LPA_type lpa, const PPA_type ppa, const unsigned long long pageWriteState)
@@ -80,10 +81,10 @@ namespace SSD_Components
 			throw std::logic_error("No slot is reserved!");
 
 		it->second->Status = CMTEntryStatus::VALID;
-
 		it->second->PPA = ppa;
 		it->second->WrittenStateBitmap = pageWriteState;
 		it->second->Dirty = false;
+		it->second->Stream_id = streamID;
 		DEBUG("Address mapping table insert entry - Stream ID:" << streamID << ", LPA:" << lpa << ", PPA:" << ppa)
 	}
 	bool Cached_Mapping_Table::Is_slot_reserved_for_lpn_and_waiting(const stream_id_type streamID, const LPA_type lpn)
@@ -109,6 +110,7 @@ namespace SSD_Components
 
 		CMTSlotType* cmtEnt = new CMTSlotType();
 		cmtEnt->Dirty = false;
+		cmtEnt->Stream_id = streamID;
 		lruList.push_front(std::pair<LPA_type, CMTSlotType*>(key, cmtEnt));
 		cmtEnt->Status = CMTEntryStatus::WAITING;
 		cmtEnt->listPtr = lruList.begin();
@@ -118,7 +120,7 @@ namespace SSD_Components
 	{
 		assert(addressMap.size() > 0);
 		addressMap.erase(lruList.back().first);
-		lpa = lruList.back().first;
+		lpa = UNIQUE_KEY_TO_LPN(lruList.back().second->Stream_id,lruList.back().first);
 		CMTSlotType evictedItem = *lruList.back().second;
 		delete lruList.back().second;
 		lruList.pop_back();
@@ -1374,7 +1376,6 @@ namespace SSD_Components
 	{
 		AddressMappingDomain* domain = domains[stream_id];
 		MVPN_type mvpn = get_MVPN(lpa, stream_id);
-
 
 		/*This is the first time that a user request accesses this address.
 		Just create an entry in cache! No flash read is needed.*/

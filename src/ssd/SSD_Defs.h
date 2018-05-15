@@ -24,7 +24,8 @@ typedef uint64_t data_cache_content_type;
 * in modern MQ-SSDs). The value 56 in the below macro is calculated
 * as (64 - log_2(256)).
 */
-#define LPN_TO_UNIQUE_KEY(S,L) ((((LPA_type)S)<<56)|L)
+#define LPN_TO_UNIQUE_KEY(STREAM,LPN) ((((LPA_type)STREAM)<<56)|LPN)
+#define UNIQUE_KEY_TO_LPN(STREAM,LPN) ((~(((LPA_type)STREAM)<<56))&LPN)
 
 
 inline unsigned int count_sector_no_from_status_bitmap(const page_status_type page_status)

@@ -46,7 +46,7 @@ namespace SSD_Components
 		unsigned int capacity_in_pages;
 	};
 
-	enum class Data_Cache_Simulation_Event_Type {MEMORY_READ_FOR_CACHE_FINISHED,
+	enum class Data_Cache_Simulation_Event_Type {MEMORY_READ_FOR_CACHE_EVICTION_FINISHED,
 		MEMORY_WRITE_FOR_CACHE_FINISHED,
 		MEMORY_READ_FOR_USERIO_FINISHED,
 		MEMORY_WRITE_FOR_USERIO_FINISHED};
@@ -60,7 +60,7 @@ namespace SSD_Components
 
 	/*
 	Assumed hardware structure:
-			dram_free_slot_waiting_queue (a write transfer request enqueued here if DRAM is full. for reads, there is no need for DRAM queue)
+			waiting_user_requests_queue_for_dram_free_slot (a user write request is enqueued into this queue if DRAM is full. For a user read request, there is no need for DRAM free slot and thus no queue.)
 					 |
 					 |
 					\|/
@@ -68,9 +68,9 @@ namespace SSD_Components
 					 |
 					 |
 					\|/
-			 ---------------------------------------------------------
-			|     DRAM Main Data Space     DRAM-back_pressure_buffer  | ---------->To the flash backend
-			 ---------------------------------------------------------
+			 --------------------------------------------------|------------------------
+			|     DRAM Cache Main Data Space                   |   Back Pressure Space  | ---------->To the flash backend
+			 --------------------------------------------------|------------------------
 	*/
 	class Data_Cache_Manager_Flash : public Data_Cache_Manager_Base
 	{
@@ -92,9 +92,9 @@ namespace SSD_Components
 		bool memory_channel_is_busy;
 		
 		void process_new_user_request(User_Request* user_request);
+		void write_to_destage_buffer(User_Request* user_request);//Used in the WRITE_CACHE and WRITE_READ_CACHE modes in which the DRAM space is used as a destage buffer
 		std::queue<Memory_Transfer_Info*>* dram_execution_queue;//The list of DRAM transfers that are waiting to be executed
-		std::list<Memory_Transfer_Info*>* dram_free_slot_waiting_queue;//The list of DRAM transfers that are waiting for free space in DRAM and are not in the execution list
-		//std::list<User_Request*>* waiting_user_requests_queue;//The list of user requests that are waiting for slots in the DRAM space
+		std::list<User_Request*>* waiting_user_requests_queue_for_dram_free_slot;//The list of user requests that are waiting for free space in DRAM
 		bool shared_dram_request_queue;
 		int dram_execution_list_turn;
 		std::set<LPA_type>* bloom_filter;

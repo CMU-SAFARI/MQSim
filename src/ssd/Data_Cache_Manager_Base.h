@@ -59,6 +59,8 @@ namespace SSD_Components
 		virtual void process_new_user_request(User_Request* user_request) = 0;
 		unsigned int back_pressure_buffer_max_depth;
 		unsigned int *back_pressure_buffer_depth;
+
+		bool is_user_request_finished(const User_Request* user_request) { return (user_request->Transaction_list.size() == 0 && user_request->Sectors_serviced_from_cache == 0); }
 	};
 
 

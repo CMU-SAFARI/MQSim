@@ -30,6 +30,7 @@ namespace SSD_Components
 		bool Dirty;
 		CMTEntryStatus Status;
 		std::list<std::pair<LPA_type, CMTSlotType*>>::iterator listPtr;//used for fast implementation of LRU
+		stream_id_type Stream_id;
 	};
 	struct GMTEntryType//Entry type for the Global Mapping Table
 	{
