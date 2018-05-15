@@ -18,7 +18,7 @@ namespace SSD_Components
 	void Queue_Probe::EnqueueRequest(NVM_Transaction* transaction)
 	{
 		if (transaction == NULL)
-			PRINT_ERROR("Object can not be null if accurateTimingEnabled=ture")
+			PRINT_ERROR("Inserting a null object to queue!")
 
 		currentObjectsInQueue[transaction] = Simulator->Time();
 		nRequests++;

@@ -15,7 +15,7 @@ namespace SSD_Components
 		uint64_t submission_queue_base_address, uint16_t submission_queue_size,	uint64_t completion_queue_base_address, uint16_t completion_queue_size)
 	{
 		if(end_logical_sector_address < start_logical_sector_address)
-			PRINT_ERROR("Error in allocating address range to a stream in host interface: the start address should be smaller than the end address")
+			PRINT_ERROR("Error in allocating address range to a stream in host interface: the start address should be smaller than the end address.")
 		Input_Stream_NVMe* input_stream = new Input_Stream_NVMe(priority_class, start_logical_sector_address, end_logical_sector_address, 
 			submission_queue_base_address, submission_queue_size, completion_queue_base_address, completion_queue_size);
 		this->input_streams.push_back(input_stream);

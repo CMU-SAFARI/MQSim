@@ -3,7 +3,7 @@
 namespace SSD_Components
 {
 
-	TSU_OutofOrder::TSU_OutofOrder(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI_NVDDR2* NVMController, unsigned int ChannelCount, unsigned int chip_no_per_channel,
+	TSU_OutOfOrder::TSU_OutOfOrder(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI_NVDDR2* NVMController, unsigned int ChannelCount, unsigned int chip_no_per_channel,
 		unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
 		sim_time_type WriteReasonableSuspensionTimeForRead,
 		sim_time_type EraseReasonableSuspensionTimeForRead,
@@ -42,7 +42,7 @@ namespace SSD_Components
 		}
 	}
 	
-	TSU_OutofOrder::~TSU_OutofOrder()
+	TSU_OutOfOrder::~TSU_OutOfOrder()
 	{
 		for (unsigned int channelID = 0; channelID < channel_count; channelID++)
 		{
@@ -63,13 +63,13 @@ namespace SSD_Components
 		delete[] MappingWriteTRQueue;
 	}
 
-	void TSU_OutofOrder::Start_simulation() {}
+	void TSU_OutOfOrder::Start_simulation() {}
 
-	void TSU_OutofOrder::Validate_simulation_config() {}
+	void TSU_OutOfOrder::Validate_simulation_config() {}
 
-	void TSU_OutofOrder::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
+	void TSU_OutOfOrder::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
 
-	void TSU_OutofOrder::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
+	void TSU_OutOfOrder::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
 	{
 		name_prefix = name_prefix + +".TSU";
 		xmlwriter.Write_open_tag(name_prefix);
@@ -107,7 +107,7 @@ namespace SSD_Components
 		xmlwriter.Write_close_tag();
 	}
 
-	inline void TSU_OutofOrder::Prepare_for_transaction_submit()
+	inline void TSU_OutOfOrder::Prepare_for_transaction_submit()
 	{
 		opened_scheduling_reqs++;
 		if (opened_scheduling_reqs > 1)
@@ -115,18 +115,18 @@ namespace SSD_Components
 		transaction_receive_slots.clear();
 	}
 
-	inline void TSU_OutofOrder::Submit_transaction(NVM_Transaction_Flash* transaction)
+	inline void TSU_OutOfOrder::Submit_transaction(NVM_Transaction_Flash* transaction)
 	{
 		transaction_receive_slots.push_back(transaction);
 	}
 
-	void TSU_OutofOrder::Schedule()
+	void TSU_OutOfOrder::Schedule()
 	{
 		opened_scheduling_reqs--;
 		if (opened_scheduling_reqs > 0)
 			return;
 		if (opened_scheduling_reqs < 0)
-			PRINT_ERROR("TSU Schedule function is invoked in an incorrect way!");
+			PRINT_ERROR("TSU_OutOfOrder: Illegal status!");
 
 		if (transaction_receive_slots.size() == 0)
 			return;
@@ -149,7 +149,7 @@ namespace SSD_Components
 					GCReadTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
 				default:
-					PRINT_ERROR("TSU_OutofOrder: Unhandled source type four read transaction!")
+					PRINT_ERROR("TSU_OutOfOrder: unknown source type for a read transaction!")
 				}
 				break;
 			case Transaction_Type::WRITE:
@@ -166,7 +166,7 @@ namespace SSD_Components
 					GCWriteTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
 					break;
 				default:
-					PRINT_ERROR("TSU_OutofOrder: Unhandled source type four write transaction!")
+					PRINT_ERROR("TSU_OutOfOrder: unknown source type for a write transaction!")
 				}
 				break;
 			case Transaction_Type::ERASE:
@@ -195,7 +195,7 @@ namespace SSD_Components
 		}
 	}
 	
-	bool TSU_OutofOrder::service_read_transaction(NVM::FlashMemory::Flash_Chip* chip)
+	bool TSU_OutOfOrder::service_read_transaction(NVM::FlashMemory::Flash_Chip* chip)
 	{
 		Flash_Transaction_Queue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
 
@@ -310,7 +310,7 @@ namespace SSD_Components
 		return true;
 	}
 
-	bool TSU_OutofOrder::service_write_transaction(NVM::FlashMemory::Flash_Chip* chip)
+	bool TSU_OutOfOrder::service_write_transaction(NVM::FlashMemory::Flash_Chip* chip)
 	{
 		Flash_Transaction_Queue *sourceQueue1 = NULL, *sourceQueue2 = NULL;
 
@@ -407,7 +407,7 @@ namespace SSD_Components
 		return true;
 	}
 
-	bool TSU_OutofOrder::service_erase_transaction(NVM::FlashMemory::Flash_Chip* chip)
+	bool TSU_OutOfOrder::service_erase_transaction(NVM::FlashMemory::Flash_Chip* chip)
 	{
 		if (_NVMController->GetChipStatus(chip) != ChipStatus::IDLE)
 			return false;

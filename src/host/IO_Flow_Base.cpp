@@ -284,7 +284,7 @@ namespace Host_Components
 			else
 			{
 				if (software_request_queue[*available_command_ids.begin()] != NULL)
-					PRINT_ERROR("Unexpteced situation in IO_Flow_Base! Overwriting a previously I/O request in the queue!")
+					PRINT_ERROR("Unexpteced situation in IO_Flow_Base! Overwriting an unhandled I/O request in the queue!")
 				else
 				{
 					request->IO_queue_info = *available_command_ids.begin();

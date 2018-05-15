@@ -583,7 +583,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::RANDOM_PP;
 				else if (strcmp(val.c_str(), "FIFO") == 0)
 					GC_Block_Selection_Policy = SSD_Components::GC_Block_Selection_Policy_Type::FIFO;
-				else PRINT_ERROR("Unknown GC_WL block selection policy specified in the SSD configuration file")
+				else PRINT_ERROR("Unknown GC block selection policy specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "Use_Copyback_for_GC") == 0)
 			{

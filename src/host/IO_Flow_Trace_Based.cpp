@@ -68,9 +68,9 @@ namespace Host_Components
 		char* pEnd;
 		trace_file.open(trace_file_path, std::ios::in);
 		if (!trace_file.is_open())
-			PRINT_ERROR("Error while opening input trace file!")
+			PRINT_ERROR("Error while opening input trace file: " << trace_file_path)
 
-			PRINT_MESSAGE("Investigating input trace file: " << trace_file_path);
+		PRINT_MESSAGE("Investigating input trace file: " << trace_file_path);
 		sim_time_type last_request_arrival_time = 0;
 		while (std::getline(trace_file, trace_line))
 		{
@@ -83,7 +83,7 @@ namespace Host_Components
 			sim_time_type prev_time = last_request_arrival_time;
 			last_request_arrival_time = std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10);
 			if (last_request_arrival_time < prev_time)
-				PRINT_ERROR("Unexpected request arrival time: " << last_request_arrival_time << "\nMQSim expects request arrival times to be monotonic increasing in the input trace!")
+				PRINT_ERROR("Unexpected request arrival time: " << last_request_arrival_time << "\nMQSim expects request arrival times to be monotonically increasing in the input trace!")
 		}
 		trace_file.close();
 		PRINT_MESSAGE("Trace file: " << trace_file_path << " seems healthy");
@@ -160,7 +160,7 @@ namespace Host_Components
 		std::ifstream trace_file_temp;
 		trace_file_temp.open(trace_file_path, std::ios::in);
 		if (!trace_file_temp.is_open())
-			PRINT_ERROR("Error while opening input trace file!")
+			PRINT_ERROR("Error while opening the input trace file!")
 
 		std::string trace_line;
 		char* pEnd;

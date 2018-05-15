@@ -253,7 +253,7 @@ namespace SSD_Components
 					GCReadTRQueue[channel_id][chip_id].push_back(*it);
 					break;
 				default:
-					PRINT_ERROR("TSU_OutofOrder: Unhandled source type four read transaction!")
+					PRINT_ERROR("TSU_OutOfOrder: Unhandled source type four read transaction!")
 				}
 				break;
 			case Transaction_Type::WRITE:
@@ -301,7 +301,7 @@ namespace SSD_Components
 					GCWriteTRQueue[channel_id][chip_id].push_back(*it);
 					break;
 				default:
-					PRINT_ERROR("TSU_OutofOrder: Unhandled source type four write transaction!")
+					PRINT_ERROR("TSU_OutOfOrder: Unhandled source type four write transaction!")
 				}
 				break;
 			case Transaction_Type::ERASE:

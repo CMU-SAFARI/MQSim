@@ -139,7 +139,7 @@ namespace SSD_Components
 					break;
 				}
 				default:
-					PRINT_ERROR("Unhandled request type generator in FTL preconditioning function.")
+					PRINT_ERROR("Unknown request type generator in the FTL preconditioning function.")
 				}
 			}
 			else
@@ -647,7 +647,7 @@ namespace SSD_Components
 			for (unsigned int i = 0; i <= page_no_per_block; i++)//Check if probability distribution is correct
 				sum += steadystate_block_status_probability[i];
 			if(sum > 1.001 || sum < 0.99)//Due to some precision errors the sum may not be exactly equal to 1
-				PRINT_ERROR("The probability distribution of flash blocks steady-state status is wrong. It is not safe to continue preconditioning!" )
+				PRINT_ERROR("Wrong probability distribution function for the number of valid pages in flash blocks in the steady-state! It is not safe to continue preconditioning!" )
 			Address_Mapping_Unit->Allocate_address_for_preconditioning(stat->Stream_id, lpa_set_for_preconditioning, steadystate_block_status_probability);
 
 			//Step 4: Touch the LPAs and bring them to CMT to warmup address mapping unit
@@ -678,7 +678,7 @@ namespace SSD_Components
 							break;
 						}
 						default:
-							PRINT_ERROR("Unhandled request type generator in FTL preconditioning function.")
+							PRINT_ERROR("Unknown request type generator in the FTL preconditioning function.")
 						}
 					}
 					else
@@ -695,7 +695,7 @@ namespace SSD_Components
 						no_of_entries_in_cmt = (unsigned int)(max_LPA - min_LPA + 1);
 					break;
 				default:
-					PRINT_ERROR("Unhandled mapping table sharing mode in the FTL preconditioning function.")
+					PRINT_ERROR("Unknown mapping table sharing mode in the FTL preconditioning function.")
 				}
 
 				if (max_LPA - min_LPA + 1 < LPA_type(trace_lpas_sorted_histogram.size()))

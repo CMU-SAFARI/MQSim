@@ -640,7 +640,7 @@ namespace SSD_Components
 							}
 						}
 						if (assigned_lpas[channel_cntr][chip_cntr][die_cntr][plane_cntr].size() > 0)
-							PRINT_ERROR("It is not possible to assing PPA to all LPAs in Allocate_address_for_preconditioning! It is not safe to continue preconditioning.")
+							PRINT_ERROR("It is not possible to assign PPA to all LPAs in Allocate_address_for_preconditioning! It is not safe to continue preconditioning.")
 
 					}
 				}
@@ -895,7 +895,7 @@ namespace SSD_Components
 			targetAddress.PlaneID = domain->Plane_ids[(unsigned int)(lpn % domain->Plane_no)];
 			break;
 		default:
-			PRINT_ERROR("Unhandled allocation scheme type!")
+			PRINT_ERROR("Unknown plane allocation scheme type!")
 		}
 	}
 	void Address_Mapping_Unit_Page_Level::allocate_plane_for_user_write(NVM_Transaction_Flash_WR* transaction)
@@ -1054,7 +1054,7 @@ namespace SSD_Components
 			targetAddress.PlaneID = domain->Plane_ids[(unsigned int)(lpn % domain->Plane_no)];
 			break;
 		default:
-			PRINT_ERROR("Unhandled allocation scheme type!")
+			PRINT_ERROR("Unknown plane allocation scheme type!")
 		}
 	}
 	void Address_Mapping_Unit_Page_Level::allocate_page_in_plane_for_user_write(NVM_Transaction_Flash_WR* transaction, bool is_for_gc)
@@ -1065,7 +1065,7 @@ namespace SSD_Components
 		if (old_ppa == NO_PPA)  /*this is the first access to the logical page*/
 		{
 			if (is_for_gc)
-				PRINT_ERROR("Unexpected situation in allocate_page_in_plane_for_user_write for GC_WL write!")
+				PRINT_ERROR("Unexpected mapping table status in allocate_page_in_plane_for_user_write function for a GC/WL write!")
 		}
 		else
 		{
@@ -1073,7 +1073,7 @@ namespace SSD_Components
 			{
 				page_status_type page_status_in_cmt = domain->Get_page_status(ideal_mapping_table, transaction->Stream_id, transaction->LPA);
 				if (page_status_in_cmt != transaction->write_sectors_bitmap)
-					PRINT_ERROR("Unexpected situation in allocate_page_in_plane_for_user_write for GC_WL write!")
+					PRINT_ERROR("Unexpected mapping table status in allocate_page_in_plane_for_user_write for a GC/WL write!")
 			}
 			else
 			{
@@ -1122,7 +1122,7 @@ namespace SSD_Components
 		if (old_MPPN == NO_MPPN)  /*this is the first access to the mvpn*/
 		{
 			if (is_for_gc)
-				PRINT_ERROR("Unexpected situation occured in allocate_page_in_plane_for_translation_write for GC_WL write!")
+				PRINT_ERROR("Unexpected mapping table status in allocate_page_in_plane_for_translation_write for a GC/WL write!")
 		}
 		else if (!is_for_gc)
 		{
@@ -1290,7 +1290,7 @@ namespace SSD_Components
 			read_address.PlaneID = domain->Plane_ids[(unsigned int)(lpa % domain->Plane_no)];
 			break;
 		default:
-			PRINT_ERROR("Unhandled Page Allocation Scheme Type")
+			PRINT_ERROR("Unknown plane allocation scheme type!")
 		}
 
 		BlockManager->Allocate_block_and_page_in_plane_for_user_write(stream_id, read_address);
@@ -1394,7 +1394,7 @@ namespace SSD_Components
 					domain->GlobalMappingTable[evicted_lpa].PPA = evictedItem.PPA;
 					domain->GlobalMappingTable[evicted_lpa].WrittenStateBitmap = evictedItem.WrittenStateBitmap;
 					if (domain->GlobalMappingTable[evicted_lpa].TimeStamp > CurrentTimeStamp)
-						throw std::logic_error("Unexpected situation occured in handling GMT!");
+						throw std::logic_error("Unexpected situation occurred in handling GMT!");
 					domain->GlobalMappingTable[evicted_lpa].TimeStamp = CurrentTimeStamp;
 					generate_flash_writeback_request_for_mapping_data(stream_id, evicted_lpa);
 				}
@@ -1563,7 +1563,7 @@ namespace SSD_Components
 		MVPN_type mvpn = get_MVPN(lpn, stream_id);
 
 		if (mvpn >= domains[stream_id]->Total_translation_pages_no)
-			PRINT_ERROR("Out of range virtual translation page")
+			PRINT_ERROR("Out of range virtual translation page number!")
 
 		domains[stream_id]->ArrivingMappingEntries.insert(std::pair<MVPN_type, LPA_type>(mvpn, lpn));
 
@@ -1578,7 +1578,7 @@ namespace SSD_Components
 			PPA_type ppn = domains[stream_id]->GlobalTranslationDirectory[mvpn].MPPN;
 
 			if (ppn == NO_MPPN)
-				PRINT_ERROR("Reading an unaviable physical flash page in function generate_flash_read_request_for_mapping_data")
+				PRINT_ERROR("Reading an invalid physical flash page address in function generate_flash_read_request_for_mapping_data!")
 
 				NVM_Transaction_Flash_RD* readTR = new NVM_Transaction_Flash_RD(Transaction_Source_Type::MAPPING, stream_id,
 					SECTOR_SIZE_IN_BYTE, NO_LPA, NO_PPA, NULL, mvpn, ((page_status_type)0x1) << sector_no_per_page, CurrentTimeStamp);
@@ -1683,14 +1683,14 @@ namespace SSD_Components
 	{
 		auto itr = domains[stream_id]->Locked_LPAs.find(lpa);
 		if (itr != domains[stream_id]->Locked_LPAs.end())
-			PRINT_ERROR("Locking an LPA that has already been locked!");
+			PRINT_ERROR("Illegal operation: Locking an LPA that has already been locked!");
 		domains[stream_id]->Locked_LPAs.insert(lpa);
 	}
 	inline void Address_Mapping_Unit_Page_Level::Lock_mvpn_for_gc(stream_id_type stream_id, MVPN_type mvpn)
 	{
 		auto itr = domains[stream_id]->Locked_MVPNs.find(mvpn);
 		if (itr != domains[stream_id]->Locked_MVPNs.end())
-			PRINT_ERROR("Locking an MVPN that has already been locked!");
+			PRINT_ERROR("Illegal operation: Locking an MVPN that has already been locked!");
 		domains[stream_id]->Locked_MVPNs.insert(mvpn);
 	}
 	inline void Address_Mapping_Unit_Page_Level::Lock_physical_block_for_gc_wl(const NVM::FlashMemory::Physical_Page_Address& block_address)
@@ -1708,7 +1708,7 @@ namespace SSD_Components
 				if (block->Holds_mapping_data)
 				{
 					if (domains[block->Stream_id]->GlobalTranslationDirectory[lpa].MPPN != Convert_address_to_ppa(addr))
-						PRINT_ERROR("Inconsistency found when locking MPVN.")
+						PRINT_ERROR("Inconsistency in the global translation directory when locking an MPVN!")
 					Lock_mvpn_for_gc(block->Stream_id, lpa);
 				}
 				else
@@ -1717,7 +1717,7 @@ namespace SSD_Components
 					if (domains[block->Stream_id]->CMT->Exists(block->Stream_id, lpa))
 						ppa = domains[block->Stream_id]->CMT->Retrieve_ppa(block->Stream_id, lpa);
 					if (ppa != Convert_address_to_ppa(addr))
-						PRINT_ERROR("Inconsistency found when locking LPA.")
+						PRINT_ERROR("Inconsistency in the global mapping table when locking an LPA!")
 					Lock_lpa_for_gc(block->Stream_id, lpa);
 				}
 			}
@@ -1727,7 +1727,7 @@ namespace SSD_Components
 	{
 		auto itr = domains[stream_id]->Locked_LPAs.find(lpa);
 		if (itr == domains[stream_id]->Locked_LPAs.end())
-			PRINT_ERROR("Unlocking an LPA that has not been locked!");
+			PRINT_ERROR("Illegal operation: Unlocking an LPA that has not been locked!");
 		domains[stream_id]->Locked_LPAs.erase(itr);
 
 		auto read_tr = domains[stream_id]->Waiting_locked_lpa_read_transactions.find(lpa);
@@ -1752,7 +1752,7 @@ namespace SSD_Components
 	{
 		auto itr = domains[stream_id]->Locked_MVPNs.find(mvpn);
 		if (itr == domains[stream_id]->Locked_MVPNs.end())
-			PRINT_ERROR("Unlocking an MVPN that has not been locked!");
+			PRINT_ERROR("Illegal operation: Unlocking an MVPN that has not been locked!");
 		domains[stream_id]->Locked_MVPNs.erase(itr);
 
 		if (domains[stream_id]->Waiting_locked_mvpn_read_transactions.find(mvpn) != domains[stream_id]->Waiting_locked_mvpn_read_transactions.end())
@@ -1760,7 +1760,7 @@ namespace SSD_Components
 			domains[stream_id]->Waiting_locked_mvpn_read_transactions.erase(mvpn);
 			PPA_type ppn = domains[stream_id]->GlobalTranslationDirectory[mvpn].MPPN;
 			if (ppn == NO_MPPN)
-				PRINT_ERROR("Reading an unaviable physical flash page in function generate_flash_read_request_for_mapping_data")
+				PRINT_ERROR("Reading an invalid physical flash page address in function generate_flash_read_request_for_mapping_data!")
 
 				NVM_Transaction_Flash_RD* readTR = new NVM_Transaction_Flash_RD(Transaction_Source_Type::MAPPING, stream_id,
 					SECTOR_SIZE_IN_BYTE, NO_LPA, NO_PPA, NULL, mvpn, ((page_status_type)0x1) << sector_no_per_page, CurrentTimeStamp);

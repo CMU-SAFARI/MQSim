@@ -52,7 +52,7 @@ namespace Host_Components
 		}
 
 		if (this->working_set_ratio == 0)
-			PRINT_ERROR("The working set ratio is set zero for workload " << name)
+			PRINT_ERROR("The working set ratio is set to zero for workload " << name)
 	}
 
 	IO_Flow_Synthetic::~IO_Flow_Synthetic()
@@ -142,7 +142,7 @@ namespace Host_Components
 				request->Start_LBA = start_lsa_on_device;
 			break;
 		default:
-			PRINT_ERROR("Unknown distribution type for address.\n")
+			PRINT_ERROR("Unknown address distribution type!\n")
 		}
 		if (generate_aligned_addresses)
 			request->Start_LBA -= request->Start_LBA % alignment_value;

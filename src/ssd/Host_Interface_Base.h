@@ -23,7 +23,7 @@ namespace SSD_Components
 	delete (Submission_Queue_Entry*)REQ->IO_command_info; \
 	if(Simulator->Is_integrated_execution_mode())\
 		{if(REQ->Data != NULL) delete[] (char*)REQ->Data;} \
-	if(REQ->Transaction_list.size() != 0) PRINT_ERROR("Deleting an unhandled requests! MQSim thinks something is going wrong!")\
+	if(REQ->Transaction_list.size() != 0) PRINT_ERROR("Deleting an unhandled user requests in the host interface! MQSim thinks something is going wrong!")\
 	delete REQ;
 
 	class Data_Cache_Manager_Base;

@@ -243,7 +243,7 @@ namespace MQSimEngine
 	void EventTree::Insert_sim_event(Sim_Event* event)
 	{
 		if (event->Fire_time < Engine::Instance()->Time())
-			PRINT_ERROR("Illegal request to register an event before Now!")
+			PRINT_ERROR("Illegal request to register a simulation event before Now!")
 
 		sim_time_type key = event->Fire_time;
 		EventTreeNode* treeNode = rbTree;     // begin at root

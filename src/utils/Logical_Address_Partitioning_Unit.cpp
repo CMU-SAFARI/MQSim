@@ -96,27 +96,27 @@ namespace Utils
 	{
 		if (initialized)
 			return start_lhas_per_flow[stream_id];
-		PRINT_ERROR("The address partitioning unit is not initialized")
+		PRINT_ERROR("The address partitioning unit is not initialized!")
 	}
 
 	LHA_type Logical_Address_Partitioning_Unit::End_lha_available_to_flow(stream_id_type stream_id)
 	{
 		if (initialized)
 			return end_lhas_per_flow[stream_id];
-		PRINT_ERROR("The address partitioning unit is not initialized")
+		PRINT_ERROR("The address partitioning unit is not initialized!")
 	}
 
 	LHA_type Logical_Address_Partitioning_Unit::LHA_count_allocate_to_flow(stream_id_type stream_id)
 	{
 		if (initialized)
 			return (end_lhas_per_flow[stream_id] - start_lhas_per_flow[stream_id] + 1);
-		PRINT_ERROR("The address partitioning unit is not initialized")
+		PRINT_ERROR("The address partitioning unit is not initialized!")
 	}
 
 	PDA_type Logical_Address_Partitioning_Unit::PDA_count_allocate_to_flow(stream_id_type stream_id)
 	{
 		if (initialized)
 			return pdas_per_flow[stream_id];
-		PRINT_ERROR("The address partitioning unit is not initialized")
+		PRINT_ERROR("The address partitioning unit is not initialized!")
 	}
 }

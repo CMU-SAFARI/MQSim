@@ -24,7 +24,7 @@ namespace SSD_Components
 				|| (status == BusChannelStatus::BUSY && new_status == BusChannelStatus::BUSY))
 				&& (current_active_chip != target_chip))
 			{
-				PRINT_ERROR("Illegal bus status transition!")
+				PRINT_ERROR("Bus " << ChannelID << ": illegal bus status transition!")
 			}
 			status = new_status;
 			if (status == BusChannelStatus::BUSY)

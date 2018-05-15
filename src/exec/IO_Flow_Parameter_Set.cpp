@@ -376,7 +376,7 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 					Synthetic_Generator_Type = Utils::Request_Generator_Type::BANDWIDTH;
 				else if (strcmp(val.c_str(), "QUEUE_DEPTH") == 0)
 					Synthetic_Generator_Type = Utils::Request_Generator_Type::QUEUE_DEPTH;
-				else PRINT_ERROR("Wrong synthetic generator type for input synthetic flow")
+				else PRINT_ERROR("Unknown synthetic generator type specified in the input file")
 			}
 			else if (strcmp(param->name(), "Read_Percentage") == 0)
 			{
@@ -534,7 +534,7 @@ void IO_Flow_Parameter_Set_Trace_Based::XML_deserialize(rapidxml::xml_node<> *no
 					Time_Unit = Trace_Time_Unit::NANOSECOND;
 				else if (strcmp(val.c_str(), "MICROSECOND") == 0)
 					Time_Unit = Trace_Time_Unit::MICROSECOND;
-				else PRINT_ERROR("Wrong time unit type for input trace based flow")
+				else PRINT_ERROR("Wrong time unit specified for the trace based flow")
 			}
 
 		}

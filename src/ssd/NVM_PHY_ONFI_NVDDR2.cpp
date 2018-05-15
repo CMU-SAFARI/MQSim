@@ -124,7 +124,7 @@ namespace SSD_Components {
 		/*If this is not a die-interleaved command execution, and the channel is already busy,
 		* then something illegarl is happening*/
 		if (target_channel->GetStatus() == BusChannelStatus::BUSY && chipBKE->OngoingDieCMDTransfers.size() == 0)
-			PRINT_ERROR("Requesting communication on a busy bus!");
+			PRINT_ERROR("Bus " << target_channel->ChannelID << ": starting communication on a busy flash channel!");
 
 		sim_time_type suspendTime = 0;
 		if (!dieBKE->Free)
@@ -431,7 +431,7 @@ namespace SSD_Components {
 			targetChannel->SetStatus(BusChannelStatus::IDLE, targetChip);
 			break;
 		default:
-			PRINT_ERROR("Unhandled SprinklerFCC event specified!")
+			PRINT_ERROR("Unknown simulation event specified for NVM_PHY_ONFI_NVDDR2!")
 		}
 
 		/* Copyback requests are prioritized over other type of requests since they need very short transfer time.
@@ -677,7 +677,7 @@ namespace SSD_Components {
 				this, bookKeepingEntry, (int)NVDDR2_SimEventType::ERASE_SETUP_COMPLETED);
 			break;
 		default:
-			PRINT_ERROR("NVMController_NVDDR2: Unhandled transaction type!")
+			PRINT_ERROR("NVMController_NVDDR2: Uknown flash transaction type!")
 		}
 		target_channel->SetStatus(BusChannelStatus::BUSY, chip);
 	}

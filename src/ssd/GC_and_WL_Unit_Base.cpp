@@ -52,7 +52,7 @@ namespace SSD_Components
 				_my_instance->block_manager->Program_transaction_serviced(transaction->Address);
 				break;
 			default:
-				PRINT_ERROR("Unexpected situation occured in GC_and_WL_Unit_Base")
+				PRINT_ERROR("Unexpected situation in the GC_and_WL_Unit_Base function!")
 			}
 			if (_my_instance->block_manager->Block_has_ongoing_gc_wl(transaction->Address))
 				if (_my_instance->block_manager->Can_execute_gc_wl(transaction->Address))
@@ -120,7 +120,7 @@ namespace SSD_Components
 					_my_instance->tsu->Schedule();
 				}
 				else
-					PRINT_ERROR("Inconsistent situation occured in GC_WL page movement!")
+					PRINT_ERROR("Inconsistency found when moving a page for GC/WL!")
 			}
 			else
 			{
@@ -136,7 +136,7 @@ namespace SSD_Components
 					_my_instance->tsu->Schedule();
 				}
 				else
-					PRINT_ERROR("Inconsistent situation occured in GC_WL page movement!")
+					PRINT_ERROR("Inconsistency found when moving a page for GC/WL!")
 			}
 			break;
 		}
