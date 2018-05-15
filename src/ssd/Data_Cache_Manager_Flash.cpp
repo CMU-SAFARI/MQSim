@@ -20,13 +20,7 @@ namespace SSD_Components
 	Cache::~Cache()
 	{
 		for (auto &slot : slots)
-		{
 			delete slot.second;
-			slots.erase(slot.first);
-		}
-
-		for (auto &slot : lru_list)
-			slots.erase(slot.first);
 	}
 	DataCacheSlotType Cache::Get_slot(const stream_id_type stream_id, const LPA_type lpn)
 	{

@@ -44,14 +44,14 @@ void read_configuration_parameters(const string ssd_config_file_path, Execution_
 	if (!ssd_config_file) {
 		PRINT_MESSAGE("The specified SSD configuration file does not exist.")
 		PRINT_MESSAGE("Using MQSim's default configuration.")
-		PRINT_MESSAGE("Writing the default configuration parameters to the expected configuration file.\n")
+		PRINT_MESSAGE("Writing the default configuration parameters to the expected configuration file.")
 
 		Utils::XmlWriter xmlwriter;
 		string tmp;
 		xmlwriter.Open(ssd_config_file_path.c_str());
 		exec_params->XML_serialize(xmlwriter);
 		xmlwriter.Close();
-		PRINT_MESSAGE("[====================] Done!")
+		PRINT_MESSAGE("[====================] Done!\n")
 	}
 	else
 	{
@@ -80,14 +80,14 @@ void read_configuration_parameters(const string ssd_config_file_path, Execution_
 		else
 		{
 			PRINT_MESSAGE("Using MQSim's default configuration.");
-			PRINT_MESSAGE("Writing the default configuration parameters to the expected configuration file.\n");
+			PRINT_MESSAGE("Writing the default configuration parameters to the expected configuration file.");
 
 			Utils::XmlWriter xmlwriter;
 			string tmp;
 			xmlwriter.Open(ssd_config_file_path.c_str());
 			exec_params->XML_serialize(xmlwriter);
 			xmlwriter.Close();
-			PRINT_MESSAGE("[====================] Done!")
+			PRINT_MESSAGE("[====================] Done!\n")
 		}
 	}
 
@@ -168,8 +168,8 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_1->Plane_No = 2;
 		io_flow_1->Plane_IDs = new flash_plane_ID_type[2];
 		io_flow_1->Plane_IDs[0] = 0; io_flow_1->Plane_IDs[1] = 1;
-		io_flow_1->Initial_Occupancy_Percentage = 75;
-		io_flow_1->Working_Set_Percentage = 50;
+		io_flow_1->Initial_Occupancy_Percentage = 50;
+		io_flow_1->Working_Set_Percentage = 85;
 		io_flow_1->Synthetic_Generator_Type = Utils::Request_Generator_Type::QUEUE_DEPTH;
 		io_flow_1->Read_Percentage = 100;
 		io_flow_1->Address_Distribution = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
@@ -203,8 +203,8 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Plane_No = 2;
 		io_flow_2->Plane_IDs = new flash_plane_ID_type[2];
 		io_flow_2->Plane_IDs[0] = 0; io_flow_2->Plane_IDs[1] = 1;
-		io_flow_2->Initial_Occupancy_Percentage = 75;
-		io_flow_2->Working_Set_Percentage = 50;
+		io_flow_2->Initial_Occupancy_Percentage = 50;
+		io_flow_2->Working_Set_Percentage = 85;
 		io_flow_2->Synthetic_Generator_Type = Utils::Request_Generator_Type::QUEUE_DEPTH;
 		io_flow_2->Read_Percentage = 100;
 		io_flow_2->Address_Distribution = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
