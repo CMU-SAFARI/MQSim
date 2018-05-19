@@ -15,7 +15,7 @@ namespace SSD_Components
 	void Address_Mapping_Unit_Hybrid::Validate_simulation_config() {}
 	void Address_Mapping_Unit_Hybrid::Execute_simulator_event(MQSimEngine::Sim_Event* event) {}
 
-	void Address_Mapping_Unit_Hybrid::Allocate_address_for_preconditioning(const stream_id_type stream_id, const std::map<LPA_type, page_status_type>& lpa_list, const std::vector<double>& steady_state_distribution) {}
+	void Address_Mapping_Unit_Hybrid::Allocate_address_for_preconditioning(const stream_id_type stream_id, std::map<LPA_type, page_status_type>& lpa_list, std::vector<double>& steady_state_distribution) {}
 	int Address_Mapping_Unit_Hybrid::Bring_to_CMT_for_preconditioning(stream_id_type stream_id, LPA_type lpa) { return 0; }
 	unsigned int Address_Mapping_Unit_Hybrid::Get_cmt_capacity() { return 0; }
 	unsigned int Address_Mapping_Unit_Hybrid::Get_current_cmt_occupancy_for_stream(stream_id_type stream_id) { return 0; }
@@ -50,13 +50,14 @@ namespace SSD_Components
 	PPA_type Address_Mapping_Unit_Hybrid::Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress) { return 0; }
 	void Address_Mapping_Unit_Hybrid::Store_mapping_table_on_flash_at_start() {}
 	void Address_Mapping_Unit_Hybrid::Allocate_new_page_for_gc(NVM_Transaction_Flash_WR* transaction, bool is_translation_page) {}
-	void Address_Mapping_Unit_Hybrid::Lock_physical_block_for_gc_wl(const NVM::FlashMemory::Physical_Page_Address& block_address) {}
-	void Address_Mapping_Unit_Hybrid::Lock_lpa_for_gc(stream_id_type stream_id, LPA_type lpa) {}
-	void Address_Mapping_Unit_Hybrid::Unlock_lpa_after_gc(stream_id_type stream_id, LPA_type lpa) {}
-	void Address_Mapping_Unit_Hybrid::Lock_mvpn_for_gc(stream_id_type stream_id, MVPN_type mpvn) {}
-	void Address_Mapping_Unit_Hybrid::Unlock_mvpn_after_gc(stream_id_type stream_id, MVPN_type mpvn) {}
+	void Address_Mapping_Unit_Hybrid::Set_barrier_for_accessing_physical_block(const NVM::FlashMemory::Physical_Page_Address& block_address) {}
+	void Address_Mapping_Unit_Hybrid::Set_barrier_for_accessing_lpa(stream_id_type stream_id, LPA_type lpa) {}
+	void Address_Mapping_Unit_Hybrid::Remove_barrier_for_accessing_lpa(stream_id_type stream_id, LPA_type lpa) {}
+	void Address_Mapping_Unit_Hybrid::Set_barrier_for_accessing_mvpn(stream_id_type stream_id, MVPN_type mpvn) {}
+	void Address_Mapping_Unit_Hybrid::Remove_barrier_for_accessing_mvpn(stream_id_type stream_id, MVPN_type mpvn) {}
 	bool Address_Mapping_Unit_Hybrid::is_lpa_locked_for_gc(stream_id_type stream_id, LPA_type lpa) { return false; }
 	bool Address_Mapping_Unit_Hybrid::is_mvpn_locked_for_gc(stream_id_type stream_id, MVPN_type mvpn) { return false; }
-	void Address_Mapping_Unit_Hybrid::manage_user_transaction_with_locked_lpa(NVM_Transaction_Flash* transaction) {}
-	void Address_Mapping_Unit_Hybrid::manage_mapping_transaction_with_locked_mvpn(stream_id_type stream_id, MVPN_type mvpn, bool read) {}
+	void Address_Mapping_Unit_Hybrid::manage_user_transaction_facing_barrier(NVM_Transaction_Flash* transaction) {}
+	void Address_Mapping_Unit_Hybrid::manage_mapping_transaction_facing_barrier(stream_id_type stream_id, MVPN_type mvpn, bool read) {}
+	void Address_Mapping_Unit_Hybrid::Start_servicing_writes_for_overfull_plane(const NVM::FlashMemory::Physical_Page_Address plane_address) {}
 }

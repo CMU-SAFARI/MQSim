@@ -114,7 +114,8 @@ namespace Host_Components
 			if (streaming_next_address > end_lsa_on_device)
 				streaming_next_address = start_lsa_on_device;
 			if (generate_aligned_addresses)
-				streaming_next_address -= streaming_next_address % alignment_value;
+				if(streaming_next_address % alignment_value != 0)
+					streaming_next_address += alignment_value - (streaming_next_address % alignment_value);
 			if(streaming_next_address == request->Start_LBA)
 				PRINT_MESSAGE("Synthetic Message Generator: The same address is always repeated due to configuration parameters!")
 			break;
@@ -216,6 +217,8 @@ namespace Host_Components
 		stats.random_address_generator_seed = random_address_generator_seed;
 		stats.random_hot_address_generator_seed = random_hot_address_generator_seed;
 		stats.random_hot_cold_generator_seed = random_hot_cold_generator_seed;
+		stats.generate_aligned_addresses = generate_aligned_addresses;
+		stats.alignment_value = alignment_value;
 		stats.Request_size_distribution_type = request_size_distribution;
 		stats.Average_request_size_sector = average_request_size;
 		stats.STDEV_reuqest_size = variance_request_size;

@@ -13,11 +13,12 @@
 			 <HostInterface_Type>NVME</HostInterface_Type>
 			 <IO_Queue_Depth>65535</IO_Queue_Depth>
 			 <Queue_Fetch_Size>1024</Queue_Fetch_Size>
+			 <Caching_Mechanism>ADVANCED</Caching_Mechanism>
 			 <Data_Cache_Sharing_Mode>SHARED</Data_Cache_Sharing_Mode>
 			 <Data_Cache_Capacity>268435456</Data_Cache_Capacity>
 			 <Data_Cache_DRAM_Row_Size>8192</Data_Cache_DRAM_Row_Size>
-			 <Data_Cache_DRAM_Data_Rate>100</Data_Cache_DRAM_Data_Rate>
-			 <Data_Cache_DRAM_Data_Busrt_Size>1</Data_Cache_DRAM_Data_Busrt_Size>
+			 <Data_Cache_DRAM_Data_Rate>400</Data_Cache_DRAM_Data_Rate>
+			 <Data_Cache_DRAM_Data_Busrt_Size>2</Data_Cache_DRAM_Data_Busrt_Size>
 			 <Data_Cache_DRAM_tRCD>13</Data_Cache_DRAM_tRCD>
 			 <Data_Cache_DRAM_tCL>13</Data_Cache_DRAM_tCL>
 			 <Data_Cache_DRAM_tRP>13</Data_Cache_DRAM_tRP>

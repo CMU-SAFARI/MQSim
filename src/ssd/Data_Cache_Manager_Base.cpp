@@ -8,20 +8,16 @@ namespace SSD_Components
 
 	Data_Cache_Manager_Base::Data_Cache_Manager_Base(const sim_object_id_type& id, Host_Interface_Base* host_interface, NVM_Firmware* nvm_firmware,
 		unsigned int dram_row_size, unsigned int dram_data_rate, unsigned int dram_busrt_size, sim_time_type dram_tRCD, sim_time_type dram_tCL, sim_time_type dram_tRP,
-		Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, unsigned int stream_count, unsigned int back_pressure_buffer_max_depth)
+		Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, unsigned int stream_count)
 		: MQSimEngine::Sim_Object(id), host_interface(host_interface), nvm_firmware(nvm_firmware),
 		dram_row_size(dram_row_size), dram_data_rate(dram_data_rate), dram_busrt_size(dram_busrt_size), dram_tRCD(dram_tRCD), dram_tCL(dram_tCL), dram_tRP(dram_tRP),
-		sharing_mode(sharing_mode), stream_count(stream_count), back_pressure_buffer_max_depth(back_pressure_buffer_max_depth)
+		sharing_mode(sharing_mode), stream_count(stream_count)
 	{
 		_my_instance = this;
 		dram_burst_transfer_time_ddr = (double) ONE_SECOND / (dram_data_rate * 1000 * 1000);
 		this->caching_mode_per_input_stream = new Caching_Mode[stream_count];
-		this->back_pressure_buffer_depth = new unsigned int[stream_count];
 		for (unsigned int i = 0; i < stream_count; i++)
-		{
 			this->caching_mode_per_input_stream[i] = caching_mode_per_input_stream[i];
-			this->back_pressure_buffer_depth[i] = 0;
-		}
 	}
 
 	Data_Cache_Manager_Base::~Data_Cache_Manager_Base() {}

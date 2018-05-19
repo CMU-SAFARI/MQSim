@@ -6,7 +6,7 @@ namespace SSD_Components
 
 	User_Request::User_Request() : Sectors_serviced_from_cache(0)
 	{
-		RequestID = "" + std::to_string(lastId++);
+		ID = "" + std::to_string(lastId++);
 		ToBeIgnored = false;
 	}
 }

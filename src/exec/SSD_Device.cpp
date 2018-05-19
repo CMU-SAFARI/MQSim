@@ -4,6 +4,8 @@
 #include "SSD_Device.h"
 #include "../ssd/ONFI_Channel_Base.h"
 #include "../ssd/Flash_Block_Manager.h"
+#include "../ssd/Data_Cache_Manager_Flash_Advanced.h"
+#include "../ssd/Data_Cache_Manager_Flash_Simple.h"
 #include "../ssd/Address_Mapping_Unit_Base.h"
 #include "../ssd/Address_Mapping_Unit_Page_Level.h"
 #include "../ssd/Address_Mapping_Unit_Hybrid.h"
@@ -254,12 +256,28 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		SSD_Components::Caching_Mode* caching_modes = new SSD_Components::Caching_Mode[io_flows->size()];
 		for (unsigned int i = 0; i < io_flows->size(); i++)
 			caching_modes[i] = (*io_flows)[i]->Device_Level_Data_Caching_Mode;
-		dcm = new SSD_Components::Data_Cache_Manager_Flash(device->ID() + ".DataCache", NULL, ftl, (SSD_Components::NVM_PHY_ONFI*) device->PHY,
-			parameters->Data_Cache_Capacity, parameters->Data_Cache_DRAM_Row_Size, parameters->Data_Cache_DRAM_Data_Rate,
-			parameters->Data_Cache_DRAM_Data_Busrt_Size, parameters->Data_Cache_DRAM_tRCD, parameters->Data_Cache_DRAM_tCL, parameters->Data_Cache_DRAM_tRP,
-			caching_modes, parameters->Data_Cache_Sharing_Mode, (unsigned int)io_flows->size(),
-			parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Channel_Count * parameters->Chip_No_Per_Channel * parameters->Flash_Parameters.Die_No_Per_Chip * parameters->Flash_Parameters.Plane_No_Per_Die * parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE);
-		Simulator->AddObject(dcm);
+
+		switch (parameters->Caching_Mechanism)
+		{
+		case SSD_Components::Caching_Mechanism::SIMPLE:
+			dcm = new SSD_Components::Data_Cache_Manager_Flash_Simple(device->ID() + ".DataCache", NULL, ftl, (SSD_Components::NVM_PHY_ONFI*) device->PHY,
+				parameters->Data_Cache_Capacity, parameters->Data_Cache_DRAM_Row_Size, parameters->Data_Cache_DRAM_Data_Rate,
+				parameters->Data_Cache_DRAM_Data_Busrt_Size, parameters->Data_Cache_DRAM_tRCD, parameters->Data_Cache_DRAM_tCL, parameters->Data_Cache_DRAM_tRP,
+				caching_modes, (unsigned int)io_flows->size(),
+				parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Channel_Count * parameters->Chip_No_Per_Channel * parameters->Flash_Parameters.Die_No_Per_Chip * parameters->Flash_Parameters.Plane_No_Per_Die * parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE);
+
+			break;
+		case SSD_Components::Caching_Mechanism::ADVANCED:
+			dcm = new SSD_Components::Data_Cache_Manager_Flash_Advanced(device->ID() + ".DataCache", NULL, ftl, (SSD_Components::NVM_PHY_ONFI*) device->PHY,
+				parameters->Data_Cache_Capacity, parameters->Data_Cache_DRAM_Row_Size, parameters->Data_Cache_DRAM_Data_Rate,
+				parameters->Data_Cache_DRAM_Data_Busrt_Size, parameters->Data_Cache_DRAM_tRCD, parameters->Data_Cache_DRAM_tCL, parameters->Data_Cache_DRAM_tRP,
+				caching_modes, parameters->Data_Cache_Sharing_Mode, (unsigned int)io_flows->size(),
+				parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Channel_Count * parameters->Chip_No_Per_Channel * parameters->Flash_Parameters.Die_No_Per_Chip * parameters->Flash_Parameters.Plane_No_Per_Die * parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE);
+
+			break;
+		default:
+			PRINT_ERROR("Unknown data caching mechanism!")
+		}		Simulator->AddObject(dcm);
 		ftl->Data_cache_manager = dcm;
 		device->Cache_manager = dcm;
 
@@ -314,7 +332,7 @@ void SSD_Device::Perform_preconditioning(std::vector<Utils::Workload_Statistics*
 	if (Preconditioning_required)
 	{
 		time_t start_time = time(0);
-		PRINT_MESSAGE("SSD Device preconditioning started.........");
+		PRINT_MESSAGE("SSD Device preconditioning started .........");
 		this->Firmware->Perform_precondition(workload_stats);
 		this->Cache_manager->Do_warmup(workload_stats);
 		time_t end_time = time(0);

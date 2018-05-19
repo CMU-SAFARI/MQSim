@@ -3,16 +3,44 @@
 
 namespace Utils
 {
+	int**** Logical_Address_Partitioning_Unit::resource_list;
+	std::vector<std::vector<flash_channel_ID_type>> Logical_Address_Partitioning_Unit::stream_channel_ids;
+	std::vector<std::vector<flash_chip_ID_type>> Logical_Address_Partitioning_Unit::stream_chip_ids;
+	std::vector<std::vector<flash_die_ID_type>> Logical_Address_Partitioning_Unit::stream_die_ids;
+	std::vector<std::vector<flash_plane_ID_type>> Logical_Address_Partitioning_Unit::stream_plane_ids;
 	bool Logical_Address_Partitioning_Unit::initialized = false;;
 	std::vector<LHA_type> Logical_Address_Partitioning_Unit::pdas_per_flow;
 	std::vector<LHA_type> Logical_Address_Partitioning_Unit::start_lhas_per_flow;
 	std::vector<LHA_type> Logical_Address_Partitioning_Unit::end_lhas_per_flow;
+	unsigned int Logical_Address_Partitioning_Unit::channel_count;
+	unsigned int Logical_Address_Partitioning_Unit::chip_no_per_channel;
+	unsigned int Logical_Address_Partitioning_Unit::die_no_per_chip;
+	unsigned int Logical_Address_Partitioning_Unit::plane_no_per_die;
+
 	void Logical_Address_Partitioning_Unit::Reset()
 	{
 		initialized = false;
 		pdas_per_flow.clear();
 		start_lhas_per_flow.clear();
 		end_lhas_per_flow.clear();
+		stream_channel_ids.clear();
+		stream_chip_ids.clear();
+		stream_die_ids.clear();
+		stream_plane_ids.clear();
+
+		for (flash_channel_ID_type channel_id = 0; channel_id < channel_count; channel_id++)
+		{
+			for (flash_chip_ID_type chip_id = 0; chip_id < chip_no_per_channel; chip_id++)
+			{
+				for (flash_die_ID_type die_id = 0; die_id < die_no_per_chip; die_id++)
+				{
+					delete[] resource_list[channel_id][chip_id][die_id];
+				}
+				delete[] resource_list[channel_id][chip_id];
+			}
+			delete[] resource_list[channel_id];
+		}
+		delete[] resource_list;
 	}
 
 	void Logical_Address_Partitioning_Unit::Allocate_logical_address_for_flows(unsigned int concurrent_stream_no,
@@ -24,7 +52,11 @@ namespace Utils
 		if (initialized)
 			return;
 
-		int****resource_list;
+		Logical_Address_Partitioning_Unit::channel_count = channel_count;;
+		Logical_Address_Partitioning_Unit::chip_no_per_channel = chip_no_per_channel;
+		Logical_Address_Partitioning_Unit::die_no_per_chip = die_no_per_chip;
+		Logical_Address_Partitioning_Unit::plane_no_per_die = plane_no_per_die;
+
 		resource_list = new int***[channel_count];
 		bool resource_sharing = false;
 		for (flash_channel_ID_type channel_id = 0; channel_id < channel_count; channel_id++)
@@ -65,6 +97,29 @@ namespace Utils
 						}
 		}
 
+		for (unsigned int stream_id = 0; stream_id < concurrent_stream_no; stream_id++)
+		{
+			std::vector<flash_channel_ID_type> channel_ids;
+			Logical_Address_Partitioning_Unit::stream_channel_ids.push_back(channel_ids);
+			for (flash_channel_ID_type channel_id = 0; channel_id < stream_channel_ids[stream_id].size(); channel_id++)
+				Logical_Address_Partitioning_Unit::stream_channel_ids[stream_id].push_back(stream_channel_ids[stream_id][channel_id]);
+
+			std::vector<flash_chip_ID_type> chip_ids;
+			Logical_Address_Partitioning_Unit::stream_chip_ids.push_back(chip_ids);
+			for (flash_chip_ID_type chip_id = 0; chip_id < stream_chip_ids[stream_id].size(); chip_id++)
+				Logical_Address_Partitioning_Unit::stream_chip_ids[stream_id].push_back(stream_chip_ids[stream_id][chip_id]);
+
+			std::vector<flash_die_ID_type> die_ids;
+			Logical_Address_Partitioning_Unit::stream_die_ids.push_back(die_ids);
+			for (flash_die_ID_type die_id = 0; die_id < stream_die_ids[stream_id].size(); die_id++)
+				Logical_Address_Partitioning_Unit::stream_die_ids[stream_id].push_back(stream_die_ids[stream_id][die_id]);
+
+			std::vector<flash_plane_ID_type> plane_ids;
+			Logical_Address_Partitioning_Unit::stream_plane_ids.push_back(plane_ids);
+			for (flash_plane_ID_type plane_id = 0; plane_id < stream_plane_ids[stream_id].size(); plane_id++)
+				Logical_Address_Partitioning_Unit::stream_plane_ids[stream_id].push_back(stream_plane_ids[stream_id][plane_id]);
+		}
+
 		std::vector<LHA_type> lsa_count_per_stream;
 		for (unsigned int stream_id = 0; stream_id < concurrent_stream_no; stream_id++)
 		{
@@ -90,6 +145,11 @@ namespace Utils
 		}
 
 		initialized = true;
+	}
+
+	double Logical_Address_Partitioning_Unit::Get_share_of_physcial_pages_in_plane(flash_channel_ID_type channel_id, flash_chip_ID_type chip_id, flash_die_ID_type die_id, flash_plane_ID_type plane_id)
+	{
+		return 1.0 / double(resource_list[channel_id][chip_id][die_id][plane_id]);
 	}
 
 	LHA_type Logical_Address_Partitioning_Unit::Start_lha_available_to_flow(stream_id_type stream_id)

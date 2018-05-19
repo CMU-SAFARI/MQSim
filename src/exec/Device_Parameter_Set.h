@@ -22,6 +22,7 @@ public:
 	static HostInterfaceType HostInterface_Type;
 	static uint16_t IO_Queue_Depth;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ
 	static uint16_t Queue_Fetch_Size;//Used in NVMe host interface
+	static SSD_Components::Caching_Mechanism Caching_Mechanism;
 	static SSD_Components::Cache_Sharing_Mode Data_Cache_Sharing_Mode;//Data cache sharing among concurrently running I/O flows, if NVMe host interface is used
 	static unsigned int Data_Cache_Capacity;//Data cache capacity in bytes
 	static unsigned int Data_Cache_DRAM_Row_Size;//The row size of DRAM in the data cache, the unit is bytes

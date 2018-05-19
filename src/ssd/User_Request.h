@@ -17,7 +17,7 @@ namespace SSD_Components
 	public:
 		User_Request();
 		IO_Flow_Priority_Class Priority_class;
-		io_request_type RequestID;
+		io_request_id_type ID;
 		LHA_type Start_LBA;
 
 		sim_time_type STAT_InitiationTime;

@@ -14,17 +14,18 @@ namespace SSD_Components
 	class NVM_Firmware;
 	class Host_Interface_Base;
 	enum class Caching_Mode {WRITE_CACHE, READ_CACHE, WRITE_READ_CACHE, TURNED_OFF};
-
+	enum class Caching_Mechanism { SIMPLE, ADVANCED };
 	//How the cache space is shared among the concurrently running I/O flows/streams
 	enum class Cache_Sharing_Mode { SHARED,//each application has access to the entire cache space
 		EQUAL_PARTITIONING}; 
 	class Data_Cache_Manager_Base: public MQSimEngine::Sim_Object
 	{
-		friend class Data_Cache_Manager_Flash;
+		friend class Data_Cache_Manager_Flash_Advanced;
+		friend class Data_Cache_Manager_Flash_Simple;
 	public:
 		Data_Cache_Manager_Base(const sim_object_id_type& id, Host_Interface_Base* host_interface, NVM_Firmware* nvm_firmware,
 			unsigned int dram_row_size, unsigned int dram_data_rate, unsigned int dram_busrt_size, sim_time_type dram_tRCD, sim_time_type dram_tCL, sim_time_type dram_tRP,
-			Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, unsigned int stream_count, unsigned int back_pressure_buffer_max_depth);
+			Caching_Mode* caching_mode_per_input_stream, Cache_Sharing_Mode sharing_mode, unsigned int stream_count);
 		virtual ~Data_Cache_Manager_Base();
 		void Setup_triggers();
 		void Start_simulation();
@@ -57,8 +58,6 @@ namespace SSD_Components
 
 		static void handle_user_request_arrived_signal(User_Request* user_request);
 		virtual void process_new_user_request(User_Request* user_request) = 0;
-		unsigned int back_pressure_buffer_max_depth;
-		unsigned int *back_pressure_buffer_depth;
 
 		bool is_user_request_finished(const User_Request* user_request) { return (user_request->Transaction_list.size() == 0 && user_request->Sectors_serviced_from_cache == 0); }
 	};

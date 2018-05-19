@@ -26,6 +26,8 @@ namespace SSD_Components
 		if (block_pool_gc_hard_threshold < 1)
 			block_pool_gc_hard_threshold = 1;
 		random_pp_threshold = (unsigned int)(rho * pages_no_per_block);
+		if (block_pool_gc_threshold < max_ongoing_gc_reqs_per_plane)
+			block_pool_gc_threshold = max_ongoing_gc_reqs_per_plane;
 	}
 
 	void GC_and_WL_Unit_Base::Setup_triggers()
@@ -143,12 +145,12 @@ namespace SSD_Components
 		case Transaction_Type::WRITE:
 			if (pbke->Blocks[((NVM_Transaction_Flash_WR*)transaction)->RelatedErase->Address.BlockID].Holds_mapping_data)
 			{
-				_my_instance->address_mapping_unit->Unlock_mvpn_after_gc(transaction->Stream_id, (MVPN_type)transaction->LPA);
+				_my_instance->address_mapping_unit->Remove_barrier_for_accessing_mvpn(transaction->Stream_id, (MVPN_type)transaction->LPA);
 				DEBUG(Simulator->Time() << ": MVPN=" << (MVPN_type)transaction->LPA << " unlocked!!");
 			}
 			else
 			{
-				_my_instance->address_mapping_unit->Unlock_lpa_after_gc(transaction->Stream_id, transaction->LPA);
+				_my_instance->address_mapping_unit->Remove_barrier_for_accessing_lpa(transaction->Stream_id, transaction->LPA);
 				DEBUG(Simulator->Time() << ": LPA=" << (MVPN_type)transaction->LPA << " unlocked!!");
 			}
 			pbke->Blocks[((NVM_Transaction_Flash_WR*)transaction)->RelatedErase->Address.BlockID].Erase_transaction->Page_movement_activities.remove((NVM_Transaction_Flash_WR*)transaction);
@@ -159,6 +161,10 @@ namespace SSD_Components
 			_my_instance->block_manager->GC_WL_finished(transaction->Address);
 			if (_my_instance->check_static_wl_required(transaction->Address))
 				_my_instance->run_static_wearleveling(transaction->Address);
+			_my_instance->address_mapping_unit->Start_servicing_writes_for_overfull_plane(transaction->Address);//Must be inovked after above statements since it may lead to flash page consumption for waiting program transactions
+
+			if (_my_instance->Stop_servicing_writes(transaction->Address))
+				_my_instance->Check_gc_required(pbke->Get_free_block_pool_size(), transaction->Address);
 			break;
 		}
 	}
@@ -203,6 +209,12 @@ namespace SSD_Components
 	{
 		return static_wearleveling_enabled;
 	}
+	
+	bool GC_and_WL_Unit_Base::Stop_servicing_writes(const NVM::FlashMemory::Physical_Page_Address& plane_address)
+	{
+		PlaneBookKeepingType* pbke = &(_my_instance->block_manager->plane_manager[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID]);
+		return block_manager->Get_pool_size(plane_address) < max_ongoing_gc_reqs_per_plane;
+	}
 
 	bool GC_and_WL_Unit_Base::is_safe_gc_wl_candidate(const PlaneBookKeepingType* plane_record, const flash_block_ID_type gc_wl_candidate_block_id)
 	{
@@ -242,7 +254,7 @@ namespace SSD_Components
 		//Run the state machine to protect against race condition
 		block_manager->GC_WL_started(wl_candidate_block_id);
 		pbke->Ongoing_erase_operations.insert(wl_candidate_block_id);
-		address_mapping_unit->Lock_physical_block_for_gc_wl(wl_candidate_address);//Lock the block, so no user request can intervene while the GC is progressing
+		address_mapping_unit->Set_barrier_for_accessing_physical_block(wl_candidate_address);//Lock the block, so no user request can intervene while the GC is progressing
 		if (block_manager->Can_execute_gc_wl(wl_candidate_address))//If there are ongoing requests targeting the candidate block, the gc execution should be postponed
 		{
 			Stats::Total_wl_executions++;

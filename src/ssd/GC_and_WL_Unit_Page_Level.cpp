@@ -133,7 +133,7 @@ namespace SSD_Components
 			//Run the state machine to protect against race condition
 			block_manager->GC_WL_started(gc_candidate_address);
 			pbke->Ongoing_erase_operations.insert(gc_candidate_block_id);
-			address_mapping_unit->Lock_physical_block_for_gc_wl(gc_candidate_address);//Lock the block, so no user request can intervene while the GC is progressing
+			address_mapping_unit->Set_barrier_for_accessing_physical_block(gc_candidate_address);//Lock the block, so no user request can intervene while the GC is progressing
 			if (block_manager->Can_execute_gc_wl(gc_candidate_address))//If there are ongoing requests targeting the candidate block, the gc execution should be postponed
 			{
 				Stats::Total_gc_executions++;

@@ -86,7 +86,7 @@ namespace NVM
 			}
 		}
 
-		LPA_type Flash_Chip::Get_lpa(flash_die_ID_type die_id, flash_plane_ID_type plane_id, flash_block_ID_type block_id, flash_page_ID_type page_id)//A hack for gc!!!!! It should be removed
+		LPA_type Flash_Chip::Get_metadata(flash_die_ID_type die_id, flash_plane_ID_type plane_id, flash_block_ID_type block_id, flash_page_ID_type page_id)//A simplification to decrease the complexity of GC execution! The GC unit may need to know the metada of a page to decide if a page is valid or invalid. 
 		{
 			Page* page = &(Dies[die_id]->Planes[plane_id]->Blocks[block_id]->Pages[page_id]);
 			

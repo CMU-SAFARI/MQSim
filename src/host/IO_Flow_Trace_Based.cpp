@@ -265,7 +265,7 @@ namespace Host_Components
 			stats.Total_generated_reqeusts++;
 		}
 		trace_file_temp.close();
-		stats.Average_request_size_sector = sum_request_size / stats.Total_generated_reqeusts;
+		stats.Average_request_size_sector = (unsigned int)(sum_request_size / stats.Total_generated_reqeusts);
 		stats.Average_inter_arrival_time_nano_sec = sum_inter_arrival / stats.Total_generated_reqeusts;
 
 		stats.Initial_occupancy_ratio = initial_occupancy_ratio;

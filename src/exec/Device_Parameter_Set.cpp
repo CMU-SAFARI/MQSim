@@ -9,6 +9,7 @@ NVM::NVM_Type Device_Parameter_Set::Memory_Type = NVM::NVM_Type::FLASH;
 HostInterfaceType Device_Parameter_Set::HostInterface_Type = HostInterfaceType::NVME;
 uint16_t Device_Parameter_Set::IO_Queue_Depth = 1024;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ
 uint16_t Device_Parameter_Set::Queue_Fetch_Size = 512;//Used in NVMe host interface
+SSD_Components::Caching_Mechanism Device_Parameter_Set::Caching_Mechanism = SSD_Components::Caching_Mechanism::ADVANCED;
 SSD_Components::Cache_Sharing_Mode Device_Parameter_Set::Data_Cache_Sharing_Mode = SSD_Components::Cache_Sharing_Mode::SHARED;//Data cache sharing among concurrently running I/O flows, if NVMe host interface is used
 unsigned int Device_Parameter_Set::Data_Cache_Capacity = 1024 * 1024 * 512;//Data cache capacity in bytes
 unsigned int Device_Parameter_Set::Data_Cache_DRAM_Row_Size = 8192;//The row size of DRAM in the data cache, the unit is bytes
@@ -89,6 +90,21 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 
 	attr = "Queue_Fetch_Size";
 	val = std::to_string(Queue_Fetch_Size);
+	xmlwriter.Write_attribute_string(attr, val);
+
+
+	attr = "Caching_Mechanism";
+	switch (Caching_Mechanism)
+	{
+	case SSD_Components::Caching_Mechanism::SIMPLE:
+		val = "SIMPLE";
+		break;
+	case SSD_Components::Caching_Mechanism::ADVANCED:
+		val = "ADVANCED";
+		break;
+	default:
+		break;
+	}
 	xmlwriter.Write_attribute_string(attr, val);
 
 	attr = "Data_Cache_Sharing_Mode";
@@ -207,9 +223,6 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 		break;
 	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::DWPC:
 		val = "DWPC";
-		break;
-	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::F:
-		val = "F";
 		break;
 	case SSD_Components::Flash_Plane_Allocation_Scheme_Type::PCDW:
 		val = "PCDW";
@@ -413,6 +426,16 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::string val = param->value();
 				Queue_Fetch_Size = (uint16_t) std::stoull(val);
 			}
+			else if (strcmp(param->name(), "Caching_Mechanism") == 0)
+			{
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "SIMPLE") == 0)
+					Caching_Mechanism = SSD_Components::Caching_Mechanism::SIMPLE;
+				else if (strcmp(val.c_str(), "ADVANCED") == 0)
+					Caching_Mechanism = SSD_Components::Caching_Mechanism::ADVANCED;
+				else PRINT_ERROR("Unknown data caching mechanism specified in the SSD configuration file")
+			}
 			else if (strcmp(param->name(), "Data_Cache_Sharing_Mode") == 0)
 			{
 				std::string val = param->value();
@@ -541,8 +564,6 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::WPCD;
 				else if (strcmp(val.c_str(), "WPDC") == 0)
 					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::WPDC;
-				else if (strcmp(val.c_str(), "F") == 0)
-					Plane_Allocation_Scheme = SSD_Components::Flash_Plane_Allocation_Scheme_Type::F;
 				else PRINT_ERROR("Unknown plane allocation scheme type specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "Transaction_Scheduling_Policy") == 0)

@@ -3,7 +3,6 @@
 
 #include "../sim/Sim_Reporter.h"
 #include "../utils/RandomGenerator.h"
-#include "Data_Cache_Manager_Flash.h"
 #include "NVM_Firmware.h"
 #include "TSU_Base.h"
 #include "Address_Mapping_Unit_Base.h"

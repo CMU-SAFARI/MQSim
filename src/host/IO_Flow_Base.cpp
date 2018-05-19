@@ -222,7 +222,7 @@ namespace Host_Components
 		{
 			progress = int(STAT_serviced_request_count / (double)total_requests_to_be_generated * 100);
 		}
-		if (progress == next_progress_step)
+		if (progress >= next_progress_step)
 		{
 			std::string progress_bar;
 			int barWidth = 100;

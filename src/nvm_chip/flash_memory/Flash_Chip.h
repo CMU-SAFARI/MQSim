@@ -118,7 +118,7 @@ namespace NVM
 			sim_time_type GetSuspendProgramTime();
 			sim_time_type GetSuspendEraseTime();
 			void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
-			LPA_type Get_lpa(flash_die_ID_type die_id, flash_plane_ID_type plane_id, flash_block_ID_type block_id, flash_page_ID_type page_id);//A hack for gc!!!!! It should be removed
+			LPA_type Get_metadata(flash_die_ID_type die_id, flash_plane_ID_type plane_id, flash_block_ID_type block_id, flash_page_ID_type page_id);//A simplification to decrease the complexity of GC execution! The GC unit may need to know the metada of a page to decide if a page is valid or invalid. 
 		private:
 			Flash_Technology_Type flash_technology;
 			Internal_Status status;

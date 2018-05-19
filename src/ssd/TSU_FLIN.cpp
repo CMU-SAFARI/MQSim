@@ -315,16 +315,16 @@ namespace SSD_Components
 
 		for (flash_channel_ID_type channel_id = 0; channel_id < channel_count; channel_id++)
 		{
-			if (_NVMController->GetChannelStatus(channel_id) == BusChannelStatus::IDLE)
+			if (_NVMController->Get_channel_status(channel_id) == BusChannelStatus::IDLE)
 			{
 				for (unsigned int i = 0; i < chip_no_per_channel; i++) {
-					NVM::FlashMemory::Flash_Chip* chip = _NVMController->GetChip(channel_id, Round_robin_turn_of_channel[channel_id]);
+					NVM::FlashMemory::Flash_Chip* chip = _NVMController->Get_chip(channel_id, Round_robin_turn_of_channel[channel_id]);
 					//The TSU does not check if the chip is idle or not since it is possible to suspend a busy chip and issue a new command
 					if (!service_read_transaction(chip))
 						if (!service_write_transaction(chip))
 							service_erase_transaction(chip);
 					Round_robin_turn_of_channel[channel_id] = (flash_chip_ID_type)(Round_robin_turn_of_channel[channel_id] + 1) % chip_no_per_channel;
-					if (_NVMController->GetChannelStatus(chip->ChannelID) != BusChannelStatus::IDLE)
+					if (_NVMController->Get_channel_status(chip->ChannelID) != BusChannelStatus::IDLE)
 						break;
 				}
 			}

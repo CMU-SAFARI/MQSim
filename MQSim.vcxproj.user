@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-i D:\MQSim\MQSim\fast18\data-cache-contention\ssdconfig-datacache-contention.xml -w D:\MQSim\MQSim\fast18\data-cache-contention\workload-datacache-contention-flow-1.xml</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-i D:\MQSim\MQSim\fast18\data-cache-contention\ssdconfig-datacache-contention.xml -w D:\MQSim\MQSim\fast18\data-cache-contention\workload-datacache-contention-flow-1-flow-2.xml</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

@@ -82,6 +82,33 @@
     <ClCompile Include="src\utils\XMLWriter.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\sim\Engine.cpp">
+      <Filter>sim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sim\EventTree.cpp">
+      <Filter>sim</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Block.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Die.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Flash_Chip.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Physical_Page_Address.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\nvm_chip\flash_memory\Plane.cpp">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\Logical_Address_Partitioning_Unit.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\Helper_Functions.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
     <ClCompile Include="src\ssd\Address_Mapping_Unit_Base.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
@@ -94,16 +121,25 @@
     <ClCompile Include="src\ssd\Controller.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
+    <ClCompile Include="src\ssd\Data_Cache_Flash.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
     <ClCompile Include="src\ssd\Data_Cache_Manager_Base.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
-    <ClCompile Include="src\ssd\Data_Cache_Manager_Flash.cpp">
+    <ClCompile Include="src\ssd\Data_Cache_Manager_Flash_Advanced.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Data_Cache_Manager_Flash_Simple.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
     <ClCompile Include="src\ssd\Flash_Block_Manager.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
     <ClCompile Include="src\ssd\Flash_Block_Manager_Base.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Flash_Transaction_Queue.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
     <ClCompile Include="src\ssd\FTL.cpp">
@@ -119,6 +155,9 @@
       <Filter>ssd</Filter>
     </ClCompile>
     <ClCompile Include="src\ssd\Host_Interface_NVMe.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\Host_Interface_SATA.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
     <ClCompile Include="src\ssd\NVM_Firmware.cpp">
@@ -160,41 +199,14 @@
     <ClCompile Include="src\ssd\TSU_Base.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
+    <ClCompile Include="src\ssd\TSU_FLIN.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
     <ClCompile Include="src\ssd\TSU_OutofOrder.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
     <ClCompile Include="src\ssd\User_Request.cpp">
       <Filter>ssd</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sim\Engine.cpp">
-      <Filter>sim</Filter>
-    </ClCompile>
-    <ClCompile Include="src\sim\EventTree.cpp">
-      <Filter>sim</Filter>
-    </ClCompile>
-    <ClCompile Include="src\nvm_chip\flash_memory\Block.cpp">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClCompile>
-    <ClCompile Include="src\nvm_chip\flash_memory\Die.cpp">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClCompile>
-    <ClCompile Include="src\nvm_chip\flash_memory\Flash_Chip.cpp">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClCompile>
-    <ClCompile Include="src\nvm_chip\flash_memory\Physical_Page_Address.cpp">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClCompile>
-    <ClCompile Include="src\nvm_chip\flash_memory\Plane.cpp">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ssd\Flash_Transaction_Queue.cpp">
-      <Filter>ssd</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ssd\TSU_FLIN.cpp">
-      <Filter>ssd</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\Logical_Address_Partitioning_Unit.cpp">
-      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -276,6 +288,72 @@
     <ClInclude Include="src\utils\rapidxml\rapidxml_utils.hpp">
       <Filter>utils\rapidxml</Filter>
     </ClInclude>
+    <ClInclude Include="src\sim\Engine.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\EventTree.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\Sim_Defs.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\Sim_Event.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\Sim_Object.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sim\Sim_Reporter.h">
+      <Filter>sim</Filter>
+    </ClInclude>
+    <ClInclude Include="src\precond\Workload_Statistics.h">
+      <Filter>precond</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Block.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Die.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Flash_Chip.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Flash_Command.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\FlashTypes.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Page.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Physical_Page_Address.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\flash_memory\Plane.h">
+      <Filter>nvm_chip\flash_memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\NVM_Chip.h">
+      <Filter>nvm_chip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\NVM_Memory_Address.h">
+      <Filter>nvm_chip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\nvm_chip\NVM_Types.h">
+      <Filter>nvm_chip</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\DistributionTypes.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Logical_Address_Partitioning_Unit.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Workload_Statistics.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Helper_Functions.h">
+      <Filter>utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\ssd\Address_Mapping_Unit_Base.h">
       <Filter>ssd</Filter>
     </ClInclude>
@@ -288,16 +366,25 @@
     <ClInclude Include="src\ssd\Controller.h">
       <Filter>ssd</Filter>
     </ClInclude>
+    <ClInclude Include="src\ssd\Data_Cache_Flash.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
     <ClInclude Include="src\ssd\Data_Cache_Manager_Base.h">
       <Filter>ssd</Filter>
     </ClInclude>
-    <ClInclude Include="src\ssd\Data_Cache_Manager_Flash.h">
+    <ClInclude Include="src\ssd\Data_Cache_Manager_Flash_Advanced.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Data_Cache_Manager_Flash_Simple.h">
       <Filter>ssd</Filter>
     </ClInclude>
     <ClInclude Include="src\ssd\Flash_Block_Manager.h">
       <Filter>ssd</Filter>
     </ClInclude>
     <ClInclude Include="src\ssd\Flash_Block_Manager_Base.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Flash_Transaction_Queue.h">
       <Filter>ssd</Filter>
     </ClInclude>
     <ClInclude Include="src\ssd\FTL.h">
@@ -369,77 +456,14 @@
     <ClInclude Include="src\ssd\TSU_Base.h">
       <Filter>ssd</Filter>
     </ClInclude>
+    <ClInclude Include="src\ssd\TSU_FLIN.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
     <ClInclude Include="src\ssd\TSU_OutofOrder.h">
       <Filter>ssd</Filter>
     </ClInclude>
     <ClInclude Include="src\ssd\User_Request.h">
       <Filter>ssd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sim\Engine.h">
-      <Filter>sim</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sim\EventTree.h">
-      <Filter>sim</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sim\Sim_Defs.h">
-      <Filter>sim</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sim\Sim_Event.h">
-      <Filter>sim</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sim\Sim_Object.h">
-      <Filter>sim</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sim\Sim_Reporter.h">
-      <Filter>sim</Filter>
-    </ClInclude>
-    <ClInclude Include="src\precond\Workload_Statistics.h">
-      <Filter>precond</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\flash_memory\Block.h">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\flash_memory\Die.h">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\flash_memory\Flash_Chip.h">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\flash_memory\Flash_Command.h">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\flash_memory\FlashTypes.h">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\flash_memory\Page.h">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\flash_memory\Physical_Page_Address.h">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\flash_memory\Plane.h">
-      <Filter>nvm_chip\flash_memory</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\NVM_Chip.h">
-      <Filter>nvm_chip</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\NVM_Memory_Address.h">
-      <Filter>nvm_chip</Filter>
-    </ClInclude>
-    <ClInclude Include="src\nvm_chip\NVM_Types.h">
-      <Filter>nvm_chip</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\DistributionTypes.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ssd\Flash_Transaction_Queue.h">
-      <Filter>ssd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ssd\TSU_FLIN.h">
-      <Filter>ssd</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\Logical_Address_Partitioning_Unit.h">
-      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

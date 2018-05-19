@@ -9,6 +9,7 @@
 #include "../ssd/Host_Interface_SATA.h"
 #include "../ssd/Host_Interface_NVMe.h"
 #include "../ssd/Data_Cache_Manager_Base.h"
+#include "../ssd/Data_Cache_Flash.h"
 #include "../ssd/NVM_Firmware.h"
 #include "../ssd/NVM_PHY_Base.h"
 #include "../ssd/NVM_Channel_Base.h"

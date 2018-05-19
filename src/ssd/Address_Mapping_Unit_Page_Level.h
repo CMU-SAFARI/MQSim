@@ -108,10 +108,10 @@ namespace SSD_Components
 		std::set<MVPN_type> DepartingMappingEntries;
 		std::set<LPA_type> Locked_LPAs;//Used to manage race conditions, i.e. a user request accesses and LPA while GC is moving that LPA 
 		std::set<MVPN_type> Locked_MVPNs;//Used to manage race conditions
-		std::multimap<LPA_type, NVM_Transaction_Flash*> Waiting_locked_lpa_read_transactions;
-		std::multimap<LPA_type, NVM_Transaction_Flash*> Waiting_locked_lpa_program_transactions;
-		std::set<MVPN_type> Waiting_locked_mvpn_read_transactions;
-		std::set<MVPN_type> Waiting_locked_mvpn_program_transactions;
+		std::multimap<LPA_type, NVM_Transaction_Flash*> Read_transactions_behind_LPA_barrier;
+		std::multimap<LPA_type, NVM_Transaction_Flash*> Write_transactions_behind_LPA_barrier;
+		std::set<MVPN_type> MVPN_read_transactions_waiting_behind_barrier;
+		std::set<MVPN_type> MVPN_write_transaction_waiting_behind_barrier;
 
 		Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme;
 		flash_channel_ID_type* Channel_ids;
@@ -133,7 +133,7 @@ namespace SSD_Components
 	{
 		friend class GC_and_WL_Unit_Page_Level;
 	public:
-		Address_Mapping_Unit_Page_Level(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* BlockManager,
+		Address_Mapping_Unit_Page_Level(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* block_manager,
 			bool ideal_mapping_table, unsigned int cmt_capacity_in_byte, Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
 			unsigned int ConcurrentStreamNo,
 			unsigned int ChannelCount, unsigned int chip_no_per_channel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
@@ -147,7 +147,7 @@ namespace SSD_Components
 		void Validate_simulation_config();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
 
-		void Allocate_address_for_preconditioning(const stream_id_type stream_id, const std::map<LPA_type, page_status_type>& lpa_list, const std::vector<double>& steady_state_distribution);
+		void Allocate_address_for_preconditioning(const stream_id_type stream_id, std::map<LPA_type, page_status_type>& lpa_list, std::vector<double>& steady_state_distribution);
 		int Bring_to_CMT_for_preconditioning(stream_id_type stream_id, LPA_type lpa);
 		unsigned int Get_cmt_capacity();
 		unsigned int Get_current_cmt_occupancy_for_stream(stream_id_type stream_id);
@@ -164,11 +164,12 @@ namespace SSD_Components
 		void Convert_ppa_to_address(const PPA_type ppn, NVM::FlashMemory::Physical_Page_Address& address);
 		PPA_type Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress);
 
-		void Lock_physical_block_for_gc_wl(const NVM::FlashMemory::Physical_Page_Address& block_address);
-		void Lock_lpa_for_gc(stream_id_type stream_id, LPA_type lpa);
-		void Lock_mvpn_for_gc(stream_id_type stream_id, MVPN_type mpvn);
-		void Unlock_lpa_after_gc(stream_id_type stream_id, LPA_type lpa);
-		void Unlock_mvpn_after_gc(stream_id_type stream_id, MVPN_type mpvn);
+		void Set_barrier_for_accessing_physical_block(const NVM::FlashMemory::Physical_Page_Address& block_address);
+		void Set_barrier_for_accessing_lpa(stream_id_type stream_id, LPA_type lpa);
+		void Set_barrier_for_accessing_mvpn(stream_id_type stream_id, MVPN_type mpvn);
+		void Remove_barrier_for_accessing_lpa(stream_id_type stream_id, LPA_type lpa);
+		void Remove_barrier_for_accessing_mvpn(stream_id_type stream_id, MVPN_type mpvn);
+		void Start_servicing_writes_for_overfull_plane(const NVM::FlashMemory::Physical_Page_Address plane_address);
 	private:
 		static Address_Mapping_Unit_Page_Level* _my_instance;
 		unsigned int cmt_capacity;
@@ -181,20 +182,22 @@ namespace SSD_Components
 		void allocate_plane_for_preconditioning(stream_id_type stream_id, LPA_type lpn, NVM::FlashMemory::Physical_Page_Address& targetAddress);
 		bool request_mapping_entry(const stream_id_type streamID, const LPA_type lpn);
 		static void handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction);
-		void translate_lpa_to_ppa(stream_id_type streamID, NVM_Transaction_Flash* transaction);
+		bool translate_lpa_to_ppa(stream_id_type streamID, NVM_Transaction_Flash* transaction);
+		std::set<NVM_Transaction_Flash_WR*>**** Write_transactions_for_overfull_planes;
 
 		void generate_flash_read_request_for_mapping_data(const stream_id_type streamID, const LPA_type lpn);
 		void generate_flash_writeback_request_for_mapping_data(const stream_id_type streamID, const LPA_type lpn);
 
 		unsigned int no_of_translation_entries_per_page;
 		MVPN_type get_MVPN(const LPA_type lpn, stream_id_type stream_id);
-		LPA_type get_start_LPN_MVP(const MVPN_type);
+		LPA_type get_start_LPN_in_MVP(const MVPN_type);
 		LPA_type get_end_LPN_in_MVP(const MVPN_type);
 
 		bool query_cmt(NVM_Transaction_Flash* transaction);
 		PPA_type online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap);
-		void manage_user_transaction_with_locked_lpa(NVM_Transaction_Flash* transaction);
-		void manage_mapping_transaction_with_locked_mvpn(stream_id_type stream_id, MVPN_type mvpn, bool read);
+		void mange_unsuccessful_translation(NVM_Transaction_Flash* transaction);
+		void manage_user_transaction_facing_barrier(NVM_Transaction_Flash* transaction);
+		void manage_mapping_transaction_facing_barrier(stream_id_type stream_id, MVPN_type mvpn, bool read);
 		bool is_lpa_locked_for_gc(stream_id_type stream_id, LPA_type lpa);
 		bool is_mvpn_locked_for_gc(stream_id_type stream_id, MVPN_type mvpn);
 	};

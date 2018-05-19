@@ -56,6 +56,7 @@ namespace SSD_Components
 		unsigned int Get_minimum_number_of_free_pages_before_GC();
 		bool Use_dynamic_wearleveling();
 		bool Use_static_wearleveling();
+		bool Stop_servicing_writes(const NVM::FlashMemory::Physical_Page_Address& plane_address);
 	protected:
 		GC_Block_Selection_Policy_Type block_selection_policy;
 		static GC_and_WL_Unit_Base * _my_instance;
@@ -79,7 +80,7 @@ namespace SSD_Components
 		bool preemptible_gc_enabled;
 		double gc_hard_threshold;
 		unsigned int block_pool_gc_hard_threshold;
-		unsigned int max_ongoing_gc_reqs_per_plane;
+		unsigned int max_ongoing_gc_reqs_per_plane;//This value has two important usages: 1) maximum number of concurrent gc operations per plane, and 2) the value that determines urgent GC execution when there is a shortage of flash blocks. If the block bool size drops below this value, all incomming user writes should be blocked
 
 		//Following variabels are used based on the type of GC block selection policy
 		unsigned int rga_set_size;//The number of random flash blocks that are radnomly selected 

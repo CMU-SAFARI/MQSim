@@ -25,11 +25,21 @@ namespace Utils
 		static LHA_type End_lha_available_to_flow(stream_id_type stream_id);
 		static LHA_type LHA_count_allocate_to_flow(stream_id_type stream_id);
 		static PDA_type PDA_count_allocate_to_flow(stream_id_type stream_id);
+		static double Get_share_of_physcial_pages_in_plane(flash_channel_ID_type channel_id, flash_chip_ID_type chip_id, flash_die_ID_type die_id, flash_plane_ID_type plane_id);
 	private:
+		static int****resource_list;
+		static std::vector<std::vector<flash_channel_ID_type>> stream_channel_ids;
+		static std::vector<std::vector<flash_chip_ID_type>> stream_chip_ids;
+		static std::vector<std::vector<flash_die_ID_type>> stream_die_ids;
+		static std::vector<std::vector<flash_plane_ID_type>> stream_plane_ids;
 		static bool initialized;
 		static std::vector<LHA_type> pdas_per_flow;
 		static std::vector<LHA_type> start_lhas_per_flow;
 		static std::vector<LHA_type> end_lhas_per_flow;
+		static unsigned int channel_count;
+		static unsigned int chip_no_per_channel;
+		static unsigned int die_no_per_chip;
+		static unsigned int plane_no_per_die;
 	};
 }
 #endif // !LOGICAL_ADDRESS_PARTITIONING_UNIT_H

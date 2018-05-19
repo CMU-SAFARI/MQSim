@@ -44,8 +44,10 @@
     <ClCompile Include="src\ssd\Address_Mapping_Unit_Hybrid.cpp" />
     <ClCompile Include="src\ssd\Address_Mapping_Unit_Page_Level.cpp" />
     <ClCompile Include="src\ssd\Controller.cpp" />
+    <ClCompile Include="src\ssd\Data_Cache_Flash.cpp" />
     <ClCompile Include="src\ssd\Data_Cache_Manager_Base.cpp" />
-    <ClCompile Include="src\ssd\Data_Cache_Manager_Flash.cpp" />
+    <ClCompile Include="src\ssd\Data_Cache_Manager_Flash_Advanced.cpp" />
+    <ClCompile Include="src\ssd\Data_Cache_Manager_Flash_Simple.cpp" />
     <ClCompile Include="src\ssd\Flash_Block_Manager.cpp" />
     <ClCompile Include="src\ssd\Flash_Block_Manager_Base.cpp" />
     <ClCompile Include="src\ssd\Flash_Transaction_Queue.cpp" />
@@ -54,6 +56,7 @@
     <ClCompile Include="src\ssd\GC_and_WL_Unit_Page_Level.cpp" />
     <ClCompile Include="src\ssd\Host_Interface_Base.cpp" />
     <ClCompile Include="src\ssd\Host_Interface_NVMe.cpp" />
+    <ClCompile Include="src\ssd\Host_Interface_SATA.cpp" />
     <ClCompile Include="src\ssd\NVM_Firmware.cpp" />
     <ClCompile Include="src\ssd\NVM_PHY_Base.cpp" />
     <ClCompile Include="src\ssd\NVM_PHY_ONFI.cpp" />
@@ -71,6 +74,7 @@
     <ClCompile Include="src\ssd\TSU_OutofOrder.cpp" />
     <ClCompile Include="src\ssd\User_Request.cpp" />
     <ClCompile Include="src\utils\CMRRandomGenerator.cpp" />
+    <ClCompile Include="src\utils\Helper_Functions.cpp" />
     <ClCompile Include="src\utils\Logical_Address_Partitioning_Unit.cpp" />
     <ClCompile Include="src\utils\RandomGenerator.cpp" />
     <ClCompile Include="src\utils\StringTools.cpp" />
@@ -117,8 +121,10 @@
     <ClInclude Include="src\ssd\Address_Mapping_Unit_Hybrid.h" />
     <ClInclude Include="src\ssd\Address_Mapping_Unit_Page_Level.h" />
     <ClInclude Include="src\ssd\Controller.h" />
+    <ClInclude Include="src\ssd\Data_Cache_Flash.h" />
     <ClInclude Include="src\ssd\Data_Cache_Manager_Base.h" />
-    <ClInclude Include="src\ssd\Data_Cache_Manager_Flash.h" />
+    <ClInclude Include="src\ssd\Data_Cache_Manager_Flash_Advanced.h" />
+    <ClInclude Include="src\ssd\Data_Cache_Manager_Flash_Simple.h" />
     <ClInclude Include="src\ssd\Flash_Block_Manager.h" />
     <ClInclude Include="src\ssd\Flash_Block_Manager_Base.h" />
     <ClInclude Include="src\ssd\Flash_Transaction_Queue.h" />
@@ -150,6 +156,7 @@
     <ClInclude Include="src\ssd\User_Request.h" />
     <ClInclude Include="src\utils\CMRRandomGenerator.h" />
     <ClInclude Include="src\utils\DistributionTypes.h" />
+    <ClInclude Include="src\utils\Helper_Functions.h" />
     <ClInclude Include="src\utils\Logical_Address_Partitioning_Unit.h" />
     <ClInclude Include="src\utils\RandomGenerator.h" />
     <ClInclude Include="src\utils\rapidxml\rapidxml.hpp" />
@@ -157,6 +164,7 @@
     <ClInclude Include="src\utils\rapidxml\rapidxml_print.hpp" />
     <ClInclude Include="src\utils\rapidxml\rapidxml_utils.hpp" />
     <ClInclude Include="src\utils\StringTools.h" />
+    <ClInclude Include="src\utils\Workload_Statistics.h" />
     <ClInclude Include="src\utils\XMLWriter.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

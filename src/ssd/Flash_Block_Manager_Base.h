@@ -60,6 +60,7 @@ namespace SSD_Components
 		std::set<flash_block_ID_type> Ongoing_erase_operations;
 		Block_Pool_Slot_Type* Get_a_free_block(stream_id_type stream_id, bool for_mapping_data);
 		unsigned int Get_free_block_pool_size();
+		void Check_bookkeeping_correctness(const NVM::FlashMemory::Physical_Page_Address& plane_address);
 		void Add_to_free_block_pool(Block_Pool_Slot_Type* block, bool consider_dynamic_wl);
 	};
 

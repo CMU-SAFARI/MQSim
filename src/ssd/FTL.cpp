@@ -5,10 +5,11 @@
 #include <map>
 #include <functional>
 #include <iterator>
+#include "../sim/Sim_Defs.h"
+#include "../utils/DistributionTypes.h"
+#include "../utils/Helper_Functions.h"
 #include "FTL.h"
 #include "Stats.h"
-#include "../utils/DistributionTypes.h"
-#include "../sim/Sim_Defs.h"
 
 namespace SSD_Components
 {
@@ -43,80 +44,6 @@ namespace SSD_Components
 		if (this->GC_and_WL_Unit == NULL)
 			throw std::logic_error("The garbage collector is not set for FTL!");
 	}
-
-
-	LPA_type FTL::Convert_host_logical_address_to_device_address(LHA_type lha)
-	{
-		return lha / page_size_in_sectors;
-	}
-
-	page_status_type FTL::Find_NVM_subunit_access_bitmap(LHA_type lha)
-	{
-		return ((page_status_type)~(0xffffffffffffffff << (int)1)) << (int)(lha % page_size_in_sectors);
-	}
-
-	double comb(double n, double k)
-	{
-		if (k > n) return 0;
-		if (k * 2 > n) k = n - k;
-		if (k == 0) return 1;
-
-		double result = n;
-		for (int i = 2; i <= k; ++i) {
-			result *= (n - i + 1);
-			result /= i;
-		}
-		return result;
-	}
-
-	void euler(std::vector<double>& mu, unsigned int b, double rho, int d, double h, double max_diff, int itr_max)
-	{
-		std::vector<double> w_0, w;
-		for (int i = 0; i <= mu.size(); i++)
-		{
-			if (i == 0)
-			{
-				w_0.push_back(1);
-				w.push_back(1);
-			}
-			else
-			{
-				w_0.push_back(0);
-				w.push_back(0);
-				for (int j = i; j < mu.size(); j++)
-					w_0[i] += mu[j];
-			}
-		}
-
-		double t = h;
-		int itr = 0;
-		double diff = 100000000000000;
-		while (itr < itr_max && diff > max_diff)
-		{
-			double sigma = 0;
-			for (unsigned int j = 1; j <= b; j++)
-				sigma += std::pow(w_0[j], d);
-
-			for (unsigned int i = 1; i < b; i++)
-				w[i] = w_0[i] + h * (1 - std::pow(w_0[i], d) - (b - sigma) * ((i * (w_0[i] - w_0[i + 1]))/(b * rho)));
-
-
-			diff = std::abs(w[0] - w_0[0]);
-			for (unsigned int i = 1; i <= b; i++)
-				if (std::abs(w[i] - w_0[i]) > diff)
-					diff = std::abs(w[i] - w_0[i]);
-			
-			for (int i = 1; i < w_0.size(); i++)
-				w_0[i] = w[i];
-
-			t += h;
-			itr++;
-		}
-
-		for (unsigned int i = 0; i <= b; i++)
-			mu[i] = w_0[i] - w_0[i + 1];
-	}
-
 	void FTL::Perform_precondition(std::vector<Utils::Workload_Statistics*> workload_stats)
 	{
 		Address_Mapping_Unit->Store_mapping_table_on_flash_at_start();
@@ -152,60 +79,116 @@ namespace SSD_Components
 
 		for (auto &stat : workload_stats)
 		{
-			unsigned int no_of_logical_pages_in_steadystate = (unsigned int)(stat->Initial_occupancy_ratio * Address_Mapping_Unit->Get_logical_pages_count(stat->Stream_id));
+			LPA_type no_of_logical_pages_in_steadystate = (LPA_type)(stat->Initial_occupancy_ratio * Address_Mapping_Unit->Get_logical_pages_count(stat->Stream_id));
 
 			//Step 1: generate LPAs that are accessed in the steady-state
+			Utils::Address_Distribution_Type decision_dist_type = stat->Address_distribution_type;
 			std::map<LPA_type, page_status_type> lpa_set_for_preconditioning;//Stores the accessed LPAs
 			std::multimap<int, LPA_type, std::greater<int>> trace_lpas_sorted_histogram;//only used for trace workloads
 			unsigned int hot_region_last_index_in_histogram = 0;//only used for trace workloads to detect hot addresses
 			LHA_type min_lha = stat->Min_LHA;
 			LHA_type max_lha = stat->Max_LHA - 1;
 			LPA_type min_lpa = Convert_host_logical_address_to_device_address(min_lha);
+			if (stat->generate_aligned_addresses)
+			{
+				if (min_lha % stat->alignment_value != 0)
+					min_lha += stat->alignment_value - (min_lha % stat->alignment_value);
+				if (max_lha % stat->alignment_value != 0)
+					max_lha -= min_lha % stat->alignment_value;
+			}
+
 			LPA_type max_lpa = Convert_host_logical_address_to_device_address(max_lha) - 1;
 			total_accessed_cmt_entries += (unsigned int)(Convert_host_logical_address_to_device_address(max_lha) / page_size_in_sectors - Convert_host_logical_address_to_device_address(min_lha) / page_size_in_sectors) + 1;
 			bool hot_range_finished = false;//Used for fast address generation in hot/cold traffic mode
-			LHA_type last_hot_address = min_lha;//Used for fast address generation in hot/cold traffic mode
+			LHA_type hot_region_end_lsa = 0, hot_lha_used_for_generation = 0;//Used for fast address generation in hot/cold traffic mode
+			LPA_type last_hot_lpa = 0;
 
 
 			if (stat->Type == Utils::Workload_Type::SYNTHETIC)
 			{
 				bool is_read = false;
 				unsigned int size = 0;
-				LHA_type start_LBA = 0, streaming_next_address = 0, hot_region_end_lsa = 0;
+				LHA_type start_LBA = 0, streaming_next_address = 0;
 				Utils::RandomGenerator* random_request_type_generator = new Utils::RandomGenerator(stat->random_request_type_generator_seed);
 				Utils::RandomGenerator* random_address_generator = new Utils::RandomGenerator(stat->random_address_generator_seed);
 				Utils::RandomGenerator* random_hot_address_generator = NULL;
 				Utils::RandomGenerator* random_hot_cold_generator = NULL;
 				Utils::RandomGenerator* random_request_size_generator = NULL;
+				bool fully_include_hot_addresses = false;
 
-				if (stat->Address_distribution_type == Utils::Address_Distribution_Type::HOTCOLD_RANDOM)
+				if (stat->Address_distribution_type == Utils::Address_Distribution_Type::HOTCOLD_RANDOM)//treat a workload with very low hot/cold values as a uniform random workload
+					if (stat->Ratio_of_hot_addresses_to_whole_working_set > 0.3)
+						decision_dist_type = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
+
+
+				//Preparing address generation parameters
+				switch (decision_dist_type)
+				{
+				case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
 				{
 					random_hot_address_generator = new Utils::RandomGenerator(stat->random_hot_address_generator_seed);
 					random_hot_cold_generator = new Utils::RandomGenerator(stat->random_hot_cold_generator_seed);
 					hot_region_end_lsa = min_lha + (LHA_type)((double)(max_lha - min_lha) * stat->Ratio_of_hot_addresses_to_whole_working_set);
+					last_hot_lpa = Convert_host_logical_address_to_device_address(hot_region_end_lsa) - 1;//Be conservative and not include the last_hot_address itself
+					hot_lha_used_for_generation = min_lha;
+					//Check if enough LPAs could be generated within the working set of the flow
+					if ((last_hot_lpa - min_lpa) < no_of_logical_pages_in_steadystate)
+						fully_include_hot_addresses = true;
+					if ((max_lpa - last_hot_lpa) < 1.1 * (no_of_logical_pages_in_steadystate - (last_hot_lpa - min_lpa)))
+					{
+						PRINT_MESSAGE("The specified initial occupancy value could not be satisfied as the working set of workload #" << stat->Stream_id << " is small. MQSim made some adjustments!");
+						max_lha = min_lha + LHA_type(double(max_lha - min_lha) / stat->Working_set_ratio);
+						if (stat->generate_aligned_addresses)
+							if (max_lha % stat->alignment_value != 0)
+								max_lha -= min_lha % stat->alignment_value;
+						
+						max_lpa = Convert_host_logical_address_to_device_address(max_lha);
+					}
+					break;
 				}
-				else if (stat->Address_distribution_type == Utils::Address_Distribution_Type::STREAMING)
+				case Utils::Address_Distribution_Type::STREAMING:
 				{
 					streaming_next_address = random_address_generator->Uniform_ulong(min_lha, max_lha);
 					stat->First_Accessed_Address = streaming_next_address;
+					//Check if enough LPAs could be generated within the working set of the flow
+					if ((max_lpa - min_lpa) < no_of_logical_pages_in_steadystate)
+					{
+						PRINT_MESSAGE("The specified initial occupancy value could not be satisfied as the working set of workload #" << stat->Stream_id << " is small. MQSim made some adjustments!");
+						max_lha = min_lha + LHA_type(double(max_lha - min_lha) / stat->Working_set_ratio);
+						if (stat->generate_aligned_addresses)
+							if (max_lha % stat->alignment_value != 0)
+								max_lha -= min_lha % stat->alignment_value;
+						max_lpa = Convert_host_logical_address_to_device_address(max_lha);
+
+						if ((max_lpa - min_lpa) < no_of_logical_pages_in_steadystate)
+							no_of_logical_pages_in_steadystate = max_lpa - min_lpa + 1;
+					}
+					break;
+				}
+				case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+				{
+					//Check if enough LPAs could be generated within the working set of the flow
+					if ((max_lpa - min_lpa) < 1.1 * no_of_logical_pages_in_steadystate)
+					{
+						PRINT_MESSAGE("The specified initial occupancy value could not be satisfied as the working set of workload #" << stat->Stream_id << " is small. MQSim made some adjustments!");
+						max_lha = min_lha + LHA_type(double(max_lha - min_lha) / stat->Working_set_ratio);
+						if (stat->generate_aligned_addresses)
+							if (max_lha % stat->alignment_value != 0)
+								max_lha -= min_lha % stat->alignment_value;
+						max_lpa = Convert_host_logical_address_to_device_address(max_lha);
+
+						if ((max_lpa - min_lpa) < 1.1 * no_of_logical_pages_in_steadystate)
+						{
+							no_of_logical_pages_in_steadystate = (unsigned int)(double(max_lpa - min_lpa) * 0.9);
+						}
+					}
+					break;
+				}
 				}
 
 				if (stat->Request_size_distribution_type == Utils::Request_Size_Distribution_Type::NORMAL)
 				{
 					random_request_size_generator = new Utils::RandomGenerator(stat->random_request_size_generator_seed);
-				}
-
-				//Check if enough LPAs could be generated within the working set of the flow
-				if ((max_lpa - min_lpa) < 1.1 * no_of_logical_pages_in_steadystate)
-				{
-					PRINT_MESSAGE("The specified initial occupancy value could not be satisfied as the working set of workload #" << stat->Stream_id << " is small. I made some adjustments!");
-					max_lha = min_lha + LHA_type(double(max_lha - min_lha) / stat->Working_set_ratio);
-					max_lpa = Convert_host_logical_address_to_device_address(max_lha);
-
-					if ((max_lpa - min_lpa) < 1.1 * no_of_logical_pages_in_steadystate)
-					{
-						no_of_logical_pages_in_steadystate = (unsigned int)(double(max_lpa - min_lpa) * 0.9);
-					}
 				}
 
 				while (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate)
@@ -230,7 +213,7 @@ namespace SSD_Components
 
 					bool is_hot_address = false;
 
-					switch (stat->Address_distribution_type)
+					switch (decision_dist_type)
 					{
 					case Utils::Address_Distribution_Type::STREAMING:
 						start_LBA = streaming_next_address;
@@ -239,16 +222,18 @@ namespace SSD_Components
 						streaming_next_address += size;
 						if (streaming_next_address > max_lha)
 							streaming_next_address = min_lha;
+						if (stat->generate_aligned_addresses)
+							if (streaming_next_address % stat->alignment_value != 0)
+								streaming_next_address += stat->alignment_value - (streaming_next_address % stat->alignment_value);
 						break;
 					case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
 					{
-						LPA_type last_hot_lpa = Convert_host_logical_address_to_device_address(hot_region_end_lsa);
-						if ((last_hot_lpa - min_lpa) < stat->Ratio_of_hot_addresses_to_whole_working_set * no_of_logical_pages_in_steadystate)//just to speedup address generation
+						if (fully_include_hot_addresses)//just to speedup address generation
 						{
 							if (!hot_range_finished)
 							{
-								start_LBA = last_hot_address;
-								last_hot_address += size;
+								start_LBA = hot_lha_used_for_generation;
+								hot_lha_used_for_generation += size;
 								if (start_LBA > hot_region_end_lsa)
 									hot_range_finished = true;
 								is_hot_address = true;
@@ -293,6 +278,10 @@ namespace SSD_Components
 						break;
 					}
 
+					if (stat->generate_aligned_addresses)
+						start_LBA -= start_LBA % stat->alignment_value;
+
+
 					unsigned int hanled_sectors_count = 0;
 					LHA_type lsa = start_LBA - min_lha;
 					unsigned int transaction_size = 0;
@@ -306,7 +295,7 @@ namespace SSD_Components
 							transaction_size = size - hanled_sectors_count;
 						}
 						LPA_type lpa = Convert_host_logical_address_to_device_address(lsa);
-						page_status_type access_status_bitmap = Find_NVM_subunit_access_bitmap(lsa);						
+						page_status_type access_status_bitmap = Find_NVM_subunit_access_bitmap(lsa);
 
 						lsa = lsa + transaction_size;
 						hanled_sectors_count += transaction_size;
@@ -451,7 +440,7 @@ namespace SSD_Components
 			//Note: if hot/cold separation is required, then the following estimations should be changed according to Van Houtd's paper in Performance Evaluation 2014.
 			std::vector<double> steadystate_block_status_probability;//The probability distribution function of the number of valid pages in a block in the steadystate
 			double rho = stat->Initial_occupancy_ratio * (1 - over_provisioning_ratio) / (1 - double(GC_and_WL_Unit->Get_minimum_number_of_free_pages_before_GC()) / block_no_per_plane);
-			switch (stat->Address_distribution_type)
+			switch (decision_dist_type)
 			{
 			case Utils::Address_Distribution_Type::HOTCOLD_RANDOM://Estimate the steady-state of the hot/cold traffic based on the steady-state of the uniform traffic
 			{
@@ -462,15 +451,15 @@ namespace SSD_Components
 				case GC_Block_Selection_Policy_Type::FIFO://Could be estimated with greedy for large page_no_per_block values, as mentioned in //Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
 				{
 					for (unsigned int i = 0; i <= page_no_per_block; i++)
-						steadystate_block_status_probability.push_back(comb(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
-					euler(steadystate_block_status_probability, page_no_per_block, rho, 30, 0.001, 0.0000000001, 10000);//As specified in the SIGMETRICS 2013 paper, a larger value for d-choices (the name of RGA in Van Houdt's paper) will lead to results close to greedy. We use d=30 to estimate steady-state of the greedy policy with that of d-chioces.
+						steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
+					Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, 30, 0.001, 0.0000000001, 10000);//As specified in the SIGMETRICS 2013 paper, a larger value for d-choices (the name of RGA in Van Houdt's paper) will lead to results close to greedy. We use d=30 to estimate steady-state of the greedy policy with that of d-chioces.
 					break;
 				}
 				case GC_Block_Selection_Policy_Type::RGA://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
 				{
 					for (unsigned int i = 0; i <= page_no_per_block; i++)
-						steadystate_block_status_probability.push_back(comb(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
-					euler(steadystate_block_status_probability, page_no_per_block, rho, GC_and_WL_Unit->Get_GC_policy_specific_parameter(), 0.001, 0.0000000001, 10000);
+						steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
+					Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, GC_and_WL_Unit->Get_GC_policy_specific_parameter(), 0.001, 0.0000000001, 10000);
 					break;
 				}
 				case GC_Block_Selection_Policy_Type::RANDOM:
@@ -576,15 +565,15 @@ namespace SSD_Components
 					case GC_Block_Selection_Policy_Type::FIFO://Could be estimated with greedy for large page_no_per_block values, as mentioned in //Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
 					{
 						for (unsigned int i = 0; i <= page_no_per_block; i++)
-							steadystate_block_status_probability.push_back(comb(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
-						euler(steadystate_block_status_probability, page_no_per_block, rho, 30, 0.001, 0.0000000001, 10000);//As specified in the SIGMETRICS 2013 paper, a larger value for d-choices (the name of RGA in Van Houdt's paper) will lead to results close to greedy. We use d=30 to estimate steady-state of the greedy policy with that of d-chioces.
+							steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
+						Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, 30, 0.001, 0.0000000001, 10000);//As specified in the SIGMETRICS 2013 paper, a larger value for d-choices (the name of RGA in Van Houdt's paper) will lead to results close to greedy. We use d=30 to estimate steady-state of the greedy policy with that of d-chioces.
 						break;
 					}
 					case GC_Block_Selection_Policy_Type::RGA://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
 					{
 						for (unsigned int i = 0; i <= page_no_per_block; i++)
-							steadystate_block_status_probability.push_back(comb(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
-						euler(steadystate_block_status_probability, page_no_per_block, rho, GC_and_WL_Unit->Get_GC_policy_specific_parameter(), 0.001, 0.0000000001, 10000);
+							steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
+						Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, GC_and_WL_Unit->Get_GC_policy_specific_parameter(), 0.001, 0.0000000001, 10000);
 						break;
 					}
 					case GC_Block_Selection_Policy_Type::RANDOM:
@@ -646,8 +635,8 @@ namespace SSD_Components
 			double sum = 0;
 			for (unsigned int i = 0; i <= page_no_per_block; i++)//Check if probability distribution is correct
 				sum += steadystate_block_status_probability[i];
-			if(sum > 1.001 || sum < 0.99)//Due to some precision errors the sum may not be exactly equal to 1
-				PRINT_ERROR("Wrong probability distribution function for the number of valid pages in flash blocks in the steady-state! It is not safe to continue preconditioning!" )
+			if (sum > 1.001 || sum < 0.99)//Due to some precision errors the sum may not be exactly equal to 1
+				PRINT_ERROR("Wrong probability distribution function for the number of valid pages in flash blocks in the steady-state! It is not safe to continue preconditioning!")
 			Address_Mapping_Unit->Allocate_address_for_preconditioning(stat->Stream_id, lpa_set_for_preconditioning, steadystate_block_status_probability);
 
 			//Step 4: Touch the LPAs and bring them to CMT to warmup address mapping unit
@@ -702,7 +691,7 @@ namespace SSD_Components
 					no_of_entries_in_cmt = (unsigned int)(trace_lpas_sorted_histogram.size());
 
 				//Step 4-2: Bring the LPAs into CMT based on the flow access pattern
-				switch (stat->Address_distribution_type)
+				switch (decision_dist_type)
 				{
 				case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
 				{
@@ -761,7 +750,7 @@ namespace SSD_Components
 						if (trace_lpas_sorted_histogram.size() > 1)
 						{
 							trace_lpas_sorted_histogram.erase(itr++);
-							if (random_walker + random_step >= trace_lpas_sorted_histogram.size() - 1 || random_walker + random_step < 0)
+							if (random_walker + random_step >= int(trace_lpas_sorted_histogram.size() - 1) || random_walker + random_step < 0)
 								random_step *= -1;
 							random_walker += random_step;
 						}
@@ -778,14 +767,6 @@ namespace SSD_Components
 		}
 	}
 	
-	/*	
-	static unsigned long Total_flash_reads_for_mapping_per_stream[MAX_SUPPORT_STREAMS], Total_flash_writes_for_mapping_per_stream[MAX_SUPPORT_STREAMS];
-
-	static unsigned int CMT_hits_per_stream[MAX_SUPPORT_STREAMS], readTR_CMT_hits_per_stream[MAX_SUPPORT_STREAMS], writeTR_CMT_hits_per_stream[MAX_SUPPORT_STREAMS];
-	static unsigned int CMT_miss_per_stream[MAX_SUPPORT_STREAMS], readTR_CMT_miss_per_stream[MAX_SUPPORT_STREAMS], writeTR_CMT_miss_per_stream[MAX_SUPPORT_STREAMS];
-	static unsigned int total_CMT_queries_per_stream[MAX_SUPPORT_STREAMS], total_readTR_CMT_queries_per_stream[MAX_SUPPORT_STREAMS], total_writeTR_CMT_queries_per_stream[MAX_SUPPORT_STREAMS];
-
-	*/
 	void FTL::Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter)
 	{
 		std::string tmp = name_prefix + ".FTL";
@@ -925,4 +906,15 @@ namespace SSD_Components
 
 	void FTL::Start_simulation() {}
 	void FTL::Execute_simulator_event(MQSimEngine::Sim_Event*) {}
+
+	LPA_type FTL::Convert_host_logical_address_to_device_address(LHA_type lha)
+	{
+		return lha / page_size_in_sectors;
+	}
+
+	page_status_type FTL::Find_NVM_subunit_access_bitmap(LHA_type lha)
+	{
+		return ((page_status_type)~(0xffffffffffffffff << (int)1)) << (int)(lha % page_size_in_sectors);
+	}
+
 }

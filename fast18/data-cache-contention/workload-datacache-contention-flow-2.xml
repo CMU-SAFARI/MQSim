@@ -4,16 +4,16 @@
 		<IO_Flow_Parameter_Set_Synthetic>
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
-				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1</Chip_IDs>
+				 <Channel_IDs>4,5,6,7</Channel_IDs>
+				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
-				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
-				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Initial_Occupancy_Percentage>77</Initial_Occupancy_Percentage>
+				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
-				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
-				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
+				 <Read_Percentage>0</Read_Percentage>
+				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
@@ -29,16 +29,16 @@
 		<IO_Flow_Parameter_Set_Synthetic>
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
-				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1</Chip_IDs>
+				 <Channel_IDs>4,5,6,7</Channel_IDs>
+				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
-				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
-				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Initial_Occupancy_Percentage>77</Initial_Occupancy_Percentage>
+				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
-				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
-				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
+				 <Read_Percentage>0</Read_Percentage>
+				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
@@ -46,7 +46,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>16</Average_No_of_Reqs_in_Queue>
-				 <Stop_Time>10000000000</Stop_Time>
+				 <Stop_Time>100000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
 	</IO_Scenario>
@@ -54,16 +54,16 @@
 		<IO_Flow_Parameter_Set_Synthetic>
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
-				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1</Chip_IDs>
+				 <Channel_IDs>4,5,6,7</Channel_IDs>
+				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
-				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
-				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Initial_Occupancy_Percentage>87</Initial_Occupancy_Percentage>
+				 <Working_Set_Percentage>100</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
-				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
-				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
+				 <Read_Percentage>0</Read_Percentage>
+				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Percentage_of_Hot_Region>50</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
@@ -71,7 +71,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>32</Average_No_of_Reqs_in_Queue>
-				 <Stop_Time>10000000000</Stop_Time>
+				 <Stop_Time>100000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
 	</IO_Scenario>
@@ -79,16 +79,16 @@
 		<IO_Flow_Parameter_Set_Synthetic>
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
-				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1</Chip_IDs>
+				 <Channel_IDs>4,5,6,7</Channel_IDs>
+				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
-				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
-				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Initial_Occupancy_Percentage>88</Initial_Occupancy_Percentage>
+				 <Working_Set_Percentage>100</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
-				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
-				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
+				 <Read_Percentage>0</Read_Percentage>
+				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Percentage_of_Hot_Region>50</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
@@ -96,7 +96,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>64</Average_No_of_Reqs_in_Queue>
-				 <Stop_Time>10000000000</Stop_Time>
+				 <Stop_Time>100000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
 	</IO_Scenario>
@@ -104,16 +104,16 @@
 		<IO_Flow_Parameter_Set_Synthetic>
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
-				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1</Chip_IDs>
+				 <Channel_IDs>4,5,6,7</Channel_IDs>
+				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
-				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
-				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Initial_Occupancy_Percentage>89</Initial_Occupancy_Percentage>
+				 <Working_Set_Percentage>100</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
-				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
-				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
+				 <Read_Percentage>0</Read_Percentage>
+				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Percentage_of_Hot_Region>50</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
@@ -121,7 +121,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>128</Average_No_of_Reqs_in_Queue>
-				 <Stop_Time>10000000000</Stop_Time>
+				 <Stop_Time>100000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
 	</IO_Scenario>
@@ -129,16 +129,16 @@
 		<IO_Flow_Parameter_Set_Synthetic>
 				 <Priority_Class>HIGH</Priority_Class>
 				 <Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
-				 <Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-				 <Chip_IDs>0,1</Chip_IDs>
+				 <Channel_IDs>4,5,6,7</Channel_IDs>
+				 <Chip_IDs>0,1,2,3</Chip_IDs>
 				 <Die_IDs>0,1</Die_IDs>
 				 <Plane_IDs>0,1</Plane_IDs>
-				 <Initial_Occupancy_Percentage>75</Initial_Occupancy_Percentage>
-				 <Working_Set_Percentage>50</Working_Set_Percentage>
+				 <Initial_Occupancy_Percentage>89</Initial_Occupancy_Percentage>
+				 <Working_Set_Percentage>100</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
-				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
-				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
+				 <Read_Percentage>0</Read_Percentage>
+				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Percentage_of_Hot_Region>50</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
@@ -146,7 +146,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>256</Average_No_of_Reqs_in_Queue>
-				 <Stop_Time>10000000000</Stop_Time>
+				 <Stop_Time>100000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
 	</IO_Scenario>
