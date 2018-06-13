@@ -14,7 +14,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -37,7 +37,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -62,7 +62,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -85,7 +85,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -110,7 +110,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -133,7 +133,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -158,7 +158,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -181,7 +181,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -206,7 +206,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -229,7 +229,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -254,7 +254,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
@@ -277,7 +277,7 @@
 				 <Read_Percentage>100</Read_Percentage>
 				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
-				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
+				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
 				 <Request_Size_Distribution>FIXED</Request_Size_Distribution>
 				 <Average_Request_Size>8</Average_Request_Size>
