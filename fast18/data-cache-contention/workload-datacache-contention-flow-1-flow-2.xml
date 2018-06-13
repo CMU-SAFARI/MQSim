@@ -12,7 +12,7 @@
 				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -35,7 +35,7 @@
 				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -60,7 +60,7 @@
 				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -83,7 +83,7 @@
 				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -108,7 +108,7 @@
 				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -131,7 +131,7 @@
 				 <Working_Set_Percentage>100</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>50</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -156,7 +156,7 @@
 				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -179,7 +179,7 @@
 				 <Working_Set_Percentage>100</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>50</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -204,7 +204,7 @@
 				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -227,7 +227,7 @@
 				 <Working_Set_Percentage>100</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>50</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -252,7 +252,7 @@
 				 <Working_Set_Percentage>1</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>1</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -275,7 +275,7 @@
 				 <Working_Set_Percentage>100</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>0</Read_Percentage>
-				 <Address_Distribution>HOTCOLD_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_HOTCOLD</Address_Distribution>
 				 <Percentage_of_Hot_Region>50</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</<Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>

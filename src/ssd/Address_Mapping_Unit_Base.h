@@ -50,9 +50,7 @@ namespace SSD_Components
 		
 		virtual unsigned int Get_cmt_capacity() = 0;//Returns the maximum number of entries that could be stored in the cached mapping table
 		virtual unsigned int Get_current_cmt_occupancy_for_stream(stream_id_type stream_id) = 0;
-		virtual LHA_type Get_logical_sectors_count(stream_id_type stream_id) = 0; //Returns the number of logical sectors allocated to an I/O stream
 		virtual LPA_type Get_logical_pages_count(stream_id_type stream_id) = 0; //Returns the number of logical pages allocated to an I/O stream
-		virtual PPA_type Get_physical_pages_count(stream_id_type stream_id) = 0; //Returns the number of physical pages allocated to an I/O stream
 		unsigned int Get_no_of_input_streams() { return no_of_input_streams; }
 		bool Is_ideal_mapping_table(); //Checks if ideal mapping table is enabled in which all address translations entries are always in CMT (i.e., CMT is infinite in size) and thus all adddress translation requests are always successful
 

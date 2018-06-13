@@ -9,16 +9,37 @@ namespace SSD_Components
 		STAT_sum_of_read_transactions_execution_time(0), STAT_sum_of_read_transactions_transfer_time(0), STAT_sum_of_read_transactions_waiting_time(0),
 		STAT_sum_of_write_transactions_execution_time(0), STAT_sum_of_write_transactions_transfer_time(0), STAT_sum_of_write_transactions_waiting_time(0)
 	{}
+	
+	Input_Stream_Manager_Base::~Input_Stream_Manager_Base()
+	{
+		for (auto &stream : input_streams)
+			delete stream;
+	}
+
+	Input_Stream_Base::~Input_Stream_Base() {}
+
+	Request_Fetch_Unit_Base::~Request_Fetch_Unit_Base()
+	{
+		for (auto &dma_info : dma_list)
+			delete dma_info;
+	}
 
 	Host_Interface_Base* Host_Interface_Base::_my_instance = NULL;
 
-	Host_Interface_Base::Host_Interface_Base(const sim_object_id_type& id, HostInterfaceType type, LHA_type max_logical_sector_address, unsigned int sectors_per_page, 
+	Host_Interface_Base::Host_Interface_Base(const sim_object_id_type& id, HostInterface_Type type, LHA_type max_logical_sector_address, unsigned int sectors_per_page, 
 		Data_Cache_Manager_Base* cache)
 		: MQSimEngine::Sim_Object(id), type(type), max_logical_sector_address(max_logical_sector_address), 
 		sectors_per_page(sectors_per_page), cache(cache)
 	{
 		_my_instance = this;
 	}
+	
+	Host_Interface_Base::~Host_Interface_Base()
+	{
+		delete input_stream_manager;
+		delete request_fetch_unit;
+	}
+
 	void Host_Interface_Base::Setup_triggers()
 	{
 		Sim_Object::Setup_triggers();

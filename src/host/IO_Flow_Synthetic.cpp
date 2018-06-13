@@ -5,18 +5,16 @@
 
 namespace Host_Components
 {
-	IO_Flow_Synthetic::IO_Flow_Synthetic(const sim_object_id_type& name, 
-		LHA_type start_lsa_on_device, LHA_type end_lsa_on_device, double working_set_ratio,
-		uint16_t io_queue_id,
+	IO_Flow_Synthetic::IO_Flow_Synthetic(const sim_object_id_type& name, uint16_t flow_id,
+		LHA_type start_lsa_on_device, LHA_type end_lsa_on_device, double working_set_ratio, uint16_t io_queue_id,
 		uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class priority_class,
-		double read_ratio, Utils::Address_Distribution_Type address_distribution,
-		double hot_region_ratio,
+		double read_ratio, Utils::Address_Distribution_Type address_distribution, double hot_region_ratio,
 		Utils::Request_Size_Distribution_Type request_size_distribution, unsigned int average_request_size, unsigned int variance_request_size,
 		Utils::Request_Generator_Type generator_type, sim_time_type Average_inter_arrival_time_nano_sec, unsigned int average_number_of_enqueued_requests,
 		bool generate_aligned_addresses, unsigned int alignment_value,
-		int seed, sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_req_count, HostInterfaceType SSD_device_type, PCIe_Root_Complex* pcie_root_complex,
+		int seed, sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_req_count, HostInterface_Type SSD_device_type, PCIe_Root_Complex* pcie_root_complex, SATA_HBA* sata_hba,
 		bool enabled_logging, sim_time_type logging_period, std::string logging_file_path) :
-		IO_Flow_Base(name, start_lsa_on_device, LHA_type(start_lsa_on_device + (end_lsa_on_device - start_lsa_on_device) * working_set_ratio), io_queue_id, nvme_submission_queue_size, nvme_completion_queue_size, priority_class, stop_time, initial_occupancy_ratio, total_req_count, SSD_device_type, pcie_root_complex, enabled_logging, logging_period, logging_file_path),
+		IO_Flow_Base(name, flow_id, start_lsa_on_device, LHA_type(start_lsa_on_device + (end_lsa_on_device - start_lsa_on_device) * working_set_ratio), io_queue_id, nvme_submission_queue_size, nvme_completion_queue_size, priority_class, stop_time, initial_occupancy_ratio, total_req_count, SSD_device_type, pcie_root_complex, sata_hba, enabled_logging, logging_period, logging_file_path),
 		read_ratio(read_ratio), address_distribution(address_distribution),
 		working_set_ratio(working_set_ratio), hot_region_ratio(hot_region_ratio),
 		request_size_distribution(request_size_distribution), average_request_size(average_request_size), variance_request_size(variance_request_size),
@@ -32,7 +30,7 @@ namespace Host_Components
 		if (this->start_lsa_on_device > this->end_lsa_on_device)
 			throw std::logic_error("Problem in IO Flow Synthetic, the start LBA address is greater than the end LBA address");
 
-		if (address_distribution == Utils::Address_Distribution_Type::HOTCOLD_RANDOM)
+		if (address_distribution == Utils::Address_Distribution_Type::RANDOM_HOTCOLD)
 		{
 			random_hot_address_generator_seed = seed++;
 			random_hot_address_generator = new Utils::RandomGenerator(random_hot_address_generator_seed);
@@ -119,7 +117,7 @@ namespace Host_Components
 			if(streaming_next_address == request->Start_LBA)
 				PRINT_MESSAGE("Synthetic Message Generator: The same address is always repeated due to configuration parameters!")
 			break;
-		case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+		case Utils::Address_Distribution_Type::RANDOM_HOTCOLD:
 			if (random_hot_cold_generator->Uniform(0, 1) < hot_region_ratio)// (100-hot)% of requests going to hot% of the address space
 			{
 				request->Start_LBA = random_hot_address_generator->Uniform_ulong(hot_region_end_lsa + 1, end_lsa_on_device);
@@ -135,7 +133,7 @@ namespace Host_Components
 					PRINT_ERROR("Out of range address is generated in IO_Flow_Synthetic!\n")
 			}
 			break;
-		case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+		case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
 			request->Start_LBA = random_address_generator->Uniform_ulong(start_lsa_on_device, end_lsa_on_device);
 			if (request->Start_LBA < start_lsa_on_device || request->Start_LBA > end_lsa_on_device)
 				PRINT_ERROR("Out of range address is generated in IO_Flow_Synthetic!\n")
@@ -164,7 +162,20 @@ namespace Host_Components
 			/* In the demand based execution mode, the Generate_next_request() function may return NULL
 			* if 1) the simulation stop is met, or 2) the number of generated I/O requests reaches its threshold.*/
 			if (request != NULL)
-				submit_io_request(request);
+				Submit_io_request(request);
+		}
+	}
+
+	void IO_Flow_Synthetic::SATA_consume_io_request(Host_IO_Reqeust* io_request)
+	{
+		IO_Flow_Base::SATA_consume_io_request(io_request);
+		if (generator_type == Utils::Request_Generator_Type::QUEUE_DEPTH)
+		{
+			Host_IO_Reqeust* request = Generate_next_request();
+			/* In the demand based execution mode, the Generate_next_request() function may return NULL
+			* if 1) the simulation stop is met, or 2) the number of generated I/O requests reaches its threshold.*/
+			if (request != NULL)
+				Submit_io_request(request);
 		}
 	}
 
@@ -193,12 +204,12 @@ namespace Host_Components
 			Host_IO_Reqeust* req = Generate_next_request();
 			if (req != NULL)
 			{
-				submit_io_request(req);
+				Submit_io_request(req);
 				Simulator->Register_sim_event(Simulator->Time() + (sim_time_type)random_time_interval_generator->Exponential((double)Average_inter_arrival_time_nano_sec), this, 0, 0);
 			}
 		}
 		else for (unsigned int i = 0; i < average_number_of_enqueued_requests; i++)
-			submit_io_request(Generate_next_request());
+			Submit_io_request(Generate_next_request());
 	}
 
 	void IO_Flow_Synthetic::Get_statistics(Utils::Workload_Statistics& stats, LPA_type(*Convert_host_logical_address_to_device_address)(LHA_type lha),

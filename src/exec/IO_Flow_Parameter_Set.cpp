@@ -285,11 +285,11 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 	case Utils::Address_Distribution_Type::STREAMING:
 		val = "STREAMING";
 		break;
-	case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
-		val = "HOTCOLD_RANDOM";
+	case Utils::Address_Distribution_Type::RANDOM_HOTCOLD:
+		val = "RANDOM_HOTCOLD";
 		break;
-	case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
-		val = "UNIFORM_RANDOM";
+	case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
+		val = "RANDOM_UNIFORM";
 		break;
 	}
 	xmlwriter.Write_attribute_string(attr, val);
@@ -389,10 +389,10 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "STREAMING") == 0)
 					Address_Distribution = Utils::Address_Distribution_Type::STREAMING;
-				else if (strcmp(val.c_str(), "HOTCOLD_RANDOM") == 0)
-					Address_Distribution = Utils::Address_Distribution_Type::HOTCOLD_RANDOM;
-				else if (strcmp(val.c_str(), "UNIFORM_RANDOM") == 0)
-					Address_Distribution = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
+				else if (strcmp(val.c_str(), "RANDOM_HOTCOLD") == 0)
+					Address_Distribution = Utils::Address_Distribution_Type::RANDOM_HOTCOLD;
+				else if (strcmp(val.c_str(), "RANDOM_UNIFORM") == 0)
+					Address_Distribution = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
 				else PRINT_ERROR("Wrong address distribution type for input synthetic flow")
 			}
 			else if (strcmp(param->name(), "Percentage_of_Hot_Region") == 0)

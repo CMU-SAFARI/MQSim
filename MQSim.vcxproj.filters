@@ -208,6 +208,9 @@
     <ClCompile Include="src\ssd\User_Request.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
+    <ClCompile Include="src\host\SATA_HBA.cpp">
+      <Filter>host</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\exec\Device_Parameter_Set.h">
@@ -464,6 +467,9 @@
     </ClInclude>
     <ClInclude Include="src\ssd\User_Request.h">
       <Filter>ssd</Filter>
+    </ClInclude>
+    <ClInclude Include="src\host\SATA_HBA.h">
+      <Filter>host</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

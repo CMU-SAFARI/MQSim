@@ -6,8 +6,8 @@
 int Device_Parameter_Set::Seed = 123;//Seed for random number generation (used in device's random number generators)
 bool Device_Parameter_Set::Enabled_Preconditioning = true;
 NVM::NVM_Type Device_Parameter_Set::Memory_Type = NVM::NVM_Type::FLASH;
-HostInterfaceType Device_Parameter_Set::HostInterface_Type = HostInterfaceType::NVME;
-uint16_t Device_Parameter_Set::IO_Queue_Depth = 1024;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ
+HostInterface_Type Device_Parameter_Set::HostInterface_Type = HostInterface_Type::NVME;
+uint16_t Device_Parameter_Set::IO_Queue_Depth = 1024;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ_Control_Structure
 uint16_t Device_Parameter_Set::Queue_Fetch_Size = 512;//Used in NVMe host interface
 SSD_Components::Caching_Mechanism Device_Parameter_Set::Caching_Mechanism = SSD_Components::Caching_Mechanism::ADVANCED;
 SSD_Components::Cache_Sharing_Mode Device_Parameter_Set::Data_Cache_Sharing_Mode = SSD_Components::Cache_Sharing_Mode::SHARED;//Data cache sharing among concurrently running I/O flows, if NVMe host interface is used
@@ -73,10 +73,10 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	val;
 	switch (HostInterface_Type)
 	{
-	case HostInterfaceType::NVME:
+	case HostInterface_Type::NVME:
 		val = "NVME";
 		break;
-	case HostInterfaceType::SATA:
+	case HostInterface_Type::SATA:
 		val = "SATA";
 		break;
 	default:
@@ -411,9 +411,9 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "NVME") == 0)
-					HostInterface_Type = HostInterfaceType::NVME;
+					HostInterface_Type = HostInterface_Type::NVME;
 				else if (strcmp(val.c_str(), "SATA") == 0)
-					HostInterface_Type = HostInterfaceType::SATA;
+					HostInterface_Type = HostInterface_Type::SATA;
 				else PRINT_ERROR("Unknown host interface type specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "IO_Queue_Depth") == 0)
