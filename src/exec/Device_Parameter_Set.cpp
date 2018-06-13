@@ -164,7 +164,7 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	xmlwriter.Write_attribute_string(attr, val);
 
 	attr = "Ideal_Mapping_Table";
-	val = (Use_Copyback_for_GC ? "true" : "false");
+	val = (Ideal_Mapping_Table ? "true" : "false");
 	xmlwriter.Write_attribute_string(attr, val);
 	
 	attr = "CMT_Capacity";
