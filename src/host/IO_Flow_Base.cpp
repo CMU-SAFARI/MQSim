@@ -8,7 +8,7 @@ namespace Host_Components
 	IO_Flow_Base::IO_Flow_Base(const sim_object_id_type& name, uint16_t flow_id, LHA_type start_lsa_on_device, LHA_type end_lsa_on_device, uint16_t io_queue_id,
 		uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, 
 		IO_Flow_Priority_Class priority_class, sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_requets_to_be_generated,
-		HostInterface_Type SSD_device_type, PCIe_Root_Complex* pcie_root_complex, SATA_HBA* sata_hba,
+		HostInterface_Types SSD_device_type, PCIe_Root_Complex* pcie_root_complex, SATA_HBA* sata_hba,
 		bool enabled_logging, sim_time_type logging_period, std::string logging_file_path) : 
 		MQSimEngine::Sim_Object(name), flow_id(flow_id), start_lsa_on_device(start_lsa_on_device), end_lsa_on_device(end_lsa_on_device), io_queue_id(io_queue_id),
 		priority_class(priority_class), stop_time(stop_time), initial_occupancy_ratio(initial_occupancy_ratio), total_requests_to_be_generated(total_requets_to_be_generated), SSD_device_type(SSD_device_type), pcie_root_complex(pcie_root_complex), sata_hba(sata_hba),
@@ -28,7 +28,7 @@ namespace Host_Components
 
 		switch (SSD_device_type)
 		{
-		case HostInterface_Type::NVME:
+		case HostInterface_Types::NVME:
 			for (uint16_t cmdid = 0; cmdid < (uint16_t)(0xffffffff); cmdid++)
 				available_command_ids.insert(cmdid);
 			for (uint16_t cmdid = 0; cmdid < nvme_submission_queue_size; cmdid++)
@@ -115,12 +115,12 @@ namespace Host_Components
 
 		switch (SSD_device_type)
 		{
-		case HostInterface_Type::NVME:
+		case HostInterface_Types::NVME:
 			for (auto &req : nvme_software_request_queue)
 				if (req.second)
 					delete req.second;
 			break;
-		case HostInterface_Type::SATA:
+		case HostInterface_Types::SATA:
 			break;
 		default:
 			PRINT_ERROR("Unsupported host interface type in IO_Flow_Base!")
@@ -375,7 +375,7 @@ namespace Host_Components
 	{
 		switch (SSD_device_type)
 		{
-		case HostInterface_Type::NVME:
+		case HostInterface_Types::NVME:
 			if (NVME_SQ_FULL(nvme_queue_pair) || available_command_ids.size() == 0)//If either of software or hardware queue is full
 				waiting_requests.push_back(request);
 			else
@@ -394,7 +394,7 @@ namespace Host_Components
 				pcie_root_complex->Write_to_device(nvme_queue_pair.Submission_tail_register_address_on_device, nvme_queue_pair.Submission_queue_tail);//Based on NVMe protocol definition, the updated tail pointer should be informed to the device
 			}
 			break;
-		case HostInterface_Type::SATA:
+		case HostInterface_Types::SATA:
 			request->Source_flow_id = flow_id;
 			sata_hba->Submit_io_request(request);
 			break;

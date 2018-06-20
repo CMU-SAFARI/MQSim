@@ -3,7 +3,7 @@
 
 namespace Host_Components
 {
-	PCIe_Root_Complex::PCIe_Root_Complex(PCIe_Link* pcie_link, HostInterface_Type SSD_device_type, SATA_HBA* sata_hba, std::vector<Host_Components::IO_Flow_Base*>* IO_flows) :
+	PCIe_Root_Complex::PCIe_Root_Complex(PCIe_Link* pcie_link, HostInterface_Types SSD_device_type, SATA_HBA* sata_hba, std::vector<Host_Components::IO_Flow_Base*>* IO_flows) :
 		pcie_link(pcie_link), SSD_device_type(SSD_device_type), sata_hba(sata_hba), IO_flows(IO_flows) {}
 
 	void PCIe_Root_Complex::Write_to_memory(const uint64_t address, const void* payload)
@@ -16,13 +16,13 @@ namespace Host_Components
 		{
 			switch (SSD_device_type)
 			{
-			case HostInterface_Type::NVME:
+			case HostInterface_Types::NVME:
 			{
 				unsigned int flow_id = QUEUE_ID_TO_FLOW_ID(((Completion_Queue_Entry*)payload)->SQ_ID);
 				((*IO_flows)[flow_id])->NVMe_consume_io_request((Completion_Queue_Entry*)payload);
 				break;
 			}
-			case HostInterface_Type::SATA:
+			case HostInterface_Types::SATA:
 				sata_hba->SATA_consume_io_request((Completion_Queue_Entry*)payload);
 				break;
 			default:
@@ -59,14 +59,14 @@ namespace Host_Components
 		{
 			switch (SSD_device_type)
 			{
-			case HostInterface_Type::NVME:
+			case HostInterface_Types::NVME:
 			{
 				uint16_t flow_id = QUEUE_ID_TO_FLOW_ID(uint16_t(address >> NVME_COMP_Q_MEMORY_REGION));
 				new_pcie_message->Payload = (*IO_flows)[flow_id]->NVMe_read_sqe(address);
 				new_pcie_message->Payload_size = sizeof(Submission_Queue_Entry);
 				break;
 			}
-			case HostInterface_Type::SATA:
+			case HostInterface_Types::SATA:
 				new_pcie_message->Payload = sata_hba->Read_ncq_entry(address);
 				new_pcie_message->Payload_size = sizeof(Submission_Queue_Entry);
 				break;

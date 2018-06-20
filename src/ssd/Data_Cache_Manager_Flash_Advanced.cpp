@@ -493,16 +493,13 @@ namespace SSD_Components
 							((Data_Cache_Manager_Flash_Advanced*)_my_instance)->per_stream_cache[transaction->Stream_id]->Remove_slot(transaction->Stream_id, ((NVM_Transaction_Flash_WR*)transaction)->LPA);
 					}
 					
-					auto &req_list = static_cast<Data_Cache_Manager_Flash_Advanced*>(_my_instance)->waiting_user_requests_queue_for_dram_free_slot[sharing_id];
-					for (auto it = req_list.begin(); it != req_list.end(); )
+					auto user_request = ((Data_Cache_Manager_Flash_Advanced*)_my_instance)->waiting_user_requests_queue_for_dram_free_slot[sharing_id].begin();
+					while (user_request != ((Data_Cache_Manager_Flash_Advanced*)_my_instance)->waiting_user_requests_queue_for_dram_free_slot[sharing_id].end())
 					{
-						static_cast<Data_Cache_Manager_Flash_Advanced*>(_my_instance)->write_to_destage_buffer(*it);
-
-						if (!((*it)->Transaction_list.size()))
-							((Data_Cache_Manager_Flash_Advanced*)_my_instance)->waiting_user_requests_queue_for_dram_free_slot[sharing_id].remove(*(it++));
-						else
-							it++;
-
+						((Data_Cache_Manager_Flash_Advanced*)_my_instance)->write_to_destage_buffer(*user_request);
+						if ((*user_request)->Transaction_list.size() == 0)
+							((Data_Cache_Manager_Flash_Advanced*)_my_instance)->waiting_user_requests_queue_for_dram_free_slot[sharing_id].erase(user_request++);
+						else user_request++;
 						if (((Data_Cache_Manager_Flash_Advanced*)_my_instance)->back_pressure_buffer_depth[sharing_id] > ((Data_Cache_Manager_Flash_Advanced*)_my_instance)->back_pressure_buffer_max_depth)//The traffic load on the backend is high and the waiting requests cannot be serviced
 							break;
 					}

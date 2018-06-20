@@ -187,7 +187,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		{
 			switch (parameters->HostInterface_Type)
 			{
-			case HostInterface_Type::SATA:
+			case HostInterface_Types::SATA:
 			{
 				stream_count = 1;
 				std::vector<flash_channel_ID_type> channel_ids;
@@ -208,7 +208,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 					flow_plane_id_assignments[i].push_back(j);
 				break;
 			}
-			case HostInterface_Type::NVME:
+			case HostInterface_Types::NVME:
 			{
 				stream_count = (unsigned int)io_flows->size();
 				std::vector<flash_channel_ID_type> channel_ids;
@@ -313,12 +313,12 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		//Step 10: create Host_Interface
 		switch (parameters->HostInterface_Type)
 		{
-		case HostInterface_Type::NVME:
+		case HostInterface_Types::NVME:
 			device->Host_interface = new SSD_Components::Host_Interface_NVMe(device->ID() + ".HostInterface",
 				Utils::Logical_Address_Partitioning_Unit::Get_total_device_lha_count(), parameters->IO_Queue_Depth, parameters->IO_Queue_Depth,
 				(unsigned int)io_flows->size(), parameters->Queue_Fetch_Size, parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, dcm);
 			break;
-		case HostInterface_Type::SATA:
+		case HostInterface_Types::SATA:
 			device->Host_interface = new SSD_Components::Host_Interface_SATA(device->ID() + ".HostInterface",
 				parameters->IO_Queue_Depth, Utils::Logical_Address_Partitioning_Unit::Get_total_device_lha_count(), parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, dcm);
 

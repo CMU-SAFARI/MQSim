@@ -45,7 +45,7 @@ namespace Host_Components
 		IO_Flow_Base(const sim_object_id_type& name, uint16_t flow_id, LHA_type start_lsa_on_device, LHA_type end_lsa_address_on_device, uint16_t io_queue_id,
 			uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class priority_class,
 			sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_requets_to_be_generated,
-			HostInterface_Type SSD_device_type, PCIe_Root_Complex* pcie_root_complex, SATA_HBA* sata_hba,
+			HostInterface_Types SSD_device_type, PCIe_Root_Complex* pcie_root_complex, SATA_HBA* sata_hba,
 			bool enabled_logging, sim_time_type logging_period, std::string logging_file_path);
 		~IO_Flow_Base();
 		void Start_simulation();
@@ -73,7 +73,7 @@ namespace Host_Components
 		double initial_occupancy_ratio;//The initial amount of valid logical pages when pereconditioning is performed
 		sim_time_type stop_time;//The flow stops generating request when simulation time reaches stop_time
 		unsigned int total_requests_to_be_generated;//If stop_time is zero, then the flow stops generating request when the number of generated requests is equal to total_req_count
-		HostInterface_Type SSD_device_type;
+		HostInterface_Types SSD_device_type;
 		PCIe_Root_Complex* pcie_root_complex;
 		SATA_HBA* sata_hba;
 		LHA_type start_lsa_on_device, end_lsa_on_device;

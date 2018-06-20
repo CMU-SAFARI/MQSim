@@ -16,7 +16,7 @@ namespace Utils
 	{
 	public:
 		static void Reset();
-		static void Allocate_logical_address_for_flows(HostInterface_Type hostinterface_type, unsigned int concurrent_stream_no,
+		static void Allocate_logical_address_for_flows(HostInterface_Types hostinterface_type, unsigned int concurrent_stream_no,
 			unsigned int channel_count, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die,
 			std::vector<std::vector<flash_channel_ID_type>> stream_channel_ids, std::vector<std::vector<flash_chip_ID_type>> stream_chip_ids,
 			std::vector<std::vector<flash_die_ID_type>> stream_die_ids, std::vector<std::vector<flash_plane_ID_type>> stream_plane_ids,
@@ -29,7 +29,7 @@ namespace Utils
 		static double Get_share_of_physcial_pages_in_plane(flash_channel_ID_type channel_id, flash_chip_ID_type chip_id, flash_die_ID_type die_id, flash_plane_ID_type plane_id);
 		static LHA_type Get_total_device_lha_count();
 	private:
-		static HostInterface_Type hostinterface_type;
+		static HostInterface_Types hostinterface_type;
 		static int****resource_list;
 		static std::vector<std::vector<flash_channel_ID_type>> stream_channel_ids;
 		static std::vector<std::vector<flash_chip_ID_type>> stream_chip_ids;

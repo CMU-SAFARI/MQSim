@@ -14,7 +14,7 @@ Host_System::Host_System(Host_Parameter_Set* parameters, bool preconditioning_re
 	Simulator->AddObject(this);
 
 	//Create the main components of the host system
-	if (((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->GetType() == HostInterface_Type::SATA)
+	if (((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->GetType() == HostInterface_Types::SATA)
 		this->SATA_hba = new Host_Components::SATA_HBA(ID() + ".SATA_HBA", ((SSD_Components::Host_Interface_SATA*)ssd_host_interface)->Get_ncq_depth(), parameters->SATA_Processing_Delay, NULL, NULL);
 	else
 		this->SATA_hba = NULL;
@@ -35,7 +35,7 @@ Host_System::Host_System(Host_Parameter_Set* parameters, bool preconditioning_re
 		uint16_t nvme_sq_size = 0, nvme_cq_size = 0;
 		switch (((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->GetType())
 		{
-		case HostInterface_Type::NVME:
+		case HostInterface_Types::NVME:
 			nvme_sq_size = ((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_submission_queue_depth();
 			nvme_cq_size = ((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->Get_completion_queue_depth();
 			break;
@@ -82,7 +82,7 @@ Host_System::Host_System(Host_Parameter_Set* parameters, bool preconditioning_re
 		Simulator->AddObject(io_flow);
 	}
 	this->PCIe_root_complex->Set_io_flows(&this->IO_flows);
-	if (((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->GetType() == HostInterface_Type::SATA)
+	if (((SSD_Components::Host_Interface_NVMe*)ssd_host_interface)->GetType() == HostInterface_Types::SATA)
 	{
 		this->SATA_hba->Set_io_flows(&this->IO_flows);
 		this->SATA_hba->Set_root_complex(this->PCIe_root_complex);
@@ -94,7 +94,7 @@ Host_System::~Host_System()
 	delete this->Link;
 	delete this->PCIe_root_complex;
 	delete this->PCIe_switch;
-	if (ssd_device->Host_interface->GetType() == HostInterface_Type::SATA)
+	if (ssd_device->Host_interface->GetType() == HostInterface_Types::SATA)
 		delete this->SATA_hba;
 
 	for (uint16_t flow_id = 0; flow_id < this->IO_flows.size(); flow_id++)
@@ -117,14 +117,14 @@ void Host_System::Start_simulation()
 {
 	switch (ssd_device->Host_interface->GetType())
 	{
-	case HostInterface_Type::NVME:
+	case HostInterface_Types::NVME:
 		for (uint16_t flow_cntr = 0; flow_cntr < IO_flows.size(); flow_cntr++)
 			((SSD_Components::Host_Interface_NVMe*) ssd_device->Host_interface)->Create_new_stream(
 				IO_flows[flow_cntr]->Priority_class(),
 				IO_flows[flow_cntr]->Get_start_lsa_on_device(), IO_flows[flow_cntr]->Get_end_lsa_address_on_device(),
 				IO_flows[flow_cntr]->Get_nvme_queue_pair_info()->Submission_queue_memory_base_address, IO_flows[flow_cntr]->Get_nvme_queue_pair_info()->Completion_queue_memory_base_address);
 		break;
-	case HostInterface_Type::SATA:
+	case HostInterface_Types::SATA:
 		((SSD_Components::Host_Interface_SATA*) ssd_device->Host_interface)->Set_ncq_address(
 			SATA_hba->Get_sata_ncq_info()->Submission_queue_memory_base_address, SATA_hba->Get_sata_ncq_info()->Completion_queue_memory_base_address);
 

@@ -98,7 +98,7 @@ namespace SSD_Components
 		friend class Request_Fetch_Unit_NVMe;
 		friend class Request_Fetch_Unit_SATA;
 	public:
-		Host_Interface_Base(const sim_object_id_type& id, HostInterface_Type type, LHA_type max_logical_sector_address, 
+		Host_Interface_Base(const sim_object_id_type& id, HostInterface_Types type, LHA_type max_logical_sector_address, 
 			unsigned int sectors_per_page, Data_Cache_Manager_Base* cache);
 		virtual ~Host_Interface_Base();
 		void Setup_triggers();
@@ -121,12 +121,12 @@ namespace SSD_Components
 		void Send_read_message_to_host(uint64_t addresss, unsigned int request_read_data_size);
 		void Send_write_message_to_host(uint64_t addresss, void* message, unsigned int message_size);
 
-		HostInterface_Type GetType() { return type; }
+		HostInterface_Types GetType() { return type; }
 		void Attach_to_device(Host_Components::PCIe_Switch* pcie_switch);
 		LHA_type Get_max_logical_sector_address();
 		unsigned int Get_no_of_LHAs_in_an_NVM_write_unit();
 	protected:
-		HostInterface_Type type;
+		HostInterface_Types type;
 		LHA_type max_logical_sector_address;
 		unsigned int sectors_per_page;
 		static Host_Interface_Base* _my_instance;

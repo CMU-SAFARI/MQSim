@@ -8,7 +8,7 @@ namespace Utils
 	std::vector<std::vector<flash_chip_ID_type>> Logical_Address_Partitioning_Unit::stream_chip_ids;
 	std::vector<std::vector<flash_die_ID_type>> Logical_Address_Partitioning_Unit::stream_die_ids;
 	std::vector<std::vector<flash_plane_ID_type>> Logical_Address_Partitioning_Unit::stream_plane_ids;
-	HostInterface_Type Logical_Address_Partitioning_Unit::hostinterface_type;
+	HostInterface_Types Logical_Address_Partitioning_Unit::hostinterface_type;
 	bool Logical_Address_Partitioning_Unit::initialized = false;
 	std::vector<LHA_type> Logical_Address_Partitioning_Unit::pdas_per_flow;
 	std::vector<LHA_type> Logical_Address_Partitioning_Unit::start_lhas_per_flow;
@@ -46,7 +46,7 @@ namespace Utils
 		delete[] resource_list;
 	}
 
-	void Logical_Address_Partitioning_Unit::Allocate_logical_address_for_flows(HostInterface_Type hostinterface_type, unsigned int concurrent_stream_no,
+	void Logical_Address_Partitioning_Unit::Allocate_logical_address_for_flows(HostInterface_Types hostinterface_type, unsigned int concurrent_stream_no,
 		unsigned int channel_count, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die,
 		std::vector<std::vector<flash_channel_ID_type>> stream_channel_ids, std::vector<std::vector<flash_chip_ID_type>> stream_chip_ids,
 		std::vector<std::vector<flash_die_ID_type>> stream_die_ids, std::vector<std::vector<flash_plane_ID_type>> stream_plane_ids,
@@ -157,9 +157,9 @@ namespace Utils
 	{
 		switch (hostinterface_type)
 		{
-		case HostInterface_Type::NVME:
+		case HostInterface_Types::NVME:
 			return 1.0 / double(resource_list[channel_id][chip_id][die_id][plane_id]);
-		case HostInterface_Type::SATA:
+		case HostInterface_Types::SATA:
 		default:
 			break;
 		}
@@ -172,10 +172,10 @@ namespace Utils
 		{
 			switch (hostinterface_type)
 			{
-			case HostInterface_Type::SATA:
+			case HostInterface_Types::SATA:
 				return start_lhas_per_flow[stream_id];
 				break;
-			case HostInterface_Type::NVME:
+			case HostInterface_Types::NVME:
 				return start_lhas_per_flow[stream_id];
 				break;
 			default:
@@ -191,10 +191,10 @@ namespace Utils
 		{
 			switch (hostinterface_type)
 			{
-			case HostInterface_Type::SATA:
+			case HostInterface_Types::SATA:
 				return end_lhas_per_flow[stream_id];
 				break;
-			case HostInterface_Type::NVME:
+			case HostInterface_Types::NVME:
 				return end_lhas_per_flow[stream_id];
 				break;
 			default:
@@ -210,10 +210,10 @@ namespace Utils
 		{
 			switch (hostinterface_type)
 			{
-			case HostInterface_Type::SATA:
+			case HostInterface_Types::SATA:
 				return (end_lhas_per_flow[stream_id] - start_lhas_per_flow[stream_id] + 1);
 				break;
-			case HostInterface_Type::NVME:
+			case HostInterface_Types::NVME:
 				return (end_lhas_per_flow[stream_id] - start_lhas_per_flow[stream_id] + 1);
 				break;
 			default:
@@ -229,10 +229,10 @@ namespace Utils
 		{
 			switch (hostinterface_type)
 			{
-			case HostInterface_Type::SATA://It is not possible to differentiate between streams inside the device when a SATA host interface is used, so all lha space is available to all streams
+			case HostInterface_Types::SATA://It is not possible to differentiate between streams inside the device when a SATA host interface is used, so all lha space is available to all streams
 				return total_lha_no;
 				break;
-			case HostInterface_Type::NVME:
+			case HostInterface_Types::NVME:
 				return (end_lhas_per_flow[stream_id] - start_lhas_per_flow[stream_id] + 1);
 				break;
 			default:
@@ -248,9 +248,9 @@ namespace Utils
 		{
 			switch (hostinterface_type)
 			{
-			case HostInterface_Type::SATA://It is not possible to differentiate between streams inside the device when a SATA host interface is used, so all lha space is available to all streams
+			case HostInterface_Types::SATA://It is not possible to differentiate between streams inside the device when a SATA host interface is used, so all lha space is available to all streams
 				return total_pda_no;
-			case HostInterface_Type::NVME:
+			case HostInterface_Types::NVME:
 				return pdas_per_flow[stream_id];
 				break;
 			default:

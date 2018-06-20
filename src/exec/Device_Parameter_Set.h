@@ -19,7 +19,7 @@ public:
 	static int Seed;//Seed for random number generation (used in device's random number generators)
 	static bool Enabled_Preconditioning;
 	static NVM::NVM_Type Memory_Type;
-	static HostInterface_Type HostInterface_Type;
+	static HostInterface_Types HostInterface_Type;
 	static uint16_t IO_Queue_Depth;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ_Control_Structure
 	static uint16_t Queue_Fetch_Size;//Used in NVMe host interface
 	static SSD_Components::Caching_Mechanism Caching_Mechanism;

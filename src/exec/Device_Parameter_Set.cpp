@@ -6,7 +6,7 @@
 int Device_Parameter_Set::Seed = 123;//Seed for random number generation (used in device's random number generators)
 bool Device_Parameter_Set::Enabled_Preconditioning = true;
 NVM::NVM_Type Device_Parameter_Set::Memory_Type = NVM::NVM_Type::FLASH;
-HostInterface_Type Device_Parameter_Set::HostInterface_Type = HostInterface_Type::NVME;
+HostInterface_Types Device_Parameter_Set::HostInterface_Type = HostInterface_Types::NVME;
 uint16_t Device_Parameter_Set::IO_Queue_Depth = 1024;//For NVMe, it determines the size of the submission/completion queues; for SATA, it determines the size of NCQ_Control_Structure
 uint16_t Device_Parameter_Set::Queue_Fetch_Size = 512;//Used in NVMe host interface
 SSD_Components::Caching_Mechanism Device_Parameter_Set::Caching_Mechanism = SSD_Components::Caching_Mechanism::ADVANCED;
@@ -73,10 +73,10 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	val;
 	switch (HostInterface_Type)
 	{
-	case HostInterface_Type::NVME:
+	case HostInterface_Types::NVME:
 		val = "NVME";
 		break;
-	case HostInterface_Type::SATA:
+	case HostInterface_Types::SATA:
 		val = "SATA";
 		break;
 	default:
@@ -164,7 +164,7 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	xmlwriter.Write_attribute_string(attr, val);
 
 	attr = "Ideal_Mapping_Table";
-	val = (Ideal_Mapping_Table ? "true" : "false");
+	val = (Use_Copyback_for_GC ? "true" : "false");
 	xmlwriter.Write_attribute_string(attr, val);
 	
 	attr = "CMT_Capacity";
@@ -411,9 +411,9 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "NVME") == 0)
-					HostInterface_Type = HostInterface_Type::NVME;
+					HostInterface_Type = HostInterface_Types::NVME;
 				else if (strcmp(val.c_str(), "SATA") == 0)
-					HostInterface_Type = HostInterface_Type::SATA;
+					HostInterface_Type = HostInterface_Types::SATA;
 				else PRINT_ERROR("Unknown host interface type specified in the SSD configuration file")
 			}
 			else if (strcmp(param->name(), "IO_Queue_Depth") == 0)

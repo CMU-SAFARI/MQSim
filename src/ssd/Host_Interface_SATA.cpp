@@ -285,7 +285,7 @@ namespace SSD_Components
 
 	Host_Interface_SATA::Host_Interface_SATA(const sim_object_id_type& id,
 		const uint16_t ncq_depth, const LHA_type max_logical_sector_address, const unsigned int sectors_per_page, Data_Cache_Manager_Base* cache) :
-		Host_Interface_Base(id, HostInterface_Type::SATA, max_logical_sector_address, sectors_per_page, cache), ncq_depth(ncq_depth)
+		Host_Interface_Base(id, HostInterface_Types::SATA, max_logical_sector_address, sectors_per_page, cache), ncq_depth(ncq_depth)
 	{
 		this->input_stream_manager = new Input_Stream_Manager_SATA(this, ncq_depth, 0, max_logical_sector_address);
 		this->request_fetch_unit = new Request_Fetch_Unit_SATA(this, ncq_depth);

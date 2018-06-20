@@ -353,7 +353,7 @@ namespace SSD_Components
 	Host_Interface_NVMe::Host_Interface_NVMe(const sim_object_id_type& id,
 		LHA_type max_logical_sector_address, uint16_t submission_queue_depth, uint16_t completion_queue_depth,
 		unsigned int no_of_input_streams, uint16_t queue_fetch_size, unsigned int sectors_per_page, Data_Cache_Manager_Base* cache) :
-		Host_Interface_Base(id, HostInterface_Type::NVME, max_logical_sector_address, sectors_per_page, cache),
+		Host_Interface_Base(id, HostInterface_Types::NVME, max_logical_sector_address, sectors_per_page, cache),
 		submission_queue_depth(submission_queue_depth), completion_queue_depth(completion_queue_depth), no_of_input_streams(no_of_input_streams)
 	{
 		this->input_stream_manager = new Input_Stream_Manager_NVMe(this, queue_fetch_size);
