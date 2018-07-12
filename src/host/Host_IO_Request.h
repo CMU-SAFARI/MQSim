@@ -15,6 +15,7 @@ namespace Host_Components
 		unsigned int LBA_count;
 		Host_IO_Request_Type Type;
 		uint16_t IO_queue_info;
+		uint16_t Source_flow_id;//Only used in SATA host interface
 	};
 }
 

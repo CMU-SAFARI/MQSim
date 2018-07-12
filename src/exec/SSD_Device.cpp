@@ -182,26 +182,58 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		std::vector<std::vector<flash_chip_ID_type>> flow_chip_id_assignments;
 		std::vector<std::vector<flash_die_ID_type>> flow_die_id_assignments;
 		std::vector<std::vector<flash_plane_ID_type>> flow_plane_id_assignments;
+		unsigned int stream_count = 0;
 		for (unsigned int i = 0; i < io_flows->size(); i++)
 		{
-			std::vector<flash_channel_ID_type> channel_ids;
-			flow_channel_id_assignments.push_back(channel_ids);
-			for (int j = 0; j < (*io_flows)[i]->Channel_No; j++)
-				flow_channel_id_assignments[i].push_back((*io_flows)[i]->Channel_IDs[j]);
-			std::vector<flash_chip_ID_type> chip_ids;
-			flow_chip_id_assignments.push_back(chip_ids);
-			for (int j = 0; j < (*io_flows)[i]->Chip_No; j++)
-				flow_chip_id_assignments[i].push_back((*io_flows)[i]->Chip_IDs[j]);
-			std::vector<flash_die_ID_type> die_ids;
-			flow_die_id_assignments.push_back(die_ids);
-			for (int j = 0; j < (*io_flows)[i]->Die_No; j++)
-				flow_die_id_assignments[i].push_back((*io_flows)[i]->Die_IDs[j]);
-			std::vector<flash_plane_ID_type> plane_ids;
-			flow_plane_id_assignments.push_back(plane_ids);
-			for (int j = 0; j < (*io_flows)[i]->Plane_No; j++)
-				flow_plane_id_assignments[i].push_back((*io_flows)[i]->Plane_IDs[j]);
+			switch (parameters->HostInterface_Type)
+			{
+			case HostInterface_Types::SATA:
+			{
+				stream_count = 1;
+				std::vector<flash_channel_ID_type> channel_ids;
+				flow_channel_id_assignments.push_back(channel_ids);
+				for (unsigned int j = 0; j < parameters->Flash_Channel_Count; j++)
+					flow_channel_id_assignments[i].push_back(j);
+				std::vector<flash_chip_ID_type> chip_ids;
+				flow_chip_id_assignments.push_back(chip_ids);
+				for (unsigned int j = 0; j < parameters->Chip_No_Per_Channel; j++)
+					flow_chip_id_assignments[i].push_back(j);
+				std::vector<flash_die_ID_type> die_ids;
+				flow_die_id_assignments.push_back(die_ids);
+				for (unsigned int j = 0; j < parameters->Flash_Parameters.Die_No_Per_Chip; j++)
+					flow_die_id_assignments[i].push_back(j);
+				std::vector<flash_plane_ID_type> plane_ids;
+				flow_plane_id_assignments.push_back(plane_ids);
+				for (unsigned int j = 0; j < parameters->Flash_Parameters.Plane_No_Per_Die; j++)
+					flow_plane_id_assignments[i].push_back(j);
+				break;
+			}
+			case HostInterface_Types::NVME:
+			{
+				stream_count = (unsigned int)io_flows->size();
+				std::vector<flash_channel_ID_type> channel_ids;
+				flow_channel_id_assignments.push_back(channel_ids);
+				for (int j = 0; j < (*io_flows)[i]->Channel_No; j++)
+					flow_channel_id_assignments[i].push_back((*io_flows)[i]->Channel_IDs[j]);
+				std::vector<flash_chip_ID_type> chip_ids;
+				flow_chip_id_assignments.push_back(chip_ids);
+				for (int j = 0; j < (*io_flows)[i]->Chip_No; j++)
+					flow_chip_id_assignments[i].push_back((*io_flows)[i]->Chip_IDs[j]);
+				std::vector<flash_die_ID_type> die_ids;
+				flow_die_id_assignments.push_back(die_ids);
+				for (int j = 0; j < (*io_flows)[i]->Die_No; j++)
+					flow_die_id_assignments[i].push_back((*io_flows)[i]->Die_IDs[j]);
+				std::vector<flash_plane_ID_type> plane_ids;
+				flow_plane_id_assignments.push_back(plane_ids);
+				for (int j = 0; j < (*io_flows)[i]->Plane_No; j++)
+					flow_plane_id_assignments[i].push_back((*io_flows)[i]->Plane_IDs[j]);
+				break;
+			}
+			default:
+				break;
+			}
 		}
-		Utils::Logical_Address_Partitioning_Unit::Allocate_logical_address_for_flows((unsigned int)io_flows->size(),
+		Utils::Logical_Address_Partitioning_Unit::Allocate_logical_address_for_flows(parameters->HostInterface_Type, (unsigned int)io_flows->size(),
 			parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 			flow_channel_id_assignments, flow_chip_id_assignments, flow_die_id_assignments, flow_plane_id_assignments,
 			parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
@@ -210,7 +242,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		{
 		case SSD_Components::Flash_Address_Mapping_Type::PAGE_LEVEL:
 			amu = new SSD_Components::Address_Mapping_Unit_Page_Level(ftl->ID() + ".AddressMappingUnit", ftl, (SSD_Components::NVM_PHY_ONFI*) device->PHY,
-				fbm, parameters->Ideal_Mapping_Table, parameters->CMT_Capacity, parameters->Plane_Allocation_Scheme, (unsigned int)io_flows->size(),
+				fbm, parameters->Ideal_Mapping_Table, parameters->CMT_Capacity, parameters->Plane_Allocation_Scheme, stream_count,
 				parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 				flow_channel_id_assignments, flow_chip_id_assignments, flow_die_id_assignments, flow_plane_id_assignments,
 				parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
@@ -219,7 +251,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 			break;
 		case SSD_Components::Flash_Address_Mapping_Type::HYBRID:
 			amu = new SSD_Components::Address_Mapping_Unit_Hybrid(ftl->ID() + ".AddressMappingUnit", ftl, (SSD_Components::NVM_PHY_ONFI*) device->PHY,
-				fbm, parameters->Ideal_Mapping_Table, (unsigned int)io_flows->size(),
+				fbm, parameters->Ideal_Mapping_Table, stream_count,
 				parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip,
 				parameters->Flash_Parameters.Plane_No_Per_Die, parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
 				parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Parameters.Page_Capacity, parameters->Overprovisioning_Ratio);
@@ -229,9 +261,6 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		}
 		Simulator->AddObject(amu);
 		ftl->Address_Mapping_Unit = amu;
-		LHA_type total_logical_sectors_in_SSD = 0;
-		for (stream_id_type stream_id = 0; stream_id < io_flows->size(); stream_id++)
-			total_logical_sectors_in_SSD += amu->Get_logical_sectors_count(stream_id);
 
 		//Step 8: create GC_and_WL_unit
 		double max_rho = 0;
@@ -284,12 +313,15 @@ SSD_Device::SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Par
 		//Step 10: create Host_Interface
 		switch (parameters->HostInterface_Type)
 		{
-		case HostInterfaceType::NVME:
+		case HostInterface_Types::NVME:
 			device->Host_interface = new SSD_Components::Host_Interface_NVMe(device->ID() + ".HostInterface",
-				total_logical_sectors_in_SSD, parameters->IO_Queue_Depth, parameters->IO_Queue_Depth,
+				Utils::Logical_Address_Partitioning_Unit::Get_total_device_lha_count(), parameters->IO_Queue_Depth, parameters->IO_Queue_Depth,
 				(unsigned int)io_flows->size(), parameters->Queue_Fetch_Size, parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, dcm);
 			break;
-		case HostInterfaceType::SATA:
+		case HostInterface_Types::SATA:
+			device->Host_interface = new SSD_Components::Host_Interface_SATA(device->ID() + ".HostInterface",
+				parameters->IO_Queue_Depth, Utils::Logical_Address_Partitioning_Unit::Get_total_device_lha_count(), parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, dcm);
+
 			break;
 		default:
 			break;
@@ -320,6 +352,7 @@ SSD_Device::~SSD_Device()
 	delete ((SSD_Components::FTL*)this->Firmware)->GC_and_WL_Unit;
 	delete this->Firmware;
 	delete this->Cache_manager;
+	delete this->Host_interface;
 }
 
 void SSD_Device::Attach_to_host(Host_Components::PCIe_Switch* pcie_switch)

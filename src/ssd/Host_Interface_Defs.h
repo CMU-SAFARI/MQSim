@@ -4,12 +4,17 @@
 #include <cstdint>
 
 enum class IO_Flow_Priority_Class { URGENT = 1, HIGH = 2, MEDIUM = 3, LOW = 4};
-enum class HostInterfaceType { SATA, NVME };
+enum class HostInterface_Types { SATA, NVME };
 
 #define NVME_FLUSH_OPCODE 0x0000
 #define NVME_WRITE_OPCODE 0x0001
 #define NVME_READ_OPCODE 0x0002
 
+#define SATA_WRITE_OPCODE 0x0001
+#define SATA_READ_OPCODE 0x0002
+
+const uint64_t NCQ_SUBMISSION_REGISTER = 0x1000;
+const uint64_t NCQ_COMPLETION_REGISTER = 0x1003;
 const uint64_t SUBMISSION_QUEUE_REGISTER_0 = 0x1000;
 const uint64_t COMPLETION_QUEUE_REGISTER_0 = 0x1003;
 const uint64_t SUBMISSION_QUEUE_REGISTER_1 = 0x1010;

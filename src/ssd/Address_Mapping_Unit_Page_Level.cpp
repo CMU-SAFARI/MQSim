@@ -16,14 +16,12 @@ namespace SSD_Components
 		std::unordered_map<LPA_type, CMTSlotType*> addressMap;
 		std::list<std::pair<LPA_type, CMTSlotType*>> lruList;
 
-		for (auto &entry : addressMap)
+		auto entry = addressMap.begin();
+		while (entry != addressMap.end())
 		{
-			delete entry.second;
-			addressMap.erase(entry.first);
+			delete (*entry).second;
+			addressMap.erase(entry++);
 		}
-
-		for (auto &entry : lruList)
-			lruList.remove(entry);
 	}
 
 	inline bool Cached_Mapping_Table::Exists(const stream_id_type streamID, const LPA_type lpa)
@@ -200,15 +198,17 @@ namespace SSD_Components
 		delete[] GlobalMappingTable;
 		delete[] GlobalTranslationDirectory;
 
-		for (auto &entry : Waiting_unmapped_read_transactions)
+		auto read_entry = Waiting_unmapped_read_transactions.begin();
+		while (read_entry != Waiting_unmapped_read_transactions.end())
 		{
-			delete entry.second;
-			Waiting_unmapped_read_transactions.erase(entry.first);
+			delete read_entry->second;
+			Waiting_unmapped_read_transactions.erase(read_entry++);
 		}
-		for (auto &entry : Waiting_unmapped_program_transactions)
+		auto entry_write = Waiting_unmapped_program_transactions.begin();
+		while (entry_write != Waiting_unmapped_program_transactions.end())
 		{
-			delete entry.second;
-			Waiting_unmapped_program_transactions.erase(entry.first);
+			delete entry_write->second;
+			Waiting_unmapped_program_transactions.erase(entry_write++);
 		}
 
 		delete[] Channel_ids;
@@ -355,7 +355,7 @@ namespace SSD_Components
 				PlaneAllocationScheme,
 				channel_ids, (unsigned int)(stream_channel_ids[domainID].size()), chip_ids, (unsigned int)(stream_chip_ids[domainID].size()), die_ids, 
 				(unsigned int)(stream_die_ids[domainID].size()), plane_ids, (unsigned int)(stream_plane_ids[domainID].size()),
-				Utils::Logical_Address_Partitioning_Unit::PDA_count_allocate_to_flow(domainID), Utils::Logical_Address_Partitioning_Unit::LHA_count_allocate_to_flow(domainID),
+				Utils::Logical_Address_Partitioning_Unit::PDA_count_allocate_to_flow(domainID), Utils::Logical_Address_Partitioning_Unit::LHA_count_allocate_to_flow_from_device_view(domainID),
 				sector_no_per_page);
 			delete[] channel_ids;
 			delete[] chip_ids;
@@ -1399,18 +1399,11 @@ namespace SSD_Components
 	{
 		return (MVPN_type)(mvpn * no_of_translation_entries_per_page + no_of_translation_entries_per_page - 1);
 	}
-	LHA_type Address_Mapping_Unit_Page_Level::Get_logical_sectors_count(stream_id_type stream_id)
-	{
-		return this->domains[stream_id]->max_logical_sector_address;
-	}
 	LPA_type Address_Mapping_Unit_Page_Level::Get_logical_pages_count(stream_id_type stream_id)
 	{
 		return this->domains[stream_id]->Total_logical_pages_no;
 	}
-	PPA_type Address_Mapping_Unit_Page_Level::Get_physical_pages_count(stream_id_type stream_id)
-	{
-		return this->domains[stream_id]->Total_physical_pages_no;
-	}
+	
 	inline NVM::FlashMemory::Physical_Page_Address Address_Mapping_Unit_Page_Level::Convert_ppa_to_address(const PPA_type ppa)
 	{
 		NVM::FlashMemory::Physical_Page_Address target;
@@ -1915,14 +1908,15 @@ namespace SSD_Components
 		std::set<NVM_Transaction_Flash_WR*>& waiting_write_list = Write_transactions_for_overfull_planes[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID];
 
 		ftl->TSU->Prepare_for_transaction_submit();
-		for (auto &program : waiting_write_list)
+		auto program = waiting_write_list.begin();
+		while (program != waiting_write_list.end())
 		{
-			if (translate_lpa_to_ppa(program->Stream_id, program))
+			if (translate_lpa_to_ppa((*program)->Stream_id, *program))
 			{
-				ftl->TSU->Submit_transaction(program);
-				if (program->RelatedRead != NULL)
-					ftl->TSU->Submit_transaction(program->RelatedRead);
-				waiting_write_list.erase(program);
+				ftl->TSU->Submit_transaction(*program);
+				if ((*program)->RelatedRead != NULL)
+					ftl->TSU->Submit_transaction((*program)->RelatedRead);
+				waiting_write_list.erase(program++);
 			}
 			else
 				break;

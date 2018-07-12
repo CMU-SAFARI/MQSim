@@ -116,15 +116,15 @@ namespace SSD_Components
 				Utils::RandomGenerator* random_request_size_generator = NULL;
 				bool fully_include_hot_addresses = false;
 
-				if (stat->Address_distribution_type == Utils::Address_Distribution_Type::HOTCOLD_RANDOM)//treat a workload with very low hot/cold values as a uniform random workload
+				if (stat->Address_distribution_type == Utils::Address_Distribution_Type::RANDOM_HOTCOLD)//treat a workload with very low hot/cold values as a uniform random workload
 					if (stat->Ratio_of_hot_addresses_to_whole_working_set > 0.3)
-						decision_dist_type = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
+						decision_dist_type = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
 
 
 				//Preparing address generation parameters
 				switch (decision_dist_type)
 				{
-				case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+				case Utils::Address_Distribution_Type::RANDOM_HOTCOLD:
 				{
 					random_hot_address_generator = new Utils::RandomGenerator(stat->random_hot_address_generator_seed);
 					random_hot_cold_generator = new Utils::RandomGenerator(stat->random_hot_cold_generator_seed);
@@ -165,7 +165,7 @@ namespace SSD_Components
 					}
 					break;
 				}
-				case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+				case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
 				{
 					//Check if enough LPAs could be generated within the working set of the flow
 					if ((max_lpa - min_lpa) < 1.1 * no_of_logical_pages_in_steadystate)
@@ -226,7 +226,7 @@ namespace SSD_Components
 							if (streaming_next_address % stat->alignment_value != 0)
 								streaming_next_address += stat->alignment_value - (streaming_next_address % stat->alignment_value);
 						break;
-					case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+					case Utils::Address_Distribution_Type::RANDOM_HOTCOLD:
 					{
 						if (fully_include_hot_addresses)//just to speedup address generation
 						{
@@ -269,7 +269,7 @@ namespace SSD_Components
 						}
 					}
 						break;
-					case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+					case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
 						start_LBA = random_address_generator->Uniform_ulong(min_lha, max_lha);
 						if (start_LBA < min_lha || max_lha < start_LBA)
 							PRINT_ERROR("Out of range address is generated in IO_Flow_Synthetic!\n")
@@ -351,7 +351,7 @@ namespace SSD_Components
 				}
 
 				//Step 1-3: Determine the address distribution type of the input trace
-				stat->Address_distribution_type = Utils::Address_Distribution_Type::HOTCOLD_RANDOM;//Initially assume that the trace has hot/cold access pattern
+				stat->Address_distribution_type = Utils::Address_Distribution_Type::RANDOM_HOTCOLD;//Initially assume that the trace has hot/cold access pattern
 				if (stat->Write_address_access_pattern.size() > STATISTICALLY_SUFFICIENT_WRITES_FOR_PRECONDITIONING)//First check if there are enough number of write requests in the workload to make a statistically correct decision, if not, MQSim assumes the workload has a uniform access pattern
 				{
 					int hot_region_write_count = 0;
@@ -391,11 +391,11 @@ namespace SSD_Components
 					}
 					else
 					{
-						stat->Address_distribution_type = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
+						stat->Address_distribution_type = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
 					}
 				}
 				else
-					stat->Address_distribution_type = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
+					stat->Address_distribution_type = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
 
 
 				Utils::RandomGenerator* random_address_generator = new Utils::RandomGenerator(preconditioning_seed++);
@@ -442,7 +442,7 @@ namespace SSD_Components
 			double rho = stat->Initial_occupancy_ratio * (1 - over_provisioning_ratio) / (1 - double(GC_and_WL_Unit->Get_minimum_number_of_free_pages_before_GC()) / block_no_per_plane);
 			switch (decision_dist_type)
 			{
-			case Utils::Address_Distribution_Type::HOTCOLD_RANDOM://Estimate the steady-state of the hot/cold traffic based on the steady-state of the uniform traffic
+			case Utils::Address_Distribution_Type::RANDOM_HOTCOLD://Estimate the steady-state of the hot/cold traffic based on the steady-state of the uniform traffic
 			{
 				double r_to_f_ratio = std::sqrt(double(stat->Ratio_of_traffic_accessing_hot_region) / double(stat->Ratio_of_hot_addresses_to_whole_working_set));
 				switch (GC_and_WL_Unit->Get_gc_policy())
@@ -557,7 +557,7 @@ namespace SSD_Components
 					break;
 				}
 				break;
-			case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+			case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
 			{
 				switch (GC_and_WL_Unit->Get_gc_policy())
 				{
@@ -693,7 +693,7 @@ namespace SSD_Components
 				//Step 4-2: Bring the LPAs into CMT based on the flow access pattern
 				switch (decision_dist_type)
 				{
-				case Utils::Address_Distribution_Type::HOTCOLD_RANDOM:
+				case Utils::Address_Distribution_Type::RANDOM_HOTCOLD:
 				{
 					//First bring hot addresses to CMT
 					unsigned int required_no_of_hot_cmt_entries = (unsigned int)(stat->Ratio_of_hot_addresses_to_whole_working_set * no_of_entries_in_cmt);
@@ -738,7 +738,7 @@ namespace SSD_Components
 					}
 					break;
 				}
-				case Utils::Address_Distribution_Type::UNIFORM_RANDOM:
+				case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
 				{
 					int random_walker = int(random_generator.Uniform(0, uint32_t(trace_lpas_sorted_histogram.size()) - 2));
 					int random_step = random_generator.Uniform_uint(0, (uint32_t)(trace_lpas_sorted_histogram.size()) / no_of_entries_in_cmt);

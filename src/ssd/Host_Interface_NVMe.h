@@ -22,6 +22,7 @@ namespace SSD_Components
 			Submission_queue_base_address(submission_queue_base_address), Submission_queue_size(submission_queue_size),
 			Completion_queue_base_address(completion_queue_base_address), Completion_queue_size(completion_queue_size),
 			Submission_head(0), Submission_head_informed_to_host(0), Submission_tail(0), Completion_head(0), Completion_tail(0), On_the_fly_requests(0){}
+		~Input_Stream_NVMe();
 		IO_Flow_Priority_Class Priority_class;
 		LHA_type Start_logical_sector_address;
 		LHA_type End_logical_sector_address;
@@ -88,7 +89,6 @@ namespace SSD_Components
 			uint64_t submission_queue_base_address, uint64_t completion_queue_base_address);
 		void Start_simulation();
 		void Validate_simulation_config();
-		void Process_input_trace_for_preconditioning();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);
 		uint16_t Get_submission_queue_depth();
 		uint16_t Get_completion_queue_depth();

@@ -33,6 +33,7 @@ namespace SSD_Components
 	{
 	public:
 		Input_Stream_Base();
+		virtual ~Input_Stream_Base();
 		unsigned int STAT_number_of_read_requests;
 		unsigned int STAT_number_of_write_requests;
 		unsigned int STAT_number_of_read_transactions;
@@ -45,8 +46,10 @@ namespace SSD_Components
 	{
 		friend class Request_Fetch_Unit_Base;
 		friend class Request_Fetch_Unit_NVMe;
+		friend class Request_Fetch_Unit_SATA;
 	public:
 		Input_Stream_Manager_Base(Host_Interface_Base* host_interface);
+		virtual ~Input_Stream_Manager_Base();
 		virtual void Handle_new_arrived_request(User_Request* request) = 0;
 		virtual void Handle_arrived_write_data(User_Request* request) = 0;
 		virtual void Handle_serviced_request(User_Request* request) = 0;
@@ -69,6 +72,7 @@ namespace SSD_Components
 	{
 	public:
 		Request_Fetch_Unit_Base(Host_Interface_Base* host_interface);
+		virtual ~Request_Fetch_Unit_Base();
 		virtual void Fetch_next_request(stream_id_type stream_id) = 0;
 		virtual void Fetch_write_data(User_Request* request) = 0;
 		virtual void Send_read_data(User_Request* request) = 0;
@@ -89,11 +93,14 @@ namespace SSD_Components
 	{
 		friend class Input_Stream_Manager_Base;
 		friend class Input_Stream_Manager_NVMe;
+		friend class Input_Stream_Manager_SATA;
 		friend class Request_Fetch_Unit_Base;
 		friend class Request_Fetch_Unit_NVMe;
+		friend class Request_Fetch_Unit_SATA;
 	public:
-		Host_Interface_Base(const sim_object_id_type& id, HostInterfaceType type, LHA_type max_logical_sector_address, 
+		Host_Interface_Base(const sim_object_id_type& id, HostInterface_Types type, LHA_type max_logical_sector_address, 
 			unsigned int sectors_per_page, Data_Cache_Manager_Base* cache);
+		virtual ~Host_Interface_Base();
 		void Setup_triggers();
 		void Validate_simulation_config();
 
@@ -102,8 +109,6 @@ namespace SSD_Components
 		{
 			connected_user_request_arrived_signal_handlers.push_back(function);
 		}
-
-		virtual void Process_input_trace_for_preconditioning() = 0;
 
 		void Consume_pcie_message(Host_Components::PCIe_Message* message)
 		{
@@ -116,12 +121,12 @@ namespace SSD_Components
 		void Send_read_message_to_host(uint64_t addresss, unsigned int request_read_data_size);
 		void Send_write_message_to_host(uint64_t addresss, void* message, unsigned int message_size);
 
-		HostInterfaceType GetType() { return type; }
+		HostInterface_Types GetType() { return type; }
 		void Attach_to_device(Host_Components::PCIe_Switch* pcie_switch);
 		LHA_type Get_max_logical_sector_address();
 		unsigned int Get_no_of_LHAs_in_an_NVM_write_unit();
 	protected:
-		HostInterfaceType type;
+		HostInterface_Types type;
 		LHA_type max_logical_sector_address;
 		unsigned int sectors_per_page;
 		static Host_Interface_Base* _my_instance;

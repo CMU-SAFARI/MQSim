@@ -176,7 +176,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_1->Working_Set_Percentage = 85;
 		io_flow_1->Synthetic_Generator_Type = Utils::Request_Generator_Type::QUEUE_DEPTH;
 		io_flow_1->Read_Percentage = 100;
-		io_flow_1->Address_Distribution = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
+		io_flow_1->Address_Distribution = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
 		io_flow_1->Percentage_of_Hot_Region = 0;
 		io_flow_1->Generated_Aligned_Addresses = true;
 		io_flow_1->Address_Alignment_Unit = 16;
@@ -211,7 +211,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		io_flow_2->Working_Set_Percentage = 85;
 		io_flow_2->Synthetic_Generator_Type = Utils::Request_Generator_Type::QUEUE_DEPTH;
 		io_flow_2->Read_Percentage = 100;
-		io_flow_2->Address_Distribution = Utils::Address_Distribution_Type::UNIFORM_RANDOM;
+		io_flow_2->Address_Distribution = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
 		io_flow_2->Percentage_of_Hot_Region = 0;
 		io_flow_2->Generated_Aligned_Addresses = true;
 		io_flow_2->Address_Alignment_Unit = 16;

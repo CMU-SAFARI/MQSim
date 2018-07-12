@@ -32,6 +32,7 @@
     <ClCompile Include="src\host\PCIe_Link.cpp" />
     <ClCompile Include="src\host\PCIe_Root_Complex.cpp" />
     <ClCompile Include="src\host\PCIe_Switch.cpp" />
+    <ClCompile Include="src\host\SATA_HBA.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\nvm_chip\flash_memory\Block.cpp" />
     <ClCompile Include="src\nvm_chip\flash_memory\Die.cpp" />
@@ -99,6 +100,7 @@
     <ClInclude Include="src\host\PCIe_Message.h" />
     <ClInclude Include="src\host\PCIe_Root_Complex.h" />
     <ClInclude Include="src\host\PCIe_Switch.h" />
+    <ClInclude Include="src\host\SATA_HBA.h" />
     <ClInclude Include="src\nvm_chip\flash_memory\Block.h" />
     <ClInclude Include="src\nvm_chip\flash_memory\Die.h" />
     <ClInclude Include="src\nvm_chip\flash_memory\FlashTypes.h" />

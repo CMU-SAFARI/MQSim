@@ -7,6 +7,14 @@
 
 namespace SSD_Components
 {
+	Input_Stream_NVMe::~Input_Stream_NVMe()
+	{
+		for (auto &user_request : Waiting_user_requests)
+			delete user_request;
+		for (auto &user_request : Completed_user_requests)
+			delete user_request;
+	}
+
 	Input_Stream_Manager_NVMe::Input_Stream_Manager_NVMe(Host_Interface_Base* host_interface, uint16_t queue_fetch_szie) :
 		Input_Stream_Manager_Base(host_interface), Queue_fetch_size(queue_fetch_szie)
 	{}
@@ -345,7 +353,7 @@ namespace SSD_Components
 	Host_Interface_NVMe::Host_Interface_NVMe(const sim_object_id_type& id,
 		LHA_type max_logical_sector_address, uint16_t submission_queue_depth, uint16_t completion_queue_depth,
 		unsigned int no_of_input_streams, uint16_t queue_fetch_size, unsigned int sectors_per_page, Data_Cache_Manager_Base* cache) :
-		Host_Interface_Base(id, HostInterfaceType::NVME, max_logical_sector_address, sectors_per_page, cache),
+		Host_Interface_Base(id, HostInterface_Types::NVME, max_logical_sector_address, sectors_per_page, cache),
 		submission_queue_depth(submission_queue_depth), completion_queue_depth(completion_queue_depth), no_of_input_streams(no_of_input_streams)
 	{
 		this->input_stream_manager = new Input_Stream_Manager_NVMe(this, queue_fetch_size);
@@ -357,10 +365,6 @@ namespace SSD_Components
 	{
 		return ((Input_Stream_Manager_NVMe*)input_stream_manager)->Create_new_stream(priority_class, start_logical_sector_address, end_logical_sector_address,
 			submission_queue_base_address, submission_queue_depth, completion_queue_base_address, completion_queue_depth);
-	}
-
-	void Host_Interface_NVMe::Process_input_trace_for_preconditioning()
-	{
 	}
 
 	void Host_Interface_NVMe::Validate_simulation_config()

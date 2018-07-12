@@ -12,7 +12,7 @@
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -21,6 +21,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>2</Average_No_of_Reqs_in_Queue>
+				 <Intensity>32768</Intensity>
 				 <Stop_Time>10000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
@@ -37,7 +38,7 @@
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -46,6 +47,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>4</Average_No_of_Reqs_in_Queue>
+				 <Intensity>32768</Intensity>
 				 <Stop_Time>10000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
@@ -62,7 +64,7 @@
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -71,6 +73,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>8</Average_No_of_Reqs_in_Queue>
+				 <Intensity>32768</Intensity>
 				 <Stop_Time>10000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
@@ -87,7 +90,7 @@
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -96,6 +99,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>16</Average_No_of_Reqs_in_Queue>
+				 <Intensity>32768</Intensity>
 				 <Stop_Time>10000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
@@ -112,7 +116,7 @@
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -121,6 +125,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>32</Average_No_of_Reqs_in_Queue>
+				 <Intensity>32768</Intensity>
 				 <Stop_Time>10000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
@@ -137,7 +142,7 @@
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -146,6 +151,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>64</Average_No_of_Reqs_in_Queue>
+				 <Intensity>32768</Intensity>
 				 <Stop_Time>10000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
@@ -162,7 +168,7 @@
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -171,6 +177,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>128</Average_No_of_Reqs_in_Queue>
+				 <Intensity>32768</Intensity>
 				 <Stop_Time>10000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>
@@ -187,7 +194,7 @@
 				 <Working_Set_Percentage>50</Working_Set_Percentage>
 				 <Synthetic_Generator_Type>QUEUE_DEPTH</Synthetic_Generator_Type>
 				 <Read_Percentage>100</Read_Percentage>
-				 <Address_Distribution>UNIFORM_RANDOM</Address_Distribution>
+				 <Address_Distribution>RANDOM_UNIFORM</Address_Distribution>
 				 <Percentage_of_Hot_Region>0</Percentage_of_Hot_Region>
 				 <Generated_Aligned_Addresses>true</Generated_Aligned_Addresses>
 				 <Address_Alignment_Unit>16</Address_Alignment_Unit>
@@ -196,6 +203,7 @@
 				 <Variance_Request_Size>0</Variance_Request_Size>
 				 <Seed>798</Seed>
 				 <Average_No_of_Reqs_in_Queue>256</Average_No_of_Reqs_in_Queue>
+				 <Intensity>32768</Intensity>
 				 <Stop_Time>10000000000</Stop_Time>
 				 <Total_Requests_To_Generate>0</Total_Requests_To_Generate>
 		</IO_Flow_Parameter_Set_Synthetic>

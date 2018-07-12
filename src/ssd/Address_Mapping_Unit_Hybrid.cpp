@@ -31,17 +31,8 @@ namespace SSD_Components
 		NVM::FlashMemory::Physical_Page_Address pa;
 		return pa;
 	}
-	LHA_type Address_Mapping_Unit_Hybrid::Get_logical_sectors_count(stream_id_type stream_id)
-	{
-		return 0;
-	}
 	
 	LPA_type Address_Mapping_Unit_Hybrid::Get_logical_pages_count(stream_id_type stream_id)
-	{
-		return 0;
-	}
-
-	PPA_type Address_Mapping_Unit_Hybrid::Get_physical_pages_count(stream_id_type stream_id)
 	{
 		return 0;
 	}

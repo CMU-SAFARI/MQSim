@@ -71,12 +71,12 @@ namespace SSD_Components
 	class AddressMappingDomain
 	{
 	public:
-		AddressMappingDomain(unsigned int cmt_capacity, unsigned int cmt_entry_size,  unsigned int no_of_translation_entries_per_page,
-			Cached_Mapping_Table* CMT, 
+		AddressMappingDomain(unsigned int cmt_capacity, unsigned int cmt_entry_size, unsigned int no_of_translation_entries_per_page,
+			Cached_Mapping_Table* CMT,
 			Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
-			flash_channel_ID_type* Channel_ids, unsigned int Channel_no, flash_chip_ID_type* Chip_ids, unsigned int Chip_no,
-			flash_die_ID_type* Die_ids, unsigned int Die_no, flash_plane_ID_type* Plane_ids, unsigned int Plane_no,
-			PPA_type total_physical_sectors_no, LPA_type total_logical_sectors_no, unsigned int sectors_no_per_page);
+			flash_channel_ID_type* channel_ids, unsigned int channel_no, flash_chip_ID_type* chip_ids, unsigned int chip_no,
+			flash_die_ID_type* die_ids, unsigned int die_no, flash_plane_ID_type* plane_ids, unsigned int plane_no,
+			PPA_type total_physical_sectors_no, LHA_type total_logical_sectors_no, unsigned int sectors_no_per_page);
 		~AddressMappingDomain();
 
 
@@ -157,9 +157,7 @@ namespace SSD_Components
 		void Allocate_new_page_for_gc(NVM_Transaction_Flash_WR* transaction, bool is_translation_page);
 
 		void Store_mapping_table_on_flash_at_start();
-		LHA_type Get_logical_sectors_count(stream_id_type stream_id);
 		LPA_type Get_logical_pages_count(stream_id_type stream_id);
-		PPA_type Get_physical_pages_count(stream_id_type stream_id);
 		NVM::FlashMemory::Physical_Page_Address Convert_ppa_to_address(const PPA_type ppa);
 		void Convert_ppa_to_address(const PPA_type ppn, NVM::FlashMemory::Physical_Page_Address& address);
 		PPA_type Convert_address_to_ppa(const NVM::FlashMemory::Physical_Page_Address& pageAddress);
