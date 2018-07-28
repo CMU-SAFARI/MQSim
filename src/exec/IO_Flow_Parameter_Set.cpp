@@ -104,6 +104,27 @@ void IO_Flow_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	attr = "Initial_Occupancy_Percentage";
 	val = std::to_string(Initial_Occupancy_Percentage);
 	xmlwriter.Write_attribute_string(attr, val);
+
+	// BugFix: move to XML_serialize enable trace playback
+	attr = "Address_Distribution";
+	switch (Address_Distribution)
+	{
+	case Utils::Address_Distribution_Type::STREAMING:
+		val = "STREAMING";
+		break;
+	case Utils::Address_Distribution_Type::RANDOM_HOTCOLD:
+		val = "RANDOM_HOTCOLD";
+		break;
+	case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
+		val = "RANDOM_UNIFORM";
+		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Percentage_of_Hot_Region";
+	val = std::to_string(Percentage_of_Hot_Region);
+	xmlwriter.Write_attribute_string(attr, val);
+	// end BugFix: move to XML_serialize enable trace playback
 }
 
 void IO_Flow_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
@@ -242,7 +263,25 @@ void IO_Flow_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			{
 				std::string val = param->value();
 				Initial_Occupancy_Percentage = std::stoul(val);
+			} // BugFix: move to XML_serialize enable trace playback
+			else if (strcmp(param->name(), "Address_Distribution") == 0)
+			{	
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+				if (strcmp(val.c_str(), "STREAMING") == 0)
+					Address_Distribution = Utils::Address_Distribution_Type::STREAMING;
+				else if (strcmp(val.c_str(), "RANDOM_HOTCOLD") == 0)
+					Address_Distribution = Utils::Address_Distribution_Type::RANDOM_HOTCOLD;
+				else if (strcmp(val.c_str(), "RANDOM_UNIFORM") == 0)
+					Address_Distribution = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
+				else PRINT_ERROR("Wrong address distribution type for input synthetic flow")
 			}
+			else if (strcmp(param->name(), "Percentage_of_Hot_Region") == 0)
+			{
+				std::string val = param->value();
+				Percentage_of_Hot_Region = std::stoi(val);
+			}
+			// end BugFix: move to XML_serialize enable trace playback
 		}
 	}
 	catch (...)
@@ -278,8 +317,8 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 	val = std::to_string(Read_Percentage);
 	xmlwriter.Write_attribute_string(attr, val);
 
-
-	attr = "Address_Distribution";
+// BugFix: move to XML_serialize enable trace playback
+/*	attr = "Address_Distribution";
 	switch (Address_Distribution)
 	{
 	case Utils::Address_Distribution_Type::STREAMING:
@@ -293,11 +332,12 @@ void IO_Flow_Parameter_Set_Synthetic::XML_serialize(Utils::XmlWriter& xmlwriter)
 		break;
 	}
 	xmlwriter.Write_attribute_string(attr, val);
-	 
 
 	attr = "Percentage_of_Hot_Region";
 	val = std::to_string(Percentage_of_Hot_Region);
 	xmlwriter.Write_attribute_string(attr, val);
+*/
+// end BugFix: move to XML_serialize enable trace playback	
 
 	attr = "Generated_Aligned_Addresses";
 	val = (Generated_Aligned_Addresses ? "true" : "false");
@@ -383,7 +423,8 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 				std::string val = param->value();
 				Read_Percentage = std::stoi(val);
 			}
-			else if (strcmp(param->name(), "Address_Distribution") == 0)
+			// BugFix: move to XML_serialize enable trace playback
+			/*else if (strcmp(param->name(), "Address_Distribution") == 0)
 			{
 				std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
@@ -399,7 +440,8 @@ void IO_Flow_Parameter_Set_Synthetic::XML_deserialize(rapidxml::xml_node<> *node
 			{
 				std::string val = param->value();
 				Percentage_of_Hot_Region = std::stoi(val);
-			}
+			}*/
+			// end BugFix: move to XML_serialize enable trace playback
 			else if (strcmp(param->name(), "Generated_Aligned_Addresses") == 0)
 			{
 				std::string val = param->value();
