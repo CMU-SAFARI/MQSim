@@ -151,9 +151,9 @@ namespace SSD_Components
 
 		for (unsigned int i = 1; i < block_no_per_plane; i++)
 		{
-			if (plane_record->Blocks[i].Erase_count > plane_record->Blocks[max_erased_block].Erase_count)
+			if (plane_record->Blocks[i].Erase_count > plane_record->Blocks[max_erased_block].Erase_count) /* BugFix: algo error */
 				max_erased_block = i;
-			if (plane_record->Blocks[i].Erase_count < plane_record->Blocks[min_erased_block].Erase_count)
+			if (plane_record->Blocks[i].Erase_count < plane_record->Blocks[min_erased_block].Erase_count) /* BugFix: algo error */
 				min_erased_block = i;
 		}
 		return max_erased_block - min_erased_block;
@@ -166,7 +166,7 @@ namespace SSD_Components
 
 		for (unsigned int i = 1; i < block_no_per_plane; i++)
 		{
-			if (plane_record->Blocks[i].Erase_count < plane_record->Blocks[min_erased_block].Erase_count)
+			if (plane_record->Blocks[i].Erase_count < plane_record->Blocks[min_erased_block].Erase_count)  /* BugFix: algo error */
 				min_erased_block = i;
 		}
 		return min_erased_block;
