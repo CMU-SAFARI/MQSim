@@ -275,7 +275,7 @@ void collect_results(SSD_Device& ssd, Host_System& host, const char* output_file
 
 void print_help()
 {
-	cout << "MQSim - A simulator for modern NVMe and SATA SSDs developed at SAFARI group in ETH Zurich" << endl <<
+	cout << "MQSim - SSD simulator with both NVMe and SATA host interface behavior, see ReadMe.md for details" << endl <<
 		"Standalone Usage:" << endl <<
 		"./MQSim [-i path/to/config/file] [-w path/to/workload/file]" << endl;
 }
@@ -331,6 +331,6 @@ int main(int argc, char* argv[])
 		collect_results(ssd, host, (workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of(".")) + "_scenario_" + std::to_string(cntr) + ".xml").c_str());
 	}
 
-	cin.get();
+	// cin.get();  // Feature: disable to allow simulation batch runs
 	return 0;
 }
