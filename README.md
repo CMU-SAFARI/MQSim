@@ -165,6 +165,30 @@ You can use an XML processor to easily read and analyze an MQSim output file. Fo
 1. Drag and drop that parameter from the task source pane to the Excel sheet.,<br />
 2. Right click on the cell that you have dropped the parameter and select *XML* > *Refresh XML Data* from the drop-down menue.
 
+The parameters used to define the output file of the simulator are divided into categories:
+
+### Host
+For each defined IO_Flow, the following parameters are shown:
+1. **Name:** The name of the IO flow, e.g. Host.IO_Flow.Synth.No_0
+2. **Request_Count:** The total number of requests from this IO_flow.
+3. **Read_Request_Count:** The total number of read requests from this IO_flow.
+4. **Write_Request_Count:** The total number of write requests from this IO_flow.
+5. **IOPS:** The number of IO operations per second, i.e. how many requests are served per second.
+6. **IOPS_Read:** The number of read IO operations per second.
+7. **IOPS_Write:** The number of write IO operations per second.
+8. **Device_Response_Time:** The average SSD device response time for a request, in nanoseconds. This is defined as the time between enqueueing the request in the I/O submission queue, and removing it from the I/O completion queue.
+9. **Min_Device_Response_Time:** The minimum SSD device response time for a request, in nanoseconds. 
+10. **Max_Device_Response_Time:** The maximum SSD device response time for a request, in nanoseconds.
+11. **End_to_End_Request_Delay:** The average delay between generating an I/O request and receiving an corresponding answer. This is defined as the difference between the request arrival time, and its removal time from the I/O completion queue. Note that the request arrival_time is the same as the request enqueue_time, when using the multi-queue properties of NVMe drives.
+12. **Min_End_to_End_Request_Delay:** The minimum end-to-end request delay.
+13. **Max_End_to_End_Request_Delay:** The maximum end-to-end request delay.
+
+### SSDDevice
+The output parameters in the SSDDevice category contain values for:
+1. Average transaction times at a lower abstraction level (SSDDevice.IO_Stream)
+2. Statistics for the flash transaction layer (FTL)
+3. Statistics for each queue in the TSU: In the TSU exists a User_Read_TR_Queue, a User_Write_TR_Queue, a Mapping_Read_TR_Queue, a Mapping_Write_TR_Queue, a GC_Read_TR_Queue, a GC_Write_TR_queue, a GC_Erase_TR_Queue for each combination of channel and package.
+4. For each package: the fraction of time in execution, in data transfer, in both execution and data transfer, and in idle mode. The fraction of time in idle mode is calculated as 1 minus the fraction of time in data transfer, and minus the time in both data transfer and execution.
 
 
 ## References
