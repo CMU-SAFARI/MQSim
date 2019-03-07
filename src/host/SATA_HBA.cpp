@@ -7,7 +7,7 @@ namespace Host_Components
 	{
 		for (uint16_t cmdid = 0; cmdid < (uint16_t)(0xffffffff); cmdid++)
 			available_command_ids.insert(cmdid);
-		Host_IO_Reqeust* t = NULL;
+		Host_IO_Request* t = NULL;
 		for (uint16_t cmdid = 0; cmdid < ncq_size; cmdid++)
 			request_queue_in_memory.push_back(t);
 		sata_ncq.Submission_queue_size = ncq_size;
@@ -47,7 +47,7 @@ namespace Host_Components
 			Completion_Queue_Entry* cqe = consume_requests.front();
 			consume_requests.pop();
 			//Find the request and update statistics
-			Host_IO_Reqeust* request = sata_ncq.queue[cqe->Command_Identifier];
+			Host_IO_Request* request = sata_ncq.queue[cqe->Command_Identifier];
 			sata_ncq.queue.erase(cqe->Command_Identifier);
 			available_command_ids.insert(cqe->Command_Identifier);
 			sata_ncq.Submission_queue_head = cqe->SQ_Head;
@@ -60,7 +60,7 @@ namespace Host_Components
 			while (waiting_requests_for_submission.size() > 0)
 				if (!SATA_SQ_FULL(sata_ncq) && available_command_ids.size() > 0)
 				{
-					Host_IO_Reqeust* new_req = waiting_requests_for_submission.front();
+					Host_IO_Request* new_req = waiting_requests_for_submission.front();
 					waiting_requests_for_submission.pop_front();
 					if (sata_ncq.queue[*available_command_ids.begin()] != NULL)
 						PRINT_ERROR("Unexpteced situation in SATA_HBA! Overwriting a waiting I/O request in the queue!")
@@ -85,7 +85,7 @@ namespace Host_Components
 		}
 		case HBA_Sim_Events::SUBMIT_IO_REQUEST:
 		{
-			Host_IO_Reqeust* request = host_requests.front();
+			Host_IO_Request* request = host_requests.front();
 			host_requests.pop();
 			if (SATA_SQ_FULL(sata_ncq) || available_command_ids.size() == 0)//If the hardware queue is full
 				waiting_requests_for_submission.push_back(request);
@@ -113,7 +113,7 @@ namespace Host_Components
 		}
 	}
 
-	void SATA_HBA::Submit_io_request(Host_IO_Reqeust* request)
+	void SATA_HBA::Submit_io_request(Host_IO_Request* request)
 	{
 		host_requests.push(request);
 		if (host_requests.size() == 1)
@@ -128,7 +128,7 @@ namespace Host_Components
 	Submission_Queue_Entry* SATA_HBA::Read_ncq_entry(uint64_t address)
 	{
 		Submission_Queue_Entry* ncq_entry = new Submission_Queue_Entry;
-		Host_IO_Reqeust* request = request_queue_in_memory[(uint16_t)((address - sata_ncq.Submission_queue_memory_base_address) / sizeof(Submission_Queue_Entry))];
+		Host_IO_Request* request = request_queue_in_memory[(uint16_t)((address - sata_ncq.Submission_queue_memory_base_address) / sizeof(Submission_Queue_Entry))];
 		if (request == NULL)
 			throw std::invalid_argument("SATA HBA: Request to access an NCQ entry that does not exist.");
 

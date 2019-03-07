@@ -63,7 +63,7 @@ namespace Host_Components
 		delete random_time_interval_generator;
 	}
 
-	Host_IO_Reqeust* IO_Flow_Synthetic::Generate_next_request()
+	Host_IO_Request* IO_Flow_Synthetic::Generate_next_request()
 	{
 		if (stop_time > 0)
 		{
@@ -73,7 +73,7 @@ namespace Host_Components
 		else if (STAT_generated_request_count >= total_requests_to_be_generated)
 			return NULL;
 		
-		Host_IO_Reqeust* request = new Host_IO_Reqeust;
+		Host_IO_Request* request = new Host_IO_Request;
 		if (random_request_type_generator->Uniform(0, 1) <= read_ratio)
 		{
 			request->Type = Host_IO_Request_Type::READ;
@@ -158,7 +158,7 @@ namespace Host_Components
 		IO_Flow_Base::NVMe_update_and_submit_completion_queue_tail();
 		if (generator_type == Utils::Request_Generator_Type::QUEUE_DEPTH)
 		{
-			Host_IO_Reqeust* request = Generate_next_request();
+			Host_IO_Request* request = Generate_next_request();
 			/* In the demand based execution mode, the Generate_next_request() function may return NULL
 			* if 1) the simulation stop is met, or 2) the number of generated I/O requests reaches its threshold.*/
 			if (request != NULL)
@@ -166,12 +166,12 @@ namespace Host_Components
 		}
 	}
 
-	void IO_Flow_Synthetic::SATA_consume_io_request(Host_IO_Reqeust* io_request)
+	void IO_Flow_Synthetic::SATA_consume_io_request(Host_IO_Request* io_request)
 	{
 		IO_Flow_Base::SATA_consume_io_request(io_request);
 		if (generator_type == Utils::Request_Generator_Type::QUEUE_DEPTH)
 		{
-			Host_IO_Reqeust* request = Generate_next_request();
+			Host_IO_Request* request = Generate_next_request();
 			/* In the demand based execution mode, the Generate_next_request() function may return NULL
 			* if 1) the simulation stop is met, or 2) the number of generated I/O requests reaches its threshold.*/
 			if (request != NULL)
@@ -201,7 +201,7 @@ namespace Host_Components
 	{
 		if (generator_type == Utils::Request_Generator_Type::BANDWIDTH)
 		{
-			Host_IO_Reqeust* req = Generate_next_request();
+			Host_IO_Request* req = Generate_next_request();
 			if (req != NULL)
 			{
 				Submit_io_request(req);
