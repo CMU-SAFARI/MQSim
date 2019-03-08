@@ -176,12 +176,18 @@ For each defined IO_Flow, the following parameters are shown:
 5. **IOPS:** The number of IO operations per second, i.e. how many requests are served per second.
 6. **IOPS_Read:** The number of read IO operations per second.
 7. **IOPS_Write:** The number of write IO operations per second.
-8. **Device_Response_Time:** The average SSD device response time for a request, in nanoseconds. This is defined as the time between enqueueing the request in the I/O submission queue, and removing it from the I/O completion queue.
-9. **Min_Device_Response_Time:** The minimum SSD device response time for a request, in nanoseconds. 
-10. **Max_Device_Response_Time:** The maximum SSD device response time for a request, in nanoseconds.
-11. **End_to_End_Request_Delay:** The average delay between generating an I/O request and receiving an corresponding answer. This is defined as the difference between the request arrival time, and its removal time from the I/O completion queue. Note that the request arrival_time is the same as the request enqueue_time, when using the multi-queue properties of NVMe drives.
-12. **Min_End_to_End_Request_Delay:** The minimum end-to-end request delay.
-13. **Max_End_to_End_Request_Delay:** The maximum end-to-end request delay.
+8. **Bytes_Transferred:** The total number of data bytes transferred across the interface.
+9. **Bytes_Transferred_Read:** The total number of data bytes read from the SSD Device.
+10. **Bytes_Transferred_write:** The total number of data bytes written to the SSD Device.
+11. **Bandwidth:** The total bandwidth delivered by the SSD Device in bytes per second.
+12. **Bandwidth_Read:** The total read bandwidth delivered by the SSD Device in bytes per second.
+13. **Bandwidth_Write:** The total write bandwidth delivered by the SSD Device in bytes per second.
+14. **Device_Response_Time:** The average SSD device response time for a request, in nanoseconds. This is defined as the time between enqueueing the request in the I/O submission queue, and removing it from the I/O completion queue.
+15. **Min_Device_Response_Time:** The minimum SSD device response time for a request, in nanoseconds. 
+16. **Max_Device_Response_Time:** The maximum SSD device response time for a request, in nanoseconds.
+17. **End_to_End_Request_Delay:** The average delay between generating an I/O request and receiving an corresponding answer. This is defined as the difference between the request arrival time, and its removal time from the I/O completion queue. Note that the request arrival_time is the same as the request enqueue_time, when using the multi-queue properties of NVMe drives.
+18. **Min_End_to_End_Request_Delay:** The minimum end-to-end request delay.
+119. **Max_End_to_End_Request_Delay:** The maximum end-to-end request delay.
 
 ### SSDDevice
 The output parameters in the SSDDevice category contain values for:

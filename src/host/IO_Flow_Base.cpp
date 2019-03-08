@@ -156,7 +156,7 @@ namespace Host_Components
 			STAT_max_request_delay = request_delay;
 		if (request_delay < STAT_min_request_delay)
 			STAT_min_request_delay = request_delay;
-		STAT_transferred_bytes_total = request->LBA_count * SECTOR_SIZE_IN_BYTE;
+		STAT_transferred_bytes_total += request->LBA_count * SECTOR_SIZE_IN_BYTE;
 
 		if (request->Type == Host_IO_Request_Type::READ)
 		{
@@ -171,7 +171,7 @@ namespace Host_Components
 				STAT_max_request_delay_read = request_delay;
 			if (request_delay < STAT_min_request_delay_read)
 				STAT_min_request_delay_read = request_delay;
-			STAT_transferred_bytes_read = request->LBA_count * SECTOR_SIZE_IN_BYTE;
+			STAT_transferred_bytes_read += request->LBA_count * SECTOR_SIZE_IN_BYTE;
 		}
 		else
 		{
@@ -186,7 +186,7 @@ namespace Host_Components
 				STAT_max_request_delay_write = request_delay;
 			if (request_delay < STAT_min_request_delay_write)
 				STAT_min_request_delay_write = request_delay;
-			STAT_transferred_bytes_write = request->LBA_count * SECTOR_SIZE_IN_BYTE;
+			STAT_transferred_bytes_write += request->LBA_count * SECTOR_SIZE_IN_BYTE;
 		}
 
 		delete request;
@@ -248,7 +248,7 @@ namespace Host_Components
 			STAT_max_request_delay = request_delay;
 		if (request_delay < STAT_min_request_delay)
 			STAT_min_request_delay = request_delay;
-		STAT_transferred_bytes_total = request->LBA_count * SECTOR_SIZE_IN_BYTE;
+		STAT_transferred_bytes_total += request->LBA_count * SECTOR_SIZE_IN_BYTE;
 		
 		if (request->Type == Host_IO_Request_Type::READ)
 		{
@@ -263,7 +263,7 @@ namespace Host_Components
 				STAT_max_request_delay_read = request_delay;
 			if (request_delay < STAT_min_request_delay_read)
 				STAT_min_request_delay_read = request_delay;
-			STAT_transferred_bytes_read = request->LBA_count * SECTOR_SIZE_IN_BYTE;
+			STAT_transferred_bytes_read += request->LBA_count * SECTOR_SIZE_IN_BYTE;
 		}
 		else
 		{
@@ -278,7 +278,7 @@ namespace Host_Components
 				STAT_max_request_delay_write = request_delay;
 			if (request_delay < STAT_min_request_delay_write)
 				STAT_min_request_delay_write = request_delay;
-			STAT_transferred_bytes_write = request->LBA_count * SECTOR_SIZE_IN_BYTE;
+			STAT_transferred_bytes_write += request->LBA_count * SECTOR_SIZE_IN_BYTE;
 		}
 
 		delete request;
@@ -500,6 +500,31 @@ namespace Host_Components
 		attr = "IOPS_Write";
 		val = std::to_string((double)STAT_generated_write_request_count / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
 		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Bytes_Transferred";
+		val = std::to_string((double)STAT_transferred_bytes_total);
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Bytes_Transferred_Read";
+		val = std::to_string((double)STAT_transferred_bytes_read);
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Bytes_Transferred_Write";
+		val = std::to_string((double)STAT_transferred_bytes_write);
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Bandwidth";
+		val = std::to_string((double)STAT_transferred_bytes_total / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Bandwidth_Read";
+		val = std::to_string((double)STAT_transferred_bytes_read / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		xmlwriter.Write_attribute_string(attr, val);
+
+		attr = "Bandwidth_Write";
+		val = std::to_string((double)STAT_transferred_bytes_write / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		xmlwriter.Write_attribute_string(attr, val);
+
 
 		attr = "Device_Response_Time";
 		val = std::to_string(Get_device_response_time());
