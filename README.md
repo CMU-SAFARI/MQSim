@@ -187,7 +187,7 @@ For each defined IO_Flow, the following parameters are shown:
 16. **Max_Device_Response_Time:** The maximum SSD device response time for a request, in nanoseconds.
 17. **End_to_End_Request_Delay:** The average delay between generating an I/O request and receiving an corresponding answer. This is defined as the difference between the request arrival time, and its removal time from the I/O completion queue. Note that the request arrival_time is the same as the request enqueue_time, when using the multi-queue properties of NVMe drives.
 18. **Min_End_to_End_Request_Delay:** The minimum end-to-end request delay.
-119. **Max_End_to_End_Request_Delay:** The maximum end-to-end request delay.
+19. **Max_End_to_End_Request_Delay:** The maximum end-to-end request delay.
 
 ### SSDDevice
 The output parameters in the SSDDevice category contain values for:
