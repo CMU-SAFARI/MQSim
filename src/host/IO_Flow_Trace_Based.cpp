@@ -24,12 +24,12 @@ namespace Host_Components
 	IO_Flow_Trace_Based::~IO_Flow_Trace_Based()
 	{}
 
-	Host_IO_Reqeust* IO_Flow_Trace_Based::Generate_next_request()
+	Host_IO_Request* IO_Flow_Trace_Based::Generate_next_request()
 	{
 		if (current_trace_line.size() == 0 || STAT_generated_request_count >= total_requests_to_be_generated)
 			return NULL;
 
-		Host_IO_Reqeust* request = new Host_IO_Reqeust;
+		Host_IO_Request* request = new Host_IO_Request;
 		if (current_trace_line[ASCIITraceTypeColumn].compare(ASCIITraceWriteCode) == 0)
 		{
 			request->Type = Host_IO_Request_Type::WRITE;
@@ -61,7 +61,7 @@ namespace Host_Components
 		IO_Flow_Base::NVMe_update_and_submit_completion_queue_tail();
 	}
 
-	void IO_Flow_Trace_Based::SATA_consume_io_request(Host_IO_Reqeust* io_request)
+	void IO_Flow_Trace_Based::SATA_consume_io_request(Host_IO_Request* io_request)
 	{
 		IO_Flow_Base::SATA_consume_io_request(io_request);
 	}
@@ -112,7 +112,7 @@ namespace Host_Components
 
 	void IO_Flow_Trace_Based::Execute_simulator_event(MQSimEngine::Sim_Event*)
 	{
-		Host_IO_Reqeust* request = Generate_next_request();
+		Host_IO_Request* request = Generate_next_request();
 		if (request != NULL)
 			Submit_io_request(request);
 

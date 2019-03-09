@@ -20,9 +20,9 @@ namespace Host_Components
 			int seed, sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_req_count, HostInterface_Types SSD_device_type, PCIe_Root_Complex* pcie_root_complex, SATA_HBA* sata_hba,
 			bool enabled_logging, sim_time_type logging_period, std::string logging_file_path);
 		~IO_Flow_Synthetic();
-		Host_IO_Reqeust* Generate_next_request();
+		Host_IO_Request* Generate_next_request();
 		void NVMe_consume_io_request(Completion_Queue_Entry*);
-		void SATA_consume_io_request(Host_IO_Reqeust*);
+		void SATA_consume_io_request(Host_IO_Request*);
 		void Start_simulation();
 		void Validate_simulation_config();
 		void Execute_simulator_event(MQSimEngine::Sim_Event*);

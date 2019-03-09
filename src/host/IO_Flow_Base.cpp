@@ -24,7 +24,7 @@ namespace Host_Components
 		STAT_transferred_bytes_total(0), STAT_transferred_bytes_read(0), STAT_transferred_bytes_write(0), progress(0), next_progress_step(0),
 		enabled_logging(enabled_logging), logging_period(logging_period), logging_file_path(logging_file_path)
 	{
-		Host_IO_Reqeust* t= NULL;
+		Host_IO_Request* t= NULL;
 
 		switch (SSD_device_type)
 		{
@@ -137,7 +137,7 @@ namespace Host_Components
 		STAT_serviced_request_count_short_term = 0;
 	}
 
-	void IO_Flow_Base::SATA_consume_io_request(Host_IO_Reqeust* request)
+	void IO_Flow_Base::SATA_consume_io_request(Host_IO_Request* request)
 	{
 		sim_time_type device_response_time = Simulator->Time() - request->Enqueue_time;
 		sim_time_type request_delay = Simulator->Time() - request->Arrival_time;
@@ -228,7 +228,7 @@ namespace Host_Components
 	void IO_Flow_Base::NVMe_consume_io_request(Completion_Queue_Entry* cqe)
 	{
 		//Find the request and update statistics
-		Host_IO_Reqeust* request = nvme_software_request_queue[cqe->Command_Identifier];
+		Host_IO_Request* request = nvme_software_request_queue[cqe->Command_Identifier];
 		nvme_software_request_queue.erase(cqe->Command_Identifier);
 		available_command_ids.insert(cqe->Command_Identifier);
 		sim_time_type device_response_time = Simulator->Time() - request->Enqueue_time;
@@ -291,7 +291,7 @@ namespace Host_Components
 		while(waiting_requests.size() > 0)
 			if (!NVME_SQ_FULL(nvme_queue_pair) && available_command_ids.size() > 0)
 			{
-				Host_IO_Reqeust* new_req = waiting_requests.front();
+				Host_IO_Request* new_req = waiting_requests.front();
 				waiting_requests.pop_front();
 				if (nvme_software_request_queue[*available_command_ids.begin()] != NULL)
 					PRINT_ERROR("Unexpteced situation in IO_Flow_Base! Overwriting a waiting I/O request in the queue!")
@@ -347,7 +347,7 @@ namespace Host_Components
 	Submission_Queue_Entry* IO_Flow_Base::NVMe_read_sqe(uint64_t address)
 	{
 		Submission_Queue_Entry* sqe = new Submission_Queue_Entry;
-		Host_IO_Reqeust* request = request_queue_in_memory[(uint16_t)((address - nvme_queue_pair.Submission_queue_memory_base_address) / sizeof(Submission_Queue_Entry))];
+		Host_IO_Request* request = request_queue_in_memory[(uint16_t)((address - nvme_queue_pair.Submission_queue_memory_base_address) / sizeof(Submission_Queue_Entry))];
 		if (request == NULL)
 			throw std::invalid_argument(this->ID() + ": Request to access a submission queue entry that does not exist.");
 		sqe->Command_Identifier = request->IO_queue_info;
@@ -371,7 +371,7 @@ namespace Host_Components
 		}
 		return sqe;
 	}
-	void IO_Flow_Base::Submit_io_request(Host_IO_Reqeust* request)
+	void IO_Flow_Base::Submit_io_request(Host_IO_Request* request)
 	{
 		switch (SSD_device_type)
 		{
