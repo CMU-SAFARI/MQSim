@@ -185,7 +185,7 @@ For each defined IO_Flow, the following parameters are shown:
 14. **Device_Response_Time:** The average SSD device response time for a request, in nanoseconds. This is defined as the time between enqueueing the request in the I/O submission queue, and removing it from the I/O completion queue.
 15. **Min_Device_Response_Time:** The minimum SSD device response time for a request, in nanoseconds. 
 16. **Max_Device_Response_Time:** The maximum SSD device response time for a request, in nanoseconds.
-17. **End_to_End_Request_Delay:** The average delay between generating an I/O request and receiving an corresponding answer. This is defined as the difference between the request arrival time, and its removal time from the I/O completion queue. Note that the request arrival_time is the same as the request enqueue_time, when using the multi-queue properties of NVMe drives.
+17. **End_to_End_Request_Delay:** The average delay between generating an I/O request and receiving a corresponding answer. This is defined as the difference between the request arrival time, and its removal time from the I/O completion queue. Note that the request arrival_time is the same as the request enqueue_time, when using the multi-queue properties of NVMe drives.
 18. **Min_End_to_End_Request_Delay:** The minimum end-to-end request delay.
 19. **Max_End_to_End_Request_Delay:** The maximum end-to-end request delay.
 
@@ -193,8 +193,8 @@ For each defined IO_Flow, the following parameters are shown:
 The output parameters in the SSDDevice category contain values for:
 1. Average transaction times at a lower abstraction level (SSDDevice.IO_Stream)
 2. Statistics for the flash transaction layer (FTL)
-3. Statistics for each queue in the TSU: In the TSU exists a User_Read_TR_Queue, a User_Write_TR_Queue, a Mapping_Read_TR_Queue, a Mapping_Write_TR_Queue, a GC_Read_TR_Queue, a GC_Write_TR_queue, a GC_Erase_TR_Queue for each combination of channel and package.
-4. For each package: the fraction of time in execution, in data transfer, in both execution and data transfer, and in idle mode. The fraction of time in idle mode is calculated as 1 minus the fraction of time in data transfer, and minus the time in both data transfer and execution.
+3. Statistics for each queue in the SSD's internal flash Transaction Scheduling Unit (TSU): In the TSU exists a User_Read_TR_Queue, a User_Write_TR_Queue, a Mapping_Read_TR_Queue, a Mapping_Write_TR_Queue, a GC_Read_TR_Queue, a GC_Write_TR_queue, a GC_Erase_TR_Queue for each combination of channel and package.
+4. For each package: the fraction of time in the exclusive memory command execution, exclusive data transfer, overlapped memory command execution and data transfer, and idle mode.
 
 
 ## References
