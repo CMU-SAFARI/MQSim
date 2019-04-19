@@ -61,6 +61,7 @@ namespace SSD_Components
 				{
 					NVM::FlashMemory::Physical_Page_Address gc_wl_candidate_address(transaction->Address);
 					Block_Pool_Slot_Type* block = &pbke->Blocks[transaction->Address.BlockID];
+					Stats::Total_gc_executions++;
 					_my_instance->tsu->Prepare_for_transaction_submit();
 					NVM_Transaction_Flash_ER* gc_wl_erase_tr = new NVM_Transaction_Flash_ER(Transaction_Source_Type::GC_WL, block->Stream_id, gc_wl_candidate_address);
 					if (block->Current_page_write_index - block->Invalid_page_count > 0)//If there are some valid pages in block, then prepare flash transactions for page movement
