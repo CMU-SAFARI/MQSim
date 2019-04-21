@@ -148,7 +148,7 @@ namespace SSD_Components
 					{
 						if (block_manager->Is_page_valid(block, pageID))
 						{
-							Stats::Total_page_movements_for_gc;
+							Stats::Total_page_movements_for_gc++;
 							gc_candidate_address.PageID = pageID;
 							if (use_copyback)
 							{
