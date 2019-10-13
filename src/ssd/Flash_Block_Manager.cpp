@@ -42,8 +42,10 @@ namespace SSD_Components
 		page_address.BlockID = plane_record->GC_wf[stream_id]->BlockID;
 		page_address.PageID = plane_record->GC_wf[stream_id]->Current_page_write_index++;
 		if (plane_record->GC_wf[stream_id]->Current_page_write_index == pages_no_per_block)//The current write frontier block is written to the end
+		{
 			plane_record->GC_wf[stream_id] = plane_record->Get_a_free_block(stream_id, false);//Assign a new write frontier block
-		
+			gc_and_wl_unit->Check_gc_required(plane_record->Get_free_block_pool_size(), page_address);
+		}
 		plane_record->Check_bookkeeping_correctness(page_address);
 	}
 	
