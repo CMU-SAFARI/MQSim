@@ -150,10 +150,10 @@ namespace SSD_Components
 		PlaneBookKeepingType *plane_record = &plane_manager[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID];
 
 		for (unsigned int i = 1; i < block_no_per_plane; i++) {
-			if (plane_record->Blocks[i].Erase_count > plane_record->Blocks[i].Erase_count) {
+			if (plane_record->Blocks[i].Erase_count > plane_record->Blocks[max_erased_block].Erase_count) {
 				max_erased_block = i;
 			}
-			if (plane_record->Blocks[i].Erase_count < plane_record->Blocks[i].Erase_count) {
+			if (plane_record->Blocks[i].Erase_count < plane_record->Blocks[min_erased_block].Erase_count) {
 				min_erased_block = i;
 			}
 		}
@@ -167,10 +167,11 @@ namespace SSD_Components
 		PlaneBookKeepingType *plane_record = &plane_manager[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID];
 
 		for (unsigned int i = 1; i < block_no_per_plane; i++) {
-			if (plane_record->Blocks[i].Erase_count < plane_record->Blocks[i].Erase_count) {
+			if (plane_record->Blocks[i].Erase_count < plane_record->Blocks[min_erased_block].Erase_count) {
 				min_erased_block = i;
 			}
 		}
+		
 		return min_erased_block;
 	}
 
