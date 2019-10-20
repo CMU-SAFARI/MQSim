@@ -18,4 +18,3 @@ enum class Trace_Time_Unit { PICOSECOND, NANOSECOND, MICROSECOND};//The unit of 
 #define ASCIIItemsPerLine 5
 
 #endif // !ASCII_TRACE_DEFINITION_H
-

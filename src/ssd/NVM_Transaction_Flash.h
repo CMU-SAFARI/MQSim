@@ -16,6 +16,7 @@
 namespace SSD_Components
 {
 	class User_Request;
+
 	class NVM_Transaction_Flash : public NVM_Transaction
 	{
 	public:

@@ -24,8 +24,7 @@ namespace NVM
 			int bits_per_cell = static_cast<int>(flash_technology);
 			_readLatency = new sim_time_type[bits_per_cell];
 			_programLatency = new sim_time_type[bits_per_cell];
-			for (int i = 0; i < bits_per_cell; i++)
-			{
+			for (int i = 0; i < bits_per_cell; i++) {
 				_readLatency[i] = readLatency[i];
 				_programLatency[i] = programLatency[i];
 			}
@@ -34,14 +33,16 @@ namespace NVM
 			_suspendEraseLatency = suspendEraseLatency;
 			idleDieNo = dieNo;
 			Dies = new Die*[dieNo];
-			for (unsigned int dieID = 0; dieID < dieNo; dieID++)
+			for (unsigned int dieID = 0; dieID < dieNo; dieID++) {
 				Dies[dieID] = new Die(PlaneNoPerDie, Block_no_per_plane, Page_no_per_block);
+			}
 		}
 
 		Flash_Chip::~Flash_Chip()
 		{
-			for (unsigned int dieID = 0; dieID < die_no; dieID++)
+			for (unsigned int dieID = 0; dieID < die_no; dieID++) {
 				delete Dies[dieID];
+			}
 			delete[] Dies;
 			delete[] _readLatency;
 			delete[] _programLatency;
@@ -52,16 +53,20 @@ namespace NVM
 			connectedReadyHandlers.push_back(function);
 		}
 		
-		void Flash_Chip::Start_simulation() {}
+		void Flash_Chip::Start_simulation()
+		{
+		}
 
 		void Flash_Chip::Validate_simulation_config()
 		{
-			if (Dies == NULL || die_no == 0)
+			if (Dies == NULL || die_no == 0) {
 				PRINT_ERROR("Flash chip " << ID() << ": has no dies!")
-			for (unsigned int i = 0; i < die_no; i++)
-			{
-				if (Dies[i]->Planes == NULL)
+			}
+
+			for (unsigned int i = 0; i < die_no; i++) {
+				if (Dies[i]->Planes == NULL) {
 					PRINT_ERROR("Flash chip" << ID() << ": die (" + ID() + ") has no planes!")
+				}
 			}
 		}
 		
@@ -71,25 +76,26 @@ namespace NVM
 			Dies[flash_address->DieID]->Planes[flash_address->PlaneID]->Blocks[flash_address->BlockID]->Pages[flash_address->PageID].Metadata.LPA = *(LPA_type*)status_info;
 		}
 		
-		void Flash_Chip::Setup_triggers() { MQSimEngine::Sim_Object::Setup_triggers(); }
+		void Flash_Chip::Setup_triggers()
+		{
+			MQSimEngine::Sim_Object::Setup_triggers();
+		}
 		
 		void Flash_Chip::Execute_simulator_event(MQSimEngine::Sim_Event* ev)
 		{
 			Chip_Sim_Event_Type eventType = (Chip_Sim_Event_Type)ev->Type;
 			Flash_Command* command = (Flash_Command*)ev->Parameters;
 
-			switch (eventType)
-			{
-			case Chip_Sim_Event_Type::COMMAND_FINISHED:
-				finish_command_execution(command);
-				break;
+			switch (eventType) {
+				case Chip_Sim_Event_Type::COMMAND_FINISHED:
+					finish_command_execution(command);
+					break;
 			}
 		}
 
 		LPA_type Flash_Chip::Get_metadata(flash_die_ID_type die_id, flash_plane_ID_type plane_id, flash_block_ID_type block_id, flash_page_ID_type page_id)//A simplification to decrease the complexity of GC execution! The GC unit may need to know the metadata of a page to decide if a page is valid or invalid. 
 		{
 			Page* page = &(Dies[die_id]->Planes[plane_id]->Blocks[block_id]->Pages[page_id]);
-			
 			return Dies[die_id]->Planes[plane_id]->Blocks[block_id]->Pages[page_id].Metadata.LPA;
 		}
 
@@ -101,8 +107,9 @@ namespace NVM
 			if (command->Address.size() > 1
 				&& (command->CommandCode == CMD_READ_PAGE
 					|| command->CommandCode == CMD_PROGRAM_PAGE
-					|| command->CommandCode == CMD_ERASE_BLOCK))
+					|| command->CommandCode == CMD_ERASE_BLOCK)) {
 				PRINT_ERROR("Flash chip " << ID() << ": executing a flash operation on a busy die!")
+			}
 
 			targetDie->Expected_finish_time = Simulator->Time() + Get_command_execution_latency(command->CommandCode, command->Address[0].PageID);
 			targetDie->CommandFinishEvent = Simulator->Register_sim_event(targetDie->Expected_finish_time,
@@ -111,8 +118,7 @@ namespace NVM
 			targetDie->Status = DieStatus::BUSY;
 			idleDieNo--;
 
-			if (status == Internal_Status::IDLE)
-			{
+			if (status == Internal_Status::IDLE) {
 				executionStartTime = Simulator->Time();
 				expectedFinishTime = targetDie->Expected_finish_time;
 				status = Internal_Status::BUSY;
@@ -131,59 +137,55 @@ namespace NVM
 			targetDie->CurrentCMD = NULL;
 			targetDie->Status = DieStatus::IDLE;
 			this->idleDieNo++;
-			if (idleDieNo == die_no)
-			{
+			if (idleDieNo == die_no) {
 				this->status = Internal_Status::IDLE;
 				STAT_totalExecTime += Simulator->Time() - executionStartTime;
-				if (this->lastTransferStart != INVALID_TIME)
+				if (this->lastTransferStart != INVALID_TIME) {
 					STAT_totalOverlappedXferExecTime += Simulator->Time() - lastTransferStart;
+				}
 			}
 
 			switch (command->CommandCode)
 			{
-			case CMD_READ_PAGE:
-			case CMD_READ_PAGE_MULTIPLANE:
-			case CMD_READ_PAGE_COPYBACK:
-			case CMD_READ_PAGE_COPYBACK_MULTIPLANE:
-				DEBUG("Channel " << this->ChannelID << " Chip " << this->ChipID << "- Finished executing read command")
-				for (unsigned int planeCntr = 0; planeCntr < command->Address.size(); planeCntr++)
-				{
-					STAT_readCount++;
-					targetDie->Planes[command->Address[planeCntr].PlaneID]->Read_count++;
-					targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID]->Pages[command->Address[planeCntr].PageID].Read_metadata(command->Meta_data[planeCntr]);
-				}
-				break;
-			case CMD_PROGRAM_PAGE:
-			case CMD_PROGRAM_PAGE_MULTIPLANE:
-			case CMD_PROGRAM_PAGE_COPYBACK:
-			case CMD_PROGRAM_PAGE_COPYBACK_MULTIPLANE:
-				DEBUG("Channel " << this->ChannelID << " Chip " << this->ChipID << "- Finished executing program command")
-				for (unsigned int planeCntr = 0; planeCntr < command->Address.size(); planeCntr++)
-				{
-					STAT_progamCount++;
-					targetDie->Planes[command->Address[planeCntr].PlaneID]->Progam_count++;
-					targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID]->Pages[command->Address[planeCntr].PageID].Write_metadata(command->Meta_data[planeCntr]);
-				}
-				break;
-			case CMD_ERASE_BLOCK:
-			case CMD_ERASE_BLOCK_MULTIPLANE:
-			{
-				for (unsigned int planeCntr = 0; planeCntr < command->Address.size(); planeCntr++)
-				{
-					STAT_eraseCount++;
-					targetDie->Planes[command->Address[planeCntr].PlaneID]->Erase_count++;
-					Block* targetBlock = targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID];
-					for (unsigned int i = 0; i < page_no_per_block; i++)
-					{
-						//targetBlock->Pages[i].Metadata.SourceStreamID = NO_STREAM;
-						//targetBlock->Pages[i].Metadata.Status = FREE_PAGE;
-						targetBlock->Pages[i].Metadata.LPA = NO_LPA;
+				case CMD_READ_PAGE:
+				case CMD_READ_PAGE_MULTIPLANE:
+				case CMD_READ_PAGE_COPYBACK:
+				case CMD_READ_PAGE_COPYBACK_MULTIPLANE:
+					DEBUG("Channel " << this->ChannelID << " Chip " << this->ChipID << "- Finished executing read command")
+					for (unsigned int planeCntr = 0; planeCntr < command->Address.size(); planeCntr++) {
+						STAT_readCount++;
+						targetDie->Planes[command->Address[planeCntr].PlaneID]->Read_count++;
+						targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID]->Pages[command->Address[planeCntr].PageID].Read_metadata(command->Meta_data[planeCntr]);
 					}
+					break;
+				case CMD_PROGRAM_PAGE:
+				case CMD_PROGRAM_PAGE_MULTIPLANE:
+				case CMD_PROGRAM_PAGE_COPYBACK:
+				case CMD_PROGRAM_PAGE_COPYBACK_MULTIPLANE:
+					DEBUG("Channel " << this->ChannelID << " Chip " << this->ChipID << "- Finished executing program command")
+					for (unsigned int planeCntr = 0; planeCntr < command->Address.size(); planeCntr++) {
+						STAT_progamCount++;
+						targetDie->Planes[command->Address[planeCntr].PlaneID]->Progam_count++;
+						targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID]->Pages[command->Address[planeCntr].PageID].Write_metadata(command->Meta_data[planeCntr]);
+					}
+					break;
+				case CMD_ERASE_BLOCK:
+				case CMD_ERASE_BLOCK_MULTIPLANE:
+				{
+					for (unsigned int planeCntr = 0; planeCntr < command->Address.size(); planeCntr++) {
+						STAT_eraseCount++;
+						targetDie->Planes[command->Address[planeCntr].PlaneID]->Erase_count++;
+						Block* targetBlock = targetDie->Planes[command->Address[planeCntr].PlaneID]->Blocks[command->Address[planeCntr].BlockID];
+						for (unsigned int i = 0; i < page_no_per_block; i++) {
+							//targetBlock->Pages[i].Metadata.SourceStreamID = NO_STREAM;
+							//targetBlock->Pages[i].Metadata.Status = FREE_PAGE;
+							targetBlock->Pages[i].Metadata.LPA = NO_LPA;
+						}
+					}
+					break;
 				}
-				break;
-			}
-			default:
-				PRINT_ERROR("Flash chip " << ID() << ": unhandled flash command type!")
+				default:
+					PRINT_ERROR("Flash chip " << ID() << ": unhandled flash command type!")
 			}
 
 			//In MQSim, flash chips always announce their status using the ready/busy signal; the controller does not issue a die status read command
@@ -193,8 +195,9 @@ namespace NVM
 		void Flash_Chip::broadcast_ready_signal(Flash_Command* command)
 		{
 			for (std::vector<ChipReadySignalHandlerType>::iterator it = connectedReadyHandlers.begin();
-				it != connectedReadyHandlers.end(); it++)
+				it != connectedReadyHandlers.end(); it++) {
 				(*it)(this, command);
+			}
 		}
 
 		void Flash_Chip::Suspend(flash_die_ID_type dieID)
@@ -202,8 +205,9 @@ namespace NVM
 			STAT_totalExecTime += Simulator->Time() - executionStartTime;
 
 			Die* targetDie = Dies[dieID];
-			if (targetDie->Suspended)
+			if (targetDie->Suspended) {
 				PRINT_ERROR("Flash chip" << ID() << ": suspending a previously suspended flash chip! This is illegal.")
+			}
 
 			/*if (targetDie->CurrentCMD & CMD_READ != 0)
 			throw "Suspend is not supported for read operations!";*/
@@ -219,8 +223,9 @@ namespace NVM
 
 			targetDie->Status = DieStatus::IDLE;
 			this->idleDieNo++;
-			if (this->idleDieNo == die_no)
+			if (this->idleDieNo == die_no) {
 				this->status = Internal_Status::IDLE;
+			}
 
 			executionStartTime = INVALID_TIME;
 			expectedFinishTime = INVALID_TIME;
@@ -229,9 +234,9 @@ namespace NVM
 		void Flash_Chip::Resume(flash_die_ID_type dieID)
 		{
 			Die* targetDie = Dies[dieID];
-			if (!targetDie->Suspended)
+			if (!targetDie->Suspended) {
 				PRINT_ERROR("Flash chip " << ID() << ": resume flash command is requested, but there is no suspended flash command!")
-
+			}
 
 			targetDie->CurrentCMD = targetDie->SuspendedCMD;
 			targetDie->SuspendedCMD = NULL;
@@ -241,10 +246,9 @@ namespace NVM
 			targetDie->Expected_finish_time = Simulator->Time() + targetDie->RemainingSuspendedExecTime;
 			targetDie->CommandFinishEvent = Simulator->Register_sim_event(targetDie->Expected_finish_time,
 				this, targetDie->CurrentCMD, static_cast<int>(Chip_Sim_Event_Type::COMMAND_FINISHED));
-			if (targetDie->Expected_finish_time > this->expectedFinishTime)
+			if (targetDie->Expected_finish_time > this->expectedFinishTime) {
 				this->expectedFinishTime = targetDie->Expected_finish_time;
-
-
+			}
 
 			targetDie->Status = DieStatus::BUSY;
 			this->idleDieNo--;

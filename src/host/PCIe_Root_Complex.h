@@ -35,6 +35,7 @@ namespace Host_Components
 			}
 			delete messages;
 		}
+		
 		void Write_to_device(uint64_t address, uint16_t write_value);
 		void Set_io_flows(std::vector<Host_Components::IO_Flow_Base*>* IO_flows);
 	private:

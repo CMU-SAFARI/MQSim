@@ -9,7 +9,8 @@ namespace SSD_Components
 		NVM_Transaction_Flash(source, Transaction_Type::WRITE, stream_id, data_size_in_byte, lpa, ppa, address, user_io_request),
 		Content(content), RelatedRead(related_read), write_sectors_bitmap(written_sectors_bitmap), DataTimeStamp(data_timestamp),
 		ExecutionMode(WriteExecutionModeType::SIMPLE)
-	{}
+	{
+	}
 
 	NVM_Transaction_Flash_WR::NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type stream_id,
 		unsigned int data_size_in_byte, LPA_type lpa, PPA_type ppa, SSD_Components::User_Request* user_io_request, NVM::memory_content_type content,
@@ -17,7 +18,8 @@ namespace SSD_Components
 		NVM_Transaction_Flash(source, Transaction_Type::WRITE, stream_id, data_size_in_byte, lpa, ppa, user_io_request),
 		Content(content), RelatedRead(related_read), write_sectors_bitmap(written_sectors_bitmap), DataTimeStamp(data_timestamp),
 		ExecutionMode(WriteExecutionModeType::SIMPLE)
-	{}
+	{
+	}
 
 	NVM_Transaction_Flash_WR::NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type stream_id,
 		unsigned int data_size_in_byte, LPA_type lpa, SSD_Components::User_Request* user_io_request, NVM::memory_content_type content,
@@ -25,5 +27,6 @@ namespace SSD_Components
 		NVM_Transaction_Flash(source, Transaction_Type::WRITE, stream_id, data_size_in_byte, lpa, NO_PPA, user_io_request),
 		Content(content), RelatedRead(NULL), write_sectors_bitmap(written_sectors_bitmap), DataTimeStamp(data_timestamp),
 		ExecutionMode(WriteExecutionModeType::SIMPLE)
-	{}
+	{
+	}
 }

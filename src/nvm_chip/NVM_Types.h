@@ -9,4 +9,4 @@ namespace NVM
 	typedef uint64_t memory_content_type;
 }
 
-#endif // ! NVM_TYPES_H
+#endif // !NVM_TYPES_H

@@ -112,12 +112,14 @@ namespace SSD_Components
 
 		void Consume_pcie_message(Host_Components::PCIe_Message* message)
 		{
-			if (message->Type == Host_Components::PCIe_Message_Type::READ_COMP)
+			if (message->Type == Host_Components::PCIe_Message_Type::READ_COMP) {
 				request_fetch_unit->Process_pcie_read_message(message->Address, message->Payload, message->Payload_size);
-			else
+			} else {
 				request_fetch_unit->Process_pcie_write_message(message->Address, message->Payload, message->Payload_size);
+			}
 			delete message;
 		}
+	
 		void Send_read_message_to_host(uint64_t addresss, unsigned int request_read_data_size);
 		void Send_write_message_to_host(uint64_t addresss, void* message, unsigned int message_size);
 
@@ -138,8 +140,9 @@ namespace SSD_Components
 		void broadcast_user_request_arrival_signal(User_Request* user_request)
 		{
 			for (std::vector<UserRequestArrivedSignalHandlerType>::iterator it = connected_user_request_arrived_signal_handlers.begin();
-				it != connected_user_request_arrived_signal_handlers.end(); it++)
+				it != connected_user_request_arrived_signal_handlers.end(); it++) {
 				(*it)(user_request);
+			}
 		}
 
 		static void handle_user_request_serviced_signal_from_cache(User_Request* user_request)
@@ -155,4 +158,5 @@ namespace SSD_Components
 		Host_Components::PCIe_Switch* pcie_switch;
 	};
 }
-#endif //HOST_INTERFACE_BASE_H
+
+#endif // !HOST_INTERFACE_BASE_H

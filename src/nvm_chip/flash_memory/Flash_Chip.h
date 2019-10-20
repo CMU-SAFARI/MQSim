@@ -81,38 +81,37 @@ namespace NVM
 			void Execute_simulator_event(MQSimEngine::Sim_Event*);
 			typedef void(*ChipReadySignalHandlerType) (Flash_Chip* targetChip, Flash_Command* command);
 			void Connect_to_chip_ready_signal(ChipReadySignalHandlerType);
+			
 			sim_time_type Get_command_execution_latency(command_code_type CMDCode, flash_page_ID_type pageID)
 			{
 				int latencyType = 0;
-				if (flash_technology == Flash_Technology_Type::MLC)
-				{
+				if (flash_technology == Flash_Technology_Type::MLC) {
 					latencyType = pageID % 2;
-				}
-				else if (flash_technology == Flash_Technology_Type::TLC)
-				{
+				} else if (flash_technology == Flash_Technology_Type::TLC) {
 					//From: Yaakobi et al., "Characterization and Error-Correcting Codes for TLC Flash Memories", ICNC 2012
 					latencyType = (pageID <= 5) ? 0 : ((pageID <= 7) ? 1 : (((pageID - 8) >> 1) % 3));;
 				}
 
 				switch (CMDCode)
 				{
-				case CMD_READ_PAGE:
-				case CMD_READ_PAGE_MULTIPLANE:
-				case CMD_READ_PAGE_COPYBACK:
-				case CMD_READ_PAGE_COPYBACK_MULTIPLANE:
-					return _readLatency[latencyType] + _RBSignalDelayRead;
-				case CMD_PROGRAM_PAGE:
-				case CMD_PROGRAM_PAGE_MULTIPLANE:
-				case CMD_PROGRAM_PAGE_COPYBACK:
-				case CMD_PROGRAM_PAGE_COPYBACK_MULTIPLANE:
-					return _programLatency[latencyType] + _RBSignalDelayWrite;
-				case CMD_ERASE_BLOCK:
-				case CMD_ERASE_BLOCK_MULTIPLANE:
-					return _eraseLatency + _RBSignalDelayErase;
-				default:
-					throw std::invalid_argument("Unsupported command for flash chip.");
+					case CMD_READ_PAGE:
+					case CMD_READ_PAGE_MULTIPLANE:
+					case CMD_READ_PAGE_COPYBACK:
+					case CMD_READ_PAGE_COPYBACK_MULTIPLANE:
+						return _readLatency[latencyType] + _RBSignalDelayRead;
+					case CMD_PROGRAM_PAGE:
+					case CMD_PROGRAM_PAGE_MULTIPLANE:
+					case CMD_PROGRAM_PAGE_COPYBACK:
+					case CMD_PROGRAM_PAGE_COPYBACK_MULTIPLANE:
+						return _programLatency[latencyType] + _RBSignalDelayWrite;
+					case CMD_ERASE_BLOCK:
+					case CMD_ERASE_BLOCK_MULTIPLANE:
+						return _eraseLatency + _RBSignalDelayErase;
+					default:
+						throw std::invalid_argument("Unsupported command for flash chip.");
 				}
 			}
+
 			void Suspend(flash_die_ID_type dieID);
 			void Resume(flash_die_ID_type dieID);
 			sim_time_type GetSuspendProgramTime();

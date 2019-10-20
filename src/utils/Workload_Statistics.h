@@ -68,4 +68,5 @@ namespace Utils
 		std::vector<unsigned int> Write_size_histogram, Read_size_histogram;//Histogram with 1 sector resolution
 	};
 }
+
 #endif// !WORKLOAD_STATISTICS_H

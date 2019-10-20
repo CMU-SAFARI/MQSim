@@ -30,4 +30,4 @@ namespace SSD_Components
 	};
 }
 
-#endif
+#endif // !NVM_TRANSACTION_FLASH_RD_H

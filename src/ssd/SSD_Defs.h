@@ -31,9 +31,12 @@ typedef uint64_t data_cache_content_type;
 inline unsigned int count_sector_no_from_status_bitmap(const page_status_type page_status)
 {
 	unsigned int size = 0;
-	for (int i = 0; i < 64; i++)
-		if ((((page_status_type)1) << i) & page_status)
+	for (int i = 0; i < 64; i++) {
+		if ((((page_status_type)1) << i) & page_status) {
 			size++;
+		}
+	}
+
 	return size;
 }
 

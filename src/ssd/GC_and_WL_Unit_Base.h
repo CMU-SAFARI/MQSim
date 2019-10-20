@@ -31,6 +31,7 @@ namespace SSD_Components
 	class NVM_PHY_ONFI;
 	class PlaneBookKeepingType;
 	class Block_Pool_Slot_Type;
+
 	/*
 	* This class implements thet the Garbage Collection and Wear Leveling module of MQSim.
 	*/

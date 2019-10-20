@@ -4,19 +4,22 @@ namespace SSD_Components
 {
 	Input_Stream_SATA::~Input_Stream_SATA()
 	{
-		for (auto &user_request : Waiting_user_requests)
+		for (auto &user_request : Waiting_user_requests) {
 			delete user_request;
-		for (auto &user_request : Completed_user_requests)
+		}
+		for (auto &user_request : Completed_user_requests) {
 			delete user_request;
+		}
 	}
 
 	Input_Stream_Manager_SATA::Input_Stream_Manager_SATA(Host_Interface_Base* host_interface, uint16_t ncq_depth,
 		LHA_type start_logical_sector_address, LHA_type end_logical_sector_address) :
 		ncq_depth(ncq_depth), Input_Stream_Manager_Base(host_interface)
 	{
-		if (end_logical_sector_address < start_logical_sector_address)
+		if (end_logical_sector_address < start_logical_sector_address) {
 			PRINT_ERROR("Error in allocating address range to a stream in host interface: the start address should be smaller than the end address.")
-			Input_Stream_SATA* input_stream = new Input_Stream_SATA(start_logical_sector_address, end_logical_sector_address, 0, 0);
+		}
+		Input_Stream_SATA* input_stream = new Input_Stream_SATA(start_logical_sector_address, end_logical_sector_address, 0, 0);
 		this->input_streams.push_back(input_stream);
 	}
 
@@ -32,16 +35,16 @@ namespace SSD_Components
 		((Host_Interface_SATA*)host_interface)->request_fetch_unit->Fetch_next_request(SATA_STREAM_ID);
 		((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->On_the_fly_requests++;
 		((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head++;
-		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head == ncq_depth)
+		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head == ncq_depth) {
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head = 0;
+		}
 	}
 
 	inline void Input_Stream_Manager_SATA::Completion_queue_head_pointer_update(uint16_t head_pointer_value)
 	{
 		((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_head = head_pointer_value;
 
-		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completed_user_requests.size() > 0)
-		{
+		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completed_user_requests.size() > 0) {
 			User_Request* request = ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completed_user_requests.front();
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completed_user_requests.pop_front();
 			inform_host_request_completed(request);
@@ -51,18 +54,16 @@ namespace SSD_Components
 	inline void Input_Stream_Manager_SATA::Handle_new_arrived_request(User_Request* request)
 	{
 		((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head_informed_to_host++;
-		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head_informed_to_host == ncq_depth)
+		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head_informed_to_host == ncq_depth) {
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head_informed_to_host = 0;
-		if (request->Type == UserRequestType::READ)
-		{
+		}
+		if (request->Type == UserRequestType::READ) {
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Waiting_user_requests.push_back(request);
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->STAT_number_of_read_requests++;
 			segment_user_request(request);
 
 			((Host_Interface_SATA*)host_interface)->broadcast_user_request_arrival_signal(request);
-		}
-		else//This is a write request
-		{
+		} else {//This is a write request
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Waiting_user_requests.push_back(request);
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->STAT_number_of_write_requests++;
 			((Host_Interface_SATA*)host_interface)->request_fetch_unit->Fetch_write_data(request);
@@ -82,29 +83,29 @@ namespace SSD_Components
 
 		DEBUG("** Host Interface: Request #" << request->ID << " is finished")
 
-			if (request->Type == UserRequestType::READ)//If this is a read request, then the read data should be written to host memory
-				((Host_Interface_SATA*)host_interface)->request_fetch_unit->Send_read_data(request);
+		//If this is a read request, then the read data should be written to host memory
+		if (request->Type == UserRequestType::READ) {
+			((Host_Interface_SATA*)host_interface)->request_fetch_unit->Send_read_data(request);
+		}
 
-		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head != ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_tail)
-		{
+		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head != ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_tail) {
 			((Host_Interface_SATA*)host_interface)->request_fetch_unit->Fetch_next_request(SATA_STREAM_ID);
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->On_the_fly_requests++;
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head++;//Update submission queue head after starting fetch request
-			if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head == ncq_depth)//Circular queue implementation
+			if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head == ncq_depth) {//Circular queue implementation
 				((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head = 0;
+			}
 		}
 
-		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_head > ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail)//Check if completion queue is full
-		{
-			if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail + 1 == ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_head)//completion queue is full
-			{
+		//Check if completion queue is full
+		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_head > ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail) {
+			//completion queue is full
+			if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail + 1 == ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_head) {
 				((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completed_user_requests.push_back(request);//Wait while the completion queue is full
 				return;
 			}
-		}
-		else if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail - ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_head
-			== ncq_depth - 1)
-		{
+		} else if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail - ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_head
+			== ncq_depth - 1) {
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completed_user_requests.push_back(request);//Wait while the completion queue is full
 			return;
 		}
@@ -117,8 +118,11 @@ namespace SSD_Components
 	{
 		((Request_Fetch_Unit_SATA*)((Host_Interface_SATA*)host_interface)->request_fetch_unit)->Send_completion_queue_element(request, ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Submission_head_informed_to_host);
 		((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail++;//Next free slot in the completion queue
-		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail == ncq_depth)//Circular queue implementation
+		
+		//Circular queue implementation
+		if (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail == ncq_depth) {
 			((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Completion_tail = 0;
+		}
 	}
 
 	void Input_Stream_Manager_SATA::segment_user_request(User_Request* user_request)
@@ -130,18 +134,16 @@ namespace SSD_Components
 		page_status_type access_status_bitmap = 0;
 		unsigned int hanled_sectors_count = 0;
 		unsigned int transaction_size = 0;
-		while (hanled_sectors_count < req_size)
-		{
+		while (hanled_sectors_count < req_size) {
 			//Check if LSA is in the correct range allocted to the stream
-			if (lsa < ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Start_logical_sector_address || lsa >((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->End_logical_sector_address)
+			if (lsa < ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Start_logical_sector_address || lsa >((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->End_logical_sector_address) {
 				lsa = ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Start_logical_sector_address
 				+ (lsa % (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->End_logical_sector_address - (((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Start_logical_sector_address)));
+			}
 			LHA_type internal_lsa = lsa - ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Start_logical_sector_address;//For each flow, all lsa's should be translated into a range starting from zero
 
-
 			transaction_size = host_interface->sectors_per_page - (unsigned int)(lsa % host_interface->sectors_per_page);
-			if (hanled_sectors_count + transaction_size >= req_size)
-			{
+			if (hanled_sectors_count + transaction_size >= req_size) {
 				transaction_size = req_size - hanled_sectors_count;
 			}
 			LPA_type lpa = internal_lsa / host_interface->sectors_per_page;
@@ -149,15 +151,12 @@ namespace SSD_Components
 			page_status_type temp = ~(0xffffffffffffffff << (int)transaction_size);
 			access_status_bitmap = temp << (int)(internal_lsa % host_interface->sectors_per_page);
 
-			if (user_request->Type == UserRequestType::READ)
-			{
+			if (user_request->Type == UserRequestType::READ) {
 				NVM_Transaction_Flash_RD* transaction = new NVM_Transaction_Flash_RD(Transaction_Source_Type::USERIO, SATA_STREAM_ID,
 					transaction_size * SECTOR_SIZE_IN_BYTE, lpa, NO_PPA, user_request, 0, access_status_bitmap, CurrentTimeStamp);
 				user_request->Transaction_list.push_back(transaction);
 				input_streams[SATA_STREAM_ID]->STAT_number_of_read_transactions++;
-			}
-			else //user_request->Type == UserRequestType::WRITE
-			{
+			} else {//user_request->Type == UserRequestType::WRITE
 				NVM_Transaction_Flash_WR* transaction = new NVM_Transaction_Flash_WR(Transaction_Source_Type::USERIO, SATA_STREAM_ID,
 					transaction_size * SECTOR_SIZE_IN_BYTE, lpa, user_request, 0, access_status_bitmap, CurrentTimeStamp);
 				user_request->Transaction_list.push_back(transaction);
@@ -178,14 +177,14 @@ namespace SSD_Components
 		uint64_t val = (uint64_t)payload;
 		switch (address)
 		{
-		case NCQ_SUBMISSION_REGISTER:
-			((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Submission_queue_tail_pointer_update((uint16_t)val);
-			break;
-		case NCQ_COMPLETION_REGISTER:
-			((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Completion_queue_head_pointer_update((uint16_t)val);
-			break;
-		default:
-			throw std::invalid_argument("Unknown register is written in Request_Fetch_Unit_SATA!");
+			case NCQ_SUBMISSION_REGISTER:
+				((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Submission_queue_tail_pointer_update((uint16_t)val);
+				break;
+			case NCQ_COMPLETION_REGISTER:
+				((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Completion_queue_head_pointer_update((uint16_t)val);
+				break;
+			default:
+				throw std::invalid_argument("Unknown register is written in Request_Fetch_Unit_SATA!");
 		}
 	}
 
@@ -197,40 +196,41 @@ namespace SSD_Components
 
 		switch (dma_req_item->Type)
 		{
-		case DMA_Req_Type::REQUEST_INFO:
-		{
-			User_Request* new_reqeust = new User_Request;
-			new_reqeust->IO_command_info = payload;
-			new_reqeust->Stream_id = (stream_id_type)((uint64_t)(dma_req_item->object));
-			new_reqeust->STAT_InitiationTime = Simulator->Time();
-			Submission_Queue_Entry* sqe = (Submission_Queue_Entry*)payload;
-			switch (sqe->Opcode)
+			case DMA_Req_Type::REQUEST_INFO:
 			{
-			case SATA_READ_OPCODE:
-				new_reqeust->Type = UserRequestType::READ;
-				new_reqeust->Start_LBA = ((LHA_type)sqe->Command_specific[1]) << 31 | (LHA_type)sqe->Command_specific[0];//Command Dword 10 and Command Dword 11
-				new_reqeust->SizeInSectors = sqe->Command_specific[2] & (LHA_type)(0x0000ffff);
-				new_reqeust->Size_in_byte = new_reqeust->SizeInSectors * SECTOR_SIZE_IN_BYTE;
+				User_Request* new_reqeust = new User_Request;
+				new_reqeust->IO_command_info = payload;
+				new_reqeust->Stream_id = (stream_id_type)((uint64_t)(dma_req_item->object));
+				new_reqeust->STAT_InitiationTime = Simulator->Time();
+				Submission_Queue_Entry* sqe = (Submission_Queue_Entry*)payload;
+				switch (sqe->Opcode)
+				{
+					case SATA_READ_OPCODE:
+						new_reqeust->Type = UserRequestType::READ;
+						new_reqeust->Start_LBA = ((LHA_type)sqe->Command_specific[1]) << 31 | (LHA_type)sqe->Command_specific[0];//Command Dword 10 and Command Dword 11
+						new_reqeust->SizeInSectors = sqe->Command_specific[2] & (LHA_type)(0x0000ffff);
+						new_reqeust->Size_in_byte = new_reqeust->SizeInSectors * SECTOR_SIZE_IN_BYTE;
+						break;
+					case SATA_WRITE_OPCODE:
+						new_reqeust->Type = UserRequestType::WRITE;
+						new_reqeust->Start_LBA = ((LHA_type)sqe->Command_specific[1]) << 31 | (LHA_type)sqe->Command_specific[0];//Command Dword 10 and Command Dword 11
+						new_reqeust->SizeInSectors = sqe->Command_specific[2] & (LHA_type)(0x0000ffff);
+						new_reqeust->Size_in_byte = new_reqeust->SizeInSectors * SECTOR_SIZE_IN_BYTE;
+						break;
+					default:
+						throw std::invalid_argument("SATA command is not supported!");
+				}
+				((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Handle_new_arrived_request(new_reqeust);
 				break;
-			case SATA_WRITE_OPCODE:
-				new_reqeust->Type = UserRequestType::WRITE;
-				new_reqeust->Start_LBA = ((LHA_type)sqe->Command_specific[1]) << 31 | (LHA_type)sqe->Command_specific[0];//Command Dword 10 and Command Dword 11
-				new_reqeust->SizeInSectors = sqe->Command_specific[2] & (LHA_type)(0x0000ffff);
-				new_reqeust->Size_in_byte = new_reqeust->SizeInSectors * SECTOR_SIZE_IN_BYTE;
+			}
+			case DMA_Req_Type::WRITE_DATA:
+				COPYDATA(((User_Request*)dma_req_item->object)->Data, payload, payload_size);
+				((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Handle_arrived_write_data((User_Request*)dma_req_item->object);
 				break;
 			default:
-				throw std::invalid_argument("SATA command is not supported!");
-			}
-			((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Handle_new_arrived_request(new_reqeust);
-			break;
+				break;
 		}
-		case DMA_Req_Type::WRITE_DATA:
-			COPYDATA(((User_Request*)dma_req_item->object)->Data, payload, payload_size);
-			((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Handle_arrived_write_data((User_Request*)dma_req_item->object);
-			break;
-		default:
-			break;
-		}
+
 		delete dma_req_item;
 	}
 
@@ -268,12 +268,12 @@ namespace SSD_Components
 		Input_Stream_SATA* im = ((Input_Stream_SATA*)hi->input_stream_manager->input_streams[SATA_STREAM_ID]);
 		host_interface->Send_write_message_to_host(im->Completion_queue_base_address + im->Completion_tail * sizeof(Completion_Queue_Entry), cqe, sizeof(Completion_Queue_Entry));
 		number_of_sent_cqe++;
-		if (number_of_sent_cqe % ncq_depth == 0)
-		{
-			if (current_phase == 0xffff)//According to protocol specification, the value of the Phase Tag is inverted each pass through the Completion Queue
+		if (number_of_sent_cqe % ncq_depth == 0) {
+			if (current_phase == 0xffff) {//According to protocol specification, the value of the Phase Tag is inverted each pass through the Completion Queue
 				current_phase = 0xfffe;
-			else
+			} else {
 				current_phase = 0xffff;
+			}
 		}
 	}
 
@@ -299,10 +299,12 @@ namespace SSD_Components
 	void Host_Interface_SATA::Validate_simulation_config()
 	{
 		Host_Interface_Base::Validate_simulation_config();
-		if (this->input_stream_manager == NULL)
+		if (this->input_stream_manager == NULL) {
 			throw std::logic_error("Input stream manager is not set for Host Interface");
-		if (this->request_fetch_unit == NULL)
+		}
+		if (this->request_fetch_unit == NULL) {
 			throw std::logic_error("Request fetch unit is not set for Host Interface");
+		}
 	}
 
 	void Host_Interface_SATA::Start_simulation() {}
