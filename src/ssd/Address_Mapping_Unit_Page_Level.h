@@ -23,6 +23,7 @@ namespace SSD_Components
 		MPPN_type MPPN;
 		data_timestamp_type TimeStamp;
 	};
+
 	struct CMTSlotType
 	{
 		PPA_type PPA;
@@ -32,6 +33,7 @@ namespace SSD_Components
 		std::list<std::pair<LPA_type, CMTSlotType*>>::iterator listPtr;//used for fast implementation of LRU
 		stream_id_type Stream_id;
 	};
+
 	struct GMTEntryType//Entry type for the Global Mapping Table
 	{
 		PPA_type PPA;
@@ -79,7 +81,6 @@ namespace SSD_Components
 			PPA_type total_physical_sectors_no, LHA_type total_logical_sectors_no, unsigned int sectors_no_per_page);
 		~AddressMappingDomain();
 
-
 		/*Stores the mapping of Virtual Translation Page Number (MVPN) to Physical Translation Page Number (MPPN).
 		* It is always kept in volatile memory.*/
 		GTDEntryType* GlobalTranslationDirectory;
@@ -91,7 +92,6 @@ namespace SSD_Components
 		Cached_Mapping_Table* CMT;
 		unsigned int No_of_inserted_entries_in_preconditioning;
 
-
 		/*The logical to physical address mapping of all data pages that is implemented based on the DFTL (Gupta et al., ASPLOS 2009(
 		* proposal. It is always stored in non-volatile flash memory.*/
 		GMTEntryType* GlobalMappingTable;
@@ -100,8 +100,7 @@ namespace SSD_Components
 		PPA_type Get_ppa(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa);
 		PPA_type Get_ppa_for_preconditioning(const stream_id_type stream_id, const LPA_type lpa);
 		bool Mapping_entry_accessible(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa);
-
-		
+	
 		std::multimap<LPA_type, NVM_Transaction_Flash*> Waiting_unmapped_read_transactions;
 		std::multimap<LPA_type, NVM_Transaction_Flash*> Waiting_unmapped_program_transactions;
 		std::multimap<MVPN_type, LPA_type> ArrivingMappingEntries;

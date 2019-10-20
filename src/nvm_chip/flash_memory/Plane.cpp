@@ -9,15 +9,17 @@ namespace NVM
 		{
 			Healthy_block_no = BlocksNoPerPlane;
 			Blocks = new Block*[BlocksNoPerPlane];
-			for (unsigned int i = 0; i < BlocksNoPerPlane; i++)
+			for (unsigned int i = 0; i < BlocksNoPerPlane; i++) {
 				Blocks[i] = new Block(PagesNoPerBlock, i);
+			}
 			Allocated_streams = NULL;
 		}
 
 		Plane::~Plane()
 		{
-			for (unsigned int i = 0; i < Healthy_block_no; i++)
+			for (unsigned int i = 0; i < Healthy_block_no; i++) {
 				delete Blocks[i];
+			}
 			delete[] Blocks;
 		}
 	}

@@ -70,8 +70,9 @@ namespace Utils
 		z = x / s;
 		k = (uint64_t)(z * z);
 		z = 1.0;
-		for (i = 0; i < k; i++)
+		for (i = 0; i < k; i++) {
 			z *= FloatRandom();
+		}
 		return -(x / (double) k) * log(z);
 	}
 
@@ -81,8 +82,9 @@ namespace Utils
 	*/
 	double RandomGenerator::HyperExponential(double x, double s)
 	{
-		if (s < x)
+		if (s < x) {
 			throw std::logic_error("RandomGenerator::HyperExponential: Mean must be greater than standard deviation.");
+		}
 
 		double cv, z, p;
 		cv = s / x;
@@ -99,24 +101,22 @@ namespace Utils
 	double RandomGenerator::Normal(double x, double s)
 	{
 		double v1, v2, w, z1;
-		if (Normal_z2 != 0.0)
-		{
+		if (Normal_z2 != 0.0) {
 			/* use value from previous call */
 			z1 = Normal_z2;
 			Normal_z2 = 0.0;
-		}
-		else
-		{
-			do
-			{
+		} else {
+			do {
 				v1 = 2.0 * FloatRandom() - 1.0;
 				v2 = 2.0 * FloatRandom() - 1.0;
 				w = v1 * v1 + v2 * v2;
 			} while (w >= 1.0);
+
 			w = sqrt((-2.0*log(w)) / w);
 			z1 = v1 * w;
 			Normal_z2 = v2 * w;
 		}
+
 		return x + z1 * s;
 	}
 
@@ -138,8 +138,10 @@ namespace Utils
 	{
 		double p = 1 / x;
 		int64_t i = 0;
-		while (FloatRandom() < p)
+		while (FloatRandom() < p) {
 			++i;
+		}
+
 		return i;
 	}
 
@@ -158,6 +160,7 @@ namespace Utils
 		double z = sqrtz * sqrtz;
 		double p = 0.5 * (1 - sqrt((z - 1) / (z + 1)));
 		double d = (FloatRandom() > p) ? (1 - p) : p;
+
 		return -x * log(FloatRandom()) / (2 * d);
 	}
 
@@ -169,9 +172,12 @@ namespace Utils
 	int64_t RandomGenerator::Binomial(int64_t n, double u)
 	{
 		int64_t k = 0;
-		for (long i = 0; i < n; i++)
-			if (FloatRandom() < u)
+		for (long i = 0; i < n; i++) {
+			if (FloatRandom() < u) {
 				++k;
+			}
+		}
+
 		return k;
 	}
 
@@ -184,11 +190,11 @@ namespace Utils
 		double b = exp(-x);
 		int64_t k = 0;
 		double p = 1;
-		while (p >= b)
-		{
+		while (p >= b) {
 			++k;
 			p *= FloatRandom();
 		}
+
 		return k - 1;
 	}
 
@@ -228,11 +234,10 @@ namespace Utils
 	double RandomGenerator::Triangular(double min, double middle, double max)
 	{
 		double y = FloatRandom();
-		if (y <= (middle - min) / (max - min))
-		{
+		if (y <= (middle - min) / (max - min)) {
 			return min + sqrt(y*max*middle - y*max*min - y*min*middle + y*min*min);
+		} else {
+			return max - sqrt(max*max + y*max*middle - y*max*max - y*min*middle + y*max*min - max*min - max*middle + min*middle);
 		}
-		return max -
-			sqrt(max*max + y*max*middle - y*max*max - y*min*middle + y*max*min - max*min - max*middle + min*middle);
 	}
 }

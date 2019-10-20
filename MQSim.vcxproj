@@ -44,7 +44,6 @@
     <ClCompile Include="src\ssd\Address_Mapping_Unit_Base.cpp" />
     <ClCompile Include="src\ssd\Address_Mapping_Unit_Hybrid.cpp" />
     <ClCompile Include="src\ssd\Address_Mapping_Unit_Page_Level.cpp" />
-    <ClCompile Include="src\ssd\Controller.cpp" />
     <ClCompile Include="src\ssd\Data_Cache_Flash.cpp" />
     <ClCompile Include="src\ssd\Data_Cache_Manager_Base.cpp" />
     <ClCompile Include="src\ssd\Data_Cache_Manager_Flash_Advanced.cpp" />
@@ -122,7 +121,6 @@
     <ClInclude Include="src\ssd\Address_Mapping_Unit_Base.h" />
     <ClInclude Include="src\ssd\Address_Mapping_Unit_Hybrid.h" />
     <ClInclude Include="src\ssd\Address_Mapping_Unit_Page_Level.h" />
-    <ClInclude Include="src\ssd\Controller.h" />
     <ClInclude Include="src\ssd\Data_Cache_Flash.h" />
     <ClInclude Include="src\ssd\Data_Cache_Manager_Base.h" />
     <ClInclude Include="src\ssd\Data_Cache_Manager_Flash_Advanced.h" />

@@ -15,10 +15,12 @@ namespace MQSimEngine
 			_id = id;
 			_triggersSetUp = false;
 		}
+
 		sim_object_id_type ID()
 		{
 			return this->_id;
 		}
+
 		bool IsTriggersSetUp()
 		{
 			return _triggersSetUp;
@@ -35,6 +37,7 @@ namespace MQSimEngine
 		{
 			_triggersSetUp = true;
 		}
+		
 		virtual void Execute_simulator_event(Sim_Event*) = 0;
 		 
 	private:
