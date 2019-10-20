@@ -104,12 +104,28 @@ namespace Host_Components
 			total_requests_to_be_generated = total_requests_in_file * total_replay_no;
 		}
 
+		sim_time_type curFireTime = 0;
 		trace_file.open(trace_file_path);
 		current_trace_line.clear();
 		std::getline(trace_file, trace_line);
 		Utils::Helper_Functions::Remove_cr(trace_line);
 		Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
-		Simulator->Register_sim_event(std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10), this);
+		curFireTime = std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10);
+		//convert trace time to simulator time 
+		switch(time_unit){
+			case Trace_Time_Unit::PICOSECOND:
+				curFireTime = curFireTime / PicoSec2SimTimeCoeff;
+				break;
+			case Trace_Time_Unit::NANOSECOND:
+				curFireTime = curFireTime * NanoSec2SimTimeCoeff;
+				break;
+			case Trace_Time_Unit::MICROSECOND:
+				curFireTime = curFireTime * MicroSec2SimTimeCoeff;
+				break;
+			default:
+				PRINT_ERROR("Unexpected Trace Time Unit!")
+		}
+		Simulator->Register_sim_event(curFireTime, this);
 	}
 
 	void IO_Flow_Trace_Based::Validate_simulation_config()
@@ -142,7 +158,23 @@ namespace Host_Components
 				PRINT_MESSAGE("* Replay round "<< replay_counter << "of "<< total_replay_no << " started  for" << ID())
 			}
 			char* pEnd;
-			Simulator->Register_sim_event(time_offset + std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10), this);
+			sim_time_type curFireTime = 0;
+			curFireTime = std::strtoll(current_trace_line[ASCIITraceTimeColumn].c_str(), &pEnd, 10);
+			//convert trace time to simulator time 
+			switch(time_unit){
+				case Trace_Time_Unit::PICOSECOND:
+					curFireTime = curFireTime / PicoSec2SimTimeCoeff;
+					break;
+				case Trace_Time_Unit::NANOSECOND:
+					curFireTime = curFireTime * NanoSec2SimTimeCoeff;
+					break;
+				case Trace_Time_Unit::MICROSECOND:
+					curFireTime = curFireTime * MicroSec2SimTimeCoeff;
+					break;
+				default:
+					PRINT_ERROR("Unexpected Trace Time Unit!")
+			}
+			Simulator->Register_sim_event(curFireTime, this);
 		}
 	}
 

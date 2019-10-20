@@ -17,4 +17,8 @@ enum class Trace_Time_Unit { PICOSECOND, NANOSECOND, MICROSECOND};//The unit of 
 #define ASCIILineDelimiter ' '
 #define ASCIIItemsPerLine 5
 
+#define PicoSec2SimTimeCoeff 1000
+#define NanoSec2SimTimeCoeff 1
+#define MicroSec2SimTimeCoeff 1000
+
 #endif // !ASCII_TRACE_DEFINITION_H
