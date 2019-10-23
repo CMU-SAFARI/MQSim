@@ -26,6 +26,7 @@ namespace MQSimEngine
 		if (SentinelNode != NULL)
 			delete SentinelNode;
 	}
+
 	///<summary>
 	/// Add
 	/// args: ByVal key As IComparable, ByVal data As Object
@@ -37,10 +38,11 @@ namespace MQSimEngine
 		// traverse tree - find where node belongs
 		// create new node
 		EventTreeNode* node = new EventTreeNode();
-		EventTreeNode* temp = rbTree;				// grab the rbTree node of the tree
+		// grab the rbTree node of the tree
+		EventTreeNode* temp = rbTree;
 
-		while (temp != SentinelNode)
-		{	// find Parent
+		while (temp != SentinelNode) {
+			// find Parent
 			node->Parent = temp;
 			
 			if (key > temp->Key)
@@ -57,22 +59,23 @@ namespace MQSimEngine
 		node->Right = SentinelNode;
 
 		// insert node into tree starting at parent's location
-		if (node->Parent != NULL)
-		{
-			if (node->Key > (node->Parent->Key))
+		if (node->Parent != NULL) {
+			if (node->Key > (node->Parent->Key)) {
 				node->Parent->Right = node;
-			else
+			} else {
 				node->Parent->Left = node;
+			}
+		} else {
+			// first node added
+			rbTree = node;
 		}
-		else
-			rbTree = node;					// first node added
 
-		RestoreAfterInsert(node);           // restore red-black properities
-
+		// restore red-black properities
+		RestoreAfterInsert(node);
 		lastNodeFound = node;
-
 		Count++;
 	}
+
 	///<summary>
 	/// RestoreAfterInsert
 	/// Additions to red-black trees usually destroy the red-black 
@@ -87,12 +90,13 @@ namespace MQSimEngine
 		EventTreeNode* y;
 
 		// maintain red-black tree properties after adding x
-		while (x != rbTree && x->Parent->Color == 0)
-		{
+		while (x != rbTree && x->Parent->Color == 0) {
 			// Parent node is .Colored red; 
-			if (x->Parent == x->Parent->Parent->Left)	// determine traversal path			
-			{										// is it on the Left or Right subtree?
-				y = x->Parent->Parent->Right;			// get uncle
+			// determine traversal path
+			// is it on the Left or Right subtree?
+			if (x->Parent == x->Parent->Parent->Left) {	
+				// get uncle
+				y = x->Parent->Parent->Right;
 				if (y != NULL && y->Color == 0)
 				{	// uncle is red; change x's Parent and uncle to black
 					x->Parent->Color = 1;
@@ -101,9 +105,7 @@ namespace MQSimEngine
 					// a leaf has only black children 
 					x->Parent->Parent->Color = 0;
 					x = x->Parent->Parent;	// continue loop with grandparent
-				}
-				else
-				{
+				} else {
 					// uncle is black; determine if x is greater than Parent
 					if (x == x->Parent->Right)
 					{	// yes, x is greater than Parent; rotate Left
@@ -116,22 +118,17 @@ namespace MQSimEngine
 					x->Parent->Parent->Color = 0;		// make grandparent black
 					RotateRight(x->Parent->Parent);					// rotate right
 				}
-			}
-			else
-			{	// x's Parent is on the Right subtree
+			} else {
+				// x's Parent is on the Right subtree
 				// this code is the same as above with "Left" and "Right" swapped
 				y = x->Parent->Parent->Left;
-				if (y != NULL && y->Color == 0)
-				{
+				if (y != NULL && y->Color == 0) {
 					x->Parent->Color = 1;
 					y->Color = 1;
 					x->Parent->Parent->Color = 0;
 					x = x->Parent->Parent;
-				}
-				else
-				{
-					if (x == x->Parent->Left)
-					{
+				} else {
+					if (x == x->Parent->Left) {
 						x = x->Parent;
 						RotateRight(x);
 					}
@@ -141,8 +138,11 @@ namespace MQSimEngine
 				}
 			}
 		}
-		rbTree->Color = 1;		// rbTree should always be black
+
+		// rbTree should always be black
+		rbTree->Color = 1;
 	}
+
 	///<summary>
 	/// RotateLeft
 	/// Rebalance the tree by rotating the nodes to the left
@@ -227,23 +227,24 @@ namespace MQSimEngine
 		// traverse tree until node is found
 		while (treeNode != SentinelNode)
 		{
-			if (key == treeNode->Key)
-			{
+			if (key == treeNode->Key) {
 				lastNodeFound = treeNode;
 				return treeNode->FirstSimEvent;
 			}
-			if (key < (treeNode->Key))
+			if (key < (treeNode->Key)) {
 				treeNode = treeNode->Left;
-			else
+			} else {
 				treeNode = treeNode->Right;
+			}
 		}
 		return NULL;
 	}
 
 	void EventTree::Insert_sim_event(Sim_Event* event)
 	{
-		if (event->Fire_time < Engine::Instance()->Time())
+		if (event->Fire_time < Engine::Instance()->Time()) {
 			PRINT_ERROR("Illegal request to register a simulation event before Now!")
+		}
 
 		sim_time_type key = event->Fire_time;
 		EventTreeNode* treeNode = rbTree;     // begin at root
@@ -251,16 +252,16 @@ namespace MQSimEngine
 												// traverse tree until node is found
 		while (treeNode != SentinelNode)
 		{
-			if (key == treeNode->Key)
-			{
+			if (key == treeNode->Key) {
 				treeNode->LastSimEvent->Next_event = event;
 				treeNode->LastSimEvent = event;
 				return;
 			}
-			if (key < (treeNode->Key))
+			if (key < (treeNode->Key)) {
 				treeNode = treeNode->Left;
-			else
+			} else {
 				treeNode = treeNode->Right;
+			}
 		}
 		Add(event->Fire_time, event);
 	}
@@ -280,7 +281,6 @@ namespace MQSimEngine
 	///<summary>
 	Sim_Event* EventTree::Get_min_value()
 	{
-		//			return GetData(Get_min_key());
 		return Get_min_node()->FirstSimEvent;
 	}
 
@@ -293,8 +293,9 @@ namespace MQSimEngine
 		EventTreeNode* treeNode = rbTree;
 
 		// traverse to the extreme left to find the smallest key
-		while (treeNode->Left != SentinelNode)
+		while (treeNode->Left != SentinelNode) {
 			treeNode = treeNode->Left;
+		}
 
 		lastNodeFound = treeNode;
 
@@ -432,13 +433,11 @@ namespace MQSimEngine
 					y = x->Parent->Right;
 				}
 				if (y->Left->Color == 1 &&
-					y->Right->Color == 1)
-				{	// children are both black
+					y->Right->Color == 1) {
+					// children are both black
 					y->Color = 0;		// change parent to red
 					x = x->Parent;					// move up the tree
-				}
-				else
-				{
+				} else {
 					if (y->Right->Color == 1)
 					{
 						y->Left->Color = 1;
@@ -452,27 +451,22 @@ namespace MQSimEngine
 					RotateLeft(x->Parent);
 					x = rbTree;
 				}
-			}
-			else
-			{	// right subtree - same as code above with right and left swapped
+			} else {
+				// right subtree - same as code above with right and left swapped
 				y = x->Parent->Left;
-				if (y->Color == 0)
-				{
+				if (y->Color == 0) {
 					y->Color = 1;
 					x->Parent->Color = 0;
 					RotateRight(x->Parent);
 					y = x->Parent->Left;
 				}
+
 				if (y->Right->Color == 1 &&
-					y->Left->Color == 1)
-				{
+					y->Left->Color == 1) {
 					y->Color = 0;
 					x = x->Parent;
-				}
-				else
-				{
-					if (y->Left->Color == 1)
-					{
+				} else {
+					if (y->Left->Color == 1) {
 						y->Right->Color = 1;
 						y->Color = 0;
 						RotateLeft(y);

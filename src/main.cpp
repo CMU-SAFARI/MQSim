@@ -16,8 +16,7 @@ using namespace std;
 void command_line_args(char* argv[], string& input_file_path, string& workload_file_path)
 {
 
-	for (int arg_cntr = 1; arg_cntr < 5; arg_cntr++)
-	{
+	for (int arg_cntr = 1; arg_cntr < 5; arg_cntr++) {
 		string arg = argv[arg_cntr];
 
 		char file_path_switch[] = "-i";
@@ -52,33 +51,25 @@ void read_configuration_parameters(const string ssd_config_file_path, Execution_
 		exec_params->XML_serialize(xmlwriter);
 		xmlwriter.Close();
 		PRINT_MESSAGE("[====================] Done!\n")
-	}
-	else
-	{
+	} else {
 		//Read input workload parameters
 		string line((std::istreambuf_iterator<char>(ssd_config_file)),
 			std::istreambuf_iterator<char>());
 		ssd_config_file >> line;
-		if (line.compare("USE_INTERNAL_PARAMS") != 0)
-		{
+		if (line.compare("USE_INTERNAL_PARAMS") != 0) {
 			rapidxml::xml_document<> doc;    // character type defaults to char
 			char* temp_string = new char[line.length() + 1];
 			strcpy(temp_string, line.c_str());
 			doc.parse<0>(temp_string);
 			rapidxml::xml_node<> *mqsim_config = doc.first_node("Execution_Parameter_Set");
-			if (mqsim_config != NULL)
-			{
+			if (mqsim_config != NULL) {
 				exec_params = new Execution_Parameter_Set;
 				exec_params->XML_deserialize(mqsim_config);
-			}
-			else
-			{
+			} else {
 				PRINT_MESSAGE("Error in the SSD configuration file!")
 				PRINT_MESSAGE("Using MQSim's default configuration.")
 			}
-		}
-		else
-		{
+		} else {
 			PRINT_MESSAGE("Using MQSim's default configuration.");
 			PRINT_MESSAGE("Writing the default configuration parameters to the expected configuration file.");
 
@@ -106,33 +97,24 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		PRINT_MESSAGE("Using MQSim's default workload definitions.");
 		PRINT_MESSAGE("Writing the default workload definitions to the expected workload definition file.");
 		PRINT_MESSAGE("[====================] Done!\n");
-	}
-	else
-	{
-		string line((std::istreambuf_iterator<char>(workload_defs_file)),
-			std::istreambuf_iterator<char>());
-		if (line.compare("USE_INTERNAL_PARAMS") != 0)
-		{
-			rapidxml::xml_document<> doc;    // character type defaults to char
+	} else {
+		string line((std::istreambuf_iterator<char>(workload_defs_file)), std::istreambuf_iterator<char>());
+		if (line.compare("USE_INTERNAL_PARAMS") != 0) {
+			rapidxml::xml_document<> doc;
+			// character type defaults to char
 			char* temp_string = new char[line.length() + 1];
 			strcpy(temp_string, line.c_str());
 			doc.parse<0>(temp_string);
 			rapidxml::xml_node<> *mqsim_io_scenarios = doc.first_node("MQSim_IO_Scenarios");
-			if (mqsim_io_scenarios != NULL)
-			{
-				for (auto xml_io_scenario = mqsim_io_scenarios->first_node("IO_Scenario"); xml_io_scenario; xml_io_scenario = xml_io_scenario->next_sibling("IO_Scenario"))
-				{
+			if (mqsim_io_scenarios != NULL) {
+				for (auto xml_io_scenario = mqsim_io_scenarios->first_node("IO_Scenario"); xml_io_scenario; xml_io_scenario = xml_io_scenario->next_sibling("IO_Scenario")) {
 					std::vector<IO_Flow_Parameter_Set*>* scenario_definition = new std::vector<IO_Flow_Parameter_Set*>;
-					for (auto flow_def = xml_io_scenario->first_node(); flow_def; flow_def = flow_def->next_sibling())
-					{
+					for (auto flow_def = xml_io_scenario->first_node(); flow_def; flow_def = flow_def->next_sibling()) {
 						IO_Flow_Parameter_Set* flow;
-						if (strcmp(flow_def->name(), "IO_Flow_Parameter_Set_Synthetic") == 0)
-						{
+						if (strcmp(flow_def->name(), "IO_Flow_Parameter_Set_Synthetic") == 0) {
 							flow = new IO_Flow_Parameter_Set_Synthetic;
 							((IO_Flow_Parameter_Set_Synthetic*)flow)->XML_deserialize(flow_def);
-						}
-						else if (strcmp(flow_def->name(), "IO_Flow_Parameter_Set_Trace_Based") == 0)
-						{
+						} else if (strcmp(flow_def->name(), "IO_Flow_Parameter_Set_Trace_Based") == 0) {
 							flow = new IO_Flow_Parameter_Set_Trace_Based;
 							((IO_Flow_Parameter_Set_Trace_Based*)flow)->XML_deserialize(flow_def);
 						}
@@ -141,9 +123,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 					io_scenarios->push_back(scenario_definition);
 					use_default_workloads = false;
 				}
-			} 
-			else
-			{
+			} else {
 				PRINT_MESSAGE("Error in the workload definition file!");
 				PRINT_MESSAGE("Using MQSim's default workload definitions.");
 				PRINT_MESSAGE("Writing the default workload definitions to the expected workload definition file.");
@@ -152,8 +132,7 @@ std::vector<std::vector<IO_Flow_Parameter_Set*>*>* read_workload_definitions(con
 		}
 	}
 
-	if (use_default_workloads)
-	{
+	if (use_default_workloads) {
 		std::vector<IO_Flow_Parameter_Set*>* scenario_definition = new std::vector<IO_Flow_Parameter_Set*>;
 		IO_Flow_Parameter_Set_Synthetic* io_flow_1 = new IO_Flow_Parameter_Set_Synthetic;
 		io_flow_1->Device_Level_Data_Caching_Mode = SSD_Components::Caching_Mode::WRITE_CACHE;
@@ -263,19 +242,17 @@ void collect_results(SSD_Device& ssd, Host_System& host, const char* output_file
 	xmlwriter.Write_close_tag();
 
 	std::vector<Host_Components::IO_Flow_Base*> IO_flows = host.Get_io_flows();
-	for (unsigned int stream_id = 0; stream_id < IO_flows.size(); stream_id++)
-	{
+	for (unsigned int stream_id = 0; stream_id < IO_flows.size(); stream_id++) {
 		cout << "Flow " << IO_flows[stream_id]->ID() << " - total requests generated: " << IO_flows[stream_id]->Get_generated_request_count()
 			<< " total requests serviced:" << IO_flows[stream_id]->Get_serviced_request_count() << endl;
 		cout << "                   - device response time: " << IO_flows[stream_id]->Get_device_response_time() << " (us)"
 			<< " end-to-end request delay:" << IO_flows[stream_id]->Get_end_to_end_request_delay() << " (us)" << endl;
 	}
-	//cin.get();
 }
 
 void print_help()
 {
-	cout << "MQSim - A simulator for modern NVMe and SATA SSDs developed at SAFARI group in ETH Zurich" << endl <<
+	cout << "MQSim - SSD simulator with both NVMe and SATA host interface behavior, see ReadMe.md for details" << endl <<
 		"Standalone Usage:" << endl <<
 		"./MQSim [-i path/to/config/file] [-w path/to/workload/file]" << endl;
 }
@@ -283,8 +260,7 @@ void print_help()
 int main(int argc, char* argv[])
 {
 	string ssd_config_file_path, workload_defs_file_path;
-	if (argc != 5)
-	{
+	if (argc != 5) {
 		// MQSim expects 2 arguments: 1) the path to the SSD configuration definition file, and 2) the path to the workload definition file
 		print_help();
 		return 1;
@@ -292,14 +268,12 @@ int main(int argc, char* argv[])
 
 	command_line_args(argv, ssd_config_file_path, workload_defs_file_path);
 
-	
 	Execution_Parameter_Set* exec_params = new Execution_Parameter_Set;
 	read_configuration_parameters(ssd_config_file_path, exec_params);
 	std::vector<std::vector<IO_Flow_Parameter_Set*>*>* io_scenarios = read_workload_definitions(workload_defs_file_path);
 
 	int cntr = 1;
-	for (auto io_scen = io_scenarios->begin(); io_scen != io_scenarios->end(); io_scen++, cntr++)
-	{
+	for (auto io_scen = io_scenarios->begin(); io_scen != io_scenarios->end(); io_scen++, cntr++) {
 		time_t start_time = time(0);
 		char* dt = ctime(&start_time);
 		PRINT_MESSAGE("MQSim started at " << dt)
@@ -310,8 +284,9 @@ int main(int argc, char* argv[])
 		Simulator->Reset();
 
 		exec_params->Host_Configuration.IO_Flow_Definitions.clear();
-		for (auto io_flow_def = (*io_scen)->begin(); io_flow_def != (*io_scen)->end(); io_flow_def++)
+		for (auto io_flow_def = (*io_scen)->begin(); io_flow_def != (*io_scen)->end(); io_flow_def++) {
 			exec_params->Host_Configuration.IO_Flow_Definitions.push_back(*io_flow_def);
+		}
 
 		SSD_Device ssd(&exec_params->SSD_Device_Configuration, &exec_params->Host_Configuration.IO_Flow_Definitions);//Create SSD_Device based on the specified parameters
 		exec_params->Host_Configuration.Input_file_path = workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of("."));//Create Host_System based on the specified parameters
@@ -331,6 +306,8 @@ int main(int argc, char* argv[])
 		collect_results(ssd, host, (workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of(".")) + "_scenario_" + std::to_string(cntr) + ".xml").c_str());
 	}
     cout << "Simulation complete; Press any key to exit." << endl;
-	cin.get();
+
+	cin.get(); // Disable if you prefer batch runs
+
 	return 0;
 }

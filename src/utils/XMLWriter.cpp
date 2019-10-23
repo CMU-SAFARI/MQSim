@@ -12,18 +12,19 @@ namespace Utils
 
 		outFile.open(strFile);
 		if (outFile.is_open()) {
-			//outFile << "<!--XML Document-->\n";
 			outFile << "<?xml version=\"1.0\" encoding=\"us-ascii\"?>\n";
 			indent = 0;
 			openTags = 0;
 			openElements = 0;
+
 			return true;
 		}
 
 		return false;
 	}
 	
-	void XmlWriter::Close() {
+	void XmlWriter::Close()
+	{
 		if (outFile.is_open()) {
 			outFile.close();
 		}
@@ -39,8 +40,7 @@ namespace Utils
 			tempOpenTag[openTags] = openTag;
 			indent += 1;
 			openTags += 1;
-		}
-		else {
+		} else {
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
@@ -48,12 +48,12 @@ namespace Utils
 	void XmlWriter::Write_attribute_string(const std::string attribute_name, const std::string attribute_value)
 	{
 		if (outFile.is_open()) {
-			for (int i = 0; i < indent + 1; i++)
+			for (int i = 0; i < indent + 1; i++) {
 				outFile << "\t";
+			}
 
 			outFile << " <" << attribute_name + ">" + attribute_value + "</" << attribute_name + ">\n";
-		}
-		else {
+		} else {
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
@@ -67,8 +67,7 @@ namespace Utils
 			outFile << "</" << tempOpenTag[openTags - 1] << ">\n";
 			tempOpenTag.resize(openTags - 1);
 			openTags -= 1;
-		}
-		else {
+		} else {
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
@@ -82,30 +81,27 @@ namespace Utils
 			tempElementTag[openElements] = elementTag;
 			openElements += 1;
 			outFile << "<" << elementTag;
-		}
-		else
-		{
+		} else {
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
 
-	void XmlWriter::Write_end_element_tag() {
+	void XmlWriter::Write_end_element_tag()
+	{
 		if (outFile.is_open()) {
 			outFile << "/>\n";
-			//outFile << "</" << tempElementTag[openElements - 1] << ">\n";
 			tempElementTag.resize(openElements - 1);
 			openElements -= 1;
-		}
-		else {
+		} else {
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
 
-	void XmlWriter::Write_attribute(const std::string outAttribute) {
+	void XmlWriter::Write_attribute(const std::string outAttribute)
+	{
 		if (outFile.is_open()) {
 			outFile << " " << outAttribute;
-		}
-		else {
+		} else {
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
@@ -115,17 +111,16 @@ namespace Utils
 		if (outFile.is_open()) {
 			outFile << " ";
 			outFile << attribute_name + "=\"" + attribute_value + "\"";
-		}
-		else {
+		} else {
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}
 
-	void XmlWriter::Write_string(const std::string outString) {
+	void XmlWriter::Write_string(const std::string outString)
+	{
 		if (outFile.is_open()) {
 			outFile << ">" << outString;
-		}
-		else {
+		} else {
 			PRINT_ERROR("The XML output file is closed. Unable to write to file");
 		}
 	}

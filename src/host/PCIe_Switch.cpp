@@ -4,7 +4,8 @@ namespace Host_Components
 {
 	PCIe_Switch::PCIe_Switch(PCIe_Link* pcie_link, SSD_Components::Host_Interface_Base* host_interface) :
 		pcie_link(pcie_link), host_interface(host_interface)
-	{}
+	{
+	}
 
 	void PCIe_Switch::Deliver_to_device(PCIe_Message* message)
 	{

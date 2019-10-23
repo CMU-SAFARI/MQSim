@@ -16,8 +16,9 @@ namespace SSD_Components {
 	void NVM_PHY_ONFI::broadcastTransactionServicedSignal(NVM_Transaction_Flash* transaction)
 	{
 		for (std::vector<TransactionServicedHandlerType>::iterator it = connectedTransactionServicedHandlers.begin();
-			it != connectedTransactionServicedHandlers.end(); it++)
+			it != connectedTransactionServicedHandlers.end(); it++) {
 			(*it)(transaction);
+		}
 		delete transaction;//This transaction has been consumed and no more needed
 	}
 
@@ -29,8 +30,9 @@ namespace SSD_Components {
 	void NVM_PHY_ONFI::broadcastChannelIdleSignal(flash_channel_ID_type channelID)
 	{
 		for (std::vector<ChannelIdleHandlerType>::iterator it = connectedChannelIdleHandlers.begin();
-			it != connectedChannelIdleHandlers.end(); it++)
+			it != connectedChannelIdleHandlers.end(); it++) {
 			(*it)(channelID);
+		}
 	}
 
 	void NVM_PHY_ONFI::ConnectToChipIdleSignal(ChipIdleHandlerType function)
@@ -41,7 +43,8 @@ namespace SSD_Components {
 	void NVM_PHY_ONFI::broadcastChipIdleSignal(NVM::FlashMemory::Flash_Chip* chip)
 	{
 		for (std::vector<ChipIdleHandlerType>::iterator it = connectedChipIdleHandlers.begin();
-			it != connectedChipIdleHandlers.end(); it++)
+			it != connectedChipIdleHandlers.end(); it++) {
 			(*it)(chip);
+		}
 	}
 }
