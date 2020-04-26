@@ -118,9 +118,6 @@
     <ClCompile Include="src\ssd\Address_Mapping_Unit_Page_Level.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
-    <ClCompile Include="src\ssd\Controller.cpp">
-      <Filter>ssd</Filter>
-    </ClCompile>
     <ClCompile Include="src\ssd\Data_Cache_Flash.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
@@ -203,6 +200,9 @@
       <Filter>ssd</Filter>
     </ClCompile>
     <ClCompile Include="src\ssd\TSU_OutofOrder.cpp">
+      <Filter>ssd</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ssd\TSU_Priority_OutofOrder.cpp">
       <Filter>ssd</Filter>
     </ClCompile>
     <ClCompile Include="src\ssd\User_Request.cpp">
@@ -366,9 +366,6 @@
     <ClInclude Include="src\ssd\Address_Mapping_Unit_Page_Level.h">
       <Filter>ssd</Filter>
     </ClInclude>
-    <ClInclude Include="src\ssd\Controller.h">
-      <Filter>ssd</Filter>
-    </ClInclude>
     <ClInclude Include="src\ssd\Data_Cache_Flash.h">
       <Filter>ssd</Filter>
     </ClInclude>
@@ -465,11 +462,17 @@
     <ClInclude Include="src\ssd\TSU_OutofOrder.h">
       <Filter>ssd</Filter>
     </ClInclude>
+    <ClInclude Include="src\ssd\TSU_Priority_OutofOrder.h">
+      <Filter>ssd</Filter>
+    </ClInclude>
     <ClInclude Include="src\ssd\User_Request.h">
       <Filter>ssd</Filter>
     </ClInclude>
     <ClInclude Include="src\host\SATA_HBA.h">
       <Filter>host</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ssd\Host_Interface_NVMe_Priorities.h">
+      <Filter>ssd</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
