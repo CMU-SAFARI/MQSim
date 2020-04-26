@@ -354,7 +354,6 @@ namespace SSD_Components
 
 	void Data_Cache_Manager_Flash_Advanced::handle_transaction_serviced_signal_from_PHY(NVM_Transaction_Flash* transaction)
 	{
-		unsigned int cache_eviction_read_size_in_sectors = 0;
 		//First check if the transaction source is a user request or the cache itself
 		if (transaction->Source != Transaction_Source_Type::USERIO && transaction->Source != Transaction_Source_Type::CACHE) {
 			return;
@@ -410,10 +409,11 @@ namespace SSD_Components
 								transfer_info->Related_request = evicted_cache_slots;
 								transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_EVICTION_FINISHED;
 								transfer_info->Stream_id = transaction->Stream_id;
-								cache_eviction_read_size_in_sectors += count_sector_no_from_status_bitmap(evicted_slot.State_bitmap_of_existing_sectors);
+								unsigned int cache_eviction_read_size_in_sectors = count_sector_no_from_status_bitmap(evicted_slot.State_bitmap_of_existing_sectors);
 								int sharing_id = transaction->Stream_id;
-								if (((Data_Cache_Manager_Flash_Advanced*)_my_instance)->shared_dram_request_queue)
-								sharing_id = 0;
+								if (((Data_Cache_Manager_Flash_Advanced*)_my_instance)->shared_dram_request_queue) {
+									sharing_id = 0;
+								}
 								((Data_Cache_Manager_Flash_Advanced*)_my_instance)->back_pressure_buffer_depth[sharing_id] += cache_eviction_read_size_in_sectors;
 								((Data_Cache_Manager_Flash_Advanced*)_my_instance)->service_dram_access_request(transfer_info);
 							}
