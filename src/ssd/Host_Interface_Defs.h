@@ -2,8 +2,9 @@
 #define NVME_DEFINITIONS_H
 
 #include <cstdint>
+#include <string>
+#include "Host_Interface_NVMe_Priorities.h"
 
-enum class IO_Flow_Priority_Class { URGENT = 1, HIGH = 2, MEDIUM = 3, LOW = 4};
 enum class HostInterface_Types { SATA, NVME };
 
 #define NVME_FLUSH_OPCODE 0x0000

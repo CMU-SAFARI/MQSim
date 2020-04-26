@@ -263,6 +263,9 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 		case SSD_Components::Flash_Scheduling_Type::OUT_OF_ORDER:
 			val = "OUT_OF_ORDER";
 			break;
+		case SSD_Components::Flash_Scheduling_Type::PRIORITY_OUT_OF_ORDER:
+			val = "PRIORITY_OUT_OF_ORDER";
+			break;
 		case SSD_Components::Flash_Scheduling_Type::FLIN:
 			val = "FLIN";
 			break;
@@ -533,7 +536,13 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				if (strcmp(val.c_str(), "OUT_OF_ORDER") == 0) {
 					Transaction_Scheduling_Policy = SSD_Components::Flash_Scheduling_Type::OUT_OF_ORDER;
-				} else if (strcmp(val.c_str(), "FLIN") == 0) {
+				}
+				else if (strcmp(val.c_str(), "PRIORITY_OUT_OF_ORDER") == 0)
+				{
+					Transaction_Scheduling_Policy = SSD_Components::Flash_Scheduling_Type::PRIORITY_OUT_OF_ORDER;
+				}
+				else if (strcmp(val.c_str(), "FLIN") == 0)
+				{
 					Transaction_Scheduling_Policy = SSD_Components::Flash_Scheduling_Type::FLIN;
 				} else {
 					PRINT_ERROR("Unknown transaction scheduling type specified in the SSD configuration file")

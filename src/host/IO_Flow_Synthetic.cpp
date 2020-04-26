@@ -5,55 +5,60 @@
 
 namespace Host_Components
 {
-	IO_Flow_Synthetic::IO_Flow_Synthetic(const sim_object_id_type& name, uint16_t flow_id,
-		LHA_type start_lsa_on_device, LHA_type end_lsa_on_device, double working_set_ratio, uint16_t io_queue_id,
-		uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class priority_class,
-		double read_ratio, Utils::Address_Distribution_Type address_distribution, double hot_region_ratio,
-		Utils::Request_Size_Distribution_Type request_size_distribution, unsigned int average_request_size, unsigned int variance_request_size,
-		Utils::Request_Generator_Type generator_type, sim_time_type Average_inter_arrival_time_nano_sec, unsigned int average_number_of_enqueued_requests,
-		bool generate_aligned_addresses, unsigned int alignment_value,
-		int seed, sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_req_count, HostInterface_Types SSD_device_type, PCIe_Root_Complex* pcie_root_complex, SATA_HBA* sata_hba,
-		bool enabled_logging, sim_time_type logging_period, std::string logging_file_path) :
-		IO_Flow_Base(name, flow_id, start_lsa_on_device, LHA_type(start_lsa_on_device + (end_lsa_on_device - start_lsa_on_device) * working_set_ratio), io_queue_id, nvme_submission_queue_size, nvme_completion_queue_size, priority_class, stop_time, initial_occupancy_ratio, total_req_count, SSD_device_type, pcie_root_complex, sata_hba, enabled_logging, logging_period, logging_file_path),
-		read_ratio(read_ratio), address_distribution(address_distribution),
-		working_set_ratio(working_set_ratio), hot_region_ratio(hot_region_ratio),
-		request_size_distribution(request_size_distribution), average_request_size(average_request_size), variance_request_size(variance_request_size),
-		generator_type(generator_type), Average_inter_arrival_time_nano_sec(Average_inter_arrival_time_nano_sec), average_number_of_enqueued_requests(average_number_of_enqueued_requests),
-		seed(seed), generate_aligned_addresses(generate_aligned_addresses), alignment_value(alignment_value)
+IO_Flow_Synthetic::IO_Flow_Synthetic(const sim_object_id_type &name, uint16_t flow_id,
+									 LHA_type start_lsa_on_device, LHA_type end_lsa_on_device, double working_set_ratio, uint16_t io_queue_id,
+									 uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class::Priority priority_class,
+									 double read_ratio, Utils::Address_Distribution_Type address_distribution, double hot_region_ratio,
+									 Utils::Request_Size_Distribution_Type request_size_distribution, unsigned int average_request_size, unsigned int variance_request_size,
+									 Utils::Request_Generator_Type generator_type, sim_time_type Average_inter_arrival_time_nano_sec, unsigned int average_number_of_enqueued_requests,
+									 bool generate_aligned_addresses, unsigned int alignment_value,
+									 int seed, sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_req_count, HostInterface_Types SSD_device_type, PCIe_Root_Complex *pcie_root_complex, SATA_HBA *sata_hba,
+									 bool enabled_logging, sim_time_type logging_period, std::string logging_file_path) : IO_Flow_Base(name, flow_id, start_lsa_on_device, LHA_type(start_lsa_on_device + (end_lsa_on_device - start_lsa_on_device) * working_set_ratio), io_queue_id, nvme_submission_queue_size, nvme_completion_queue_size, priority_class, stop_time, initial_occupancy_ratio, total_req_count, SSD_device_type, pcie_root_complex, sata_hba, enabled_logging, logging_period, logging_file_path),
+																														  read_ratio(read_ratio), address_distribution(address_distribution),
+																														  working_set_ratio(working_set_ratio), hot_region_ratio(hot_region_ratio),
+																														  request_size_distribution(request_size_distribution), average_request_size(average_request_size), variance_request_size(variance_request_size),
+																														  generator_type(generator_type), Average_inter_arrival_time_nano_sec(Average_inter_arrival_time_nano_sec), average_number_of_enqueued_requests(average_number_of_enqueued_requests),
+																														  seed(seed), generate_aligned_addresses(generate_aligned_addresses), alignment_value(alignment_value)
+{
+	//If read ratio is 0, then we change its value to a negative one so that in request generation we never generate a read request
+	if (read_ratio == 0.0)
 	{
-		//If read ratio is 0, then we change its value to a negative one so that in request generation we never generate a read request
-		if (read_ratio == 0.0) {
-			read_ratio = -1.0;
-		}
-		random_request_type_generator_seed = seed++;
-		random_request_type_generator = new Utils::RandomGenerator(random_request_type_generator_seed);
-		random_address_generator_seed = seed++;
-		random_address_generator = new Utils::RandomGenerator(random_address_generator_seed);
-		if (this->start_lsa_on_device > this->end_lsa_on_device) {
-			throw std::logic_error("Problem in IO Flow Synthetic, the start LBA address is greater than the end LBA address");
-		}
+		read_ratio = -1.0;
+	}
+	random_request_type_generator_seed = seed++;
+	random_request_type_generator = new Utils::RandomGenerator(random_request_type_generator_seed);
+	random_address_generator_seed = seed++;
+	random_address_generator = new Utils::RandomGenerator(random_address_generator_seed);
+	if (this->start_lsa_on_device > this->end_lsa_on_device)
+	{
+		throw std::logic_error("Problem in IO Flow Synthetic, the start LBA address is greater than the end LBA address");
+	}
 
-		if (address_distribution == Utils::Address_Distribution_Type::RANDOM_HOTCOLD) {
-			random_hot_address_generator_seed = seed++;
-			random_hot_address_generator = new Utils::RandomGenerator(random_hot_address_generator_seed);
-			random_hot_cold_generator_seed = seed++;
-			random_hot_cold_generator = new Utils::RandomGenerator(random_hot_cold_generator_seed);
-			hot_region_end_lsa = this->start_lsa_on_device + (LHA_type)((double)(this->end_lsa_on_device - this->start_lsa_on_device) * hot_region_ratio);
-		}
+	if (address_distribution == Utils::Address_Distribution_Type::RANDOM_HOTCOLD)
+	{
+		random_hot_address_generator_seed = seed++;
+		random_hot_address_generator = new Utils::RandomGenerator(random_hot_address_generator_seed);
+		random_hot_cold_generator_seed = seed++;
+		random_hot_cold_generator = new Utils::RandomGenerator(random_hot_cold_generator_seed);
+		hot_region_end_lsa = this->start_lsa_on_device + (LHA_type)((double)(this->end_lsa_on_device - this->start_lsa_on_device) * hot_region_ratio);
+	}
 
-		if (request_size_distribution == Utils::Request_Size_Distribution_Type::NORMAL) {
-			random_request_size_generator_seed = seed++;
-			random_request_size_generator = new Utils::RandomGenerator(random_request_size_generator_seed);
-		}
+	if (request_size_distribution == Utils::Request_Size_Distribution_Type::NORMAL)
+	{
+		random_request_size_generator_seed = seed++;
+		random_request_size_generator = new Utils::RandomGenerator(random_request_size_generator_seed);
+	}
 
-		if (generator_type == Utils::Request_Generator_Type::BANDWIDTH) {
-			random_time_interval_generator_seed = seed++;
-			random_time_interval_generator = new Utils::RandomGenerator(random_time_interval_generator_seed);
-		}
+	if (generator_type == Utils::Request_Generator_Type::BANDWIDTH)
+	{
+		random_time_interval_generator_seed = seed++;
+		random_time_interval_generator = new Utils::RandomGenerator(random_time_interval_generator_seed);
+	}
 
-		if (this->working_set_ratio == 0) {
-			PRINT_ERROR("The working set ratio is set to zero for workload " << name)
-		}
+	if (this->working_set_ratio == 0)
+	{
+		PRINT_ERROR("The working set ratio is set to zero for workload " << name)
+	}
 	}
 
 	IO_Flow_Synthetic::~IO_Flow_Synthetic()
