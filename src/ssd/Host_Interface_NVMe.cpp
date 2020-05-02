@@ -174,9 +174,9 @@ void Input_Stream_Manager_NVMe::segment_user_request(User_Request *user_request)
 	unsigned int req_size = user_request->SizeInSectors;
 
 	page_status_type access_status_bitmap = 0;
-	unsigned int hanled_sectors_count = 0;
+	unsigned int handled_sectors_count = 0;
 	unsigned int transaction_size = 0;
-	while (hanled_sectors_count < req_size)
+	while (handled_sectors_count < req_size)
 	{
 		//Check if LSA is in the correct range allocted to the stream
 		if (lsa < ((Input_Stream_NVMe *)input_streams[user_request->Stream_id])->Start_logical_sector_address || lsa > ((Input_Stream_NVMe *)input_streams[user_request->Stream_id])->End_logical_sector_address)
@@ -186,9 +186,9 @@ void Input_Stream_Manager_NVMe::segment_user_request(User_Request *user_request)
 		LHA_type internal_lsa = lsa - ((Input_Stream_NVMe *)input_streams[user_request->Stream_id])->Start_logical_sector_address; //For each flow, all lsa's should be translated into a range starting from zero
 
 		transaction_size = host_interface->sectors_per_page - (unsigned int)(lsa % host_interface->sectors_per_page);
-		if (hanled_sectors_count + transaction_size >= req_size)
+		if (handled_sectors_count + transaction_size >= req_size)
 		{
-			transaction_size = req_size - hanled_sectors_count;
+			transaction_size = req_size - handled_sectors_count;
 		}
 		LPA_type lpa = internal_lsa / host_interface->sectors_per_page;
 
@@ -211,7 +211,7 @@ void Input_Stream_Manager_NVMe::segment_user_request(User_Request *user_request)
 		}
 
 		lsa = lsa + transaction_size;
-		hanled_sectors_count += transaction_size;
+		handled_sectors_count += transaction_size;
 	}
 }
 
