@@ -132,9 +132,9 @@ namespace SSD_Components
 		unsigned int req_size = user_request->SizeInSectors;
 
 		page_status_type access_status_bitmap = 0;
-		unsigned int hanled_sectors_count = 0;
+		unsigned int handled_sectors_count = 0;
 		unsigned int transaction_size = 0;
-		while (hanled_sectors_count < req_size) {
+		while (handled_sectors_count < req_size) {
 			//Check if LSA is in the correct range allocted to the stream
 			if (lsa < ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Start_logical_sector_address || lsa >((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->End_logical_sector_address) {
 				lsa = ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Start_logical_sector_address
@@ -143,8 +143,8 @@ namespace SSD_Components
 			LHA_type internal_lsa = lsa - ((Input_Stream_SATA*)input_streams[SATA_STREAM_ID])->Start_logical_sector_address;//For each flow, all lsa's should be translated into a range starting from zero
 
 			transaction_size = host_interface->sectors_per_page - (unsigned int)(lsa % host_interface->sectors_per_page);
-			if (hanled_sectors_count + transaction_size >= req_size) {
-				transaction_size = req_size - hanled_sectors_count;
+			if (handled_sectors_count + transaction_size >= req_size) {
+				transaction_size = req_size - handled_sectors_count;
 			}
 			LPA_type lpa = internal_lsa / host_interface->sectors_per_page;
 
@@ -164,7 +164,7 @@ namespace SSD_Components
 			}
 
 			lsa = lsa + transaction_size;
-			hanled_sectors_count += transaction_size;
+			handled_sectors_count += transaction_size;
 		}
 	}
 
@@ -198,29 +198,29 @@ namespace SSD_Components
 		{
 			case DMA_Req_Type::REQUEST_INFO:
 			{
-				User_Request* new_reqeust = new User_Request;
-				new_reqeust->IO_command_info = payload;
-				new_reqeust->Stream_id = (stream_id_type)((uint64_t)(dma_req_item->object));
-				new_reqeust->STAT_InitiationTime = Simulator->Time();
+				User_Request* new_request = new User_Request;
+				new_request->IO_command_info = payload;
+				new_request->Stream_id = (stream_id_type)((uint64_t)(dma_req_item->object));
+				new_request->STAT_InitiationTime = Simulator->Time();
 				Submission_Queue_Entry* sqe = (Submission_Queue_Entry*)payload;
 				switch (sqe->Opcode)
 				{
 					case SATA_READ_OPCODE:
-						new_reqeust->Type = UserRequestType::READ;
-						new_reqeust->Start_LBA = ((LHA_type)sqe->Command_specific[1]) << 31 | (LHA_type)sqe->Command_specific[0];//Command Dword 10 and Command Dword 11
-						new_reqeust->SizeInSectors = sqe->Command_specific[2] & (LHA_type)(0x0000ffff);
-						new_reqeust->Size_in_byte = new_reqeust->SizeInSectors * SECTOR_SIZE_IN_BYTE;
+						new_request->Type = UserRequestType::READ;
+						new_request->Start_LBA = ((LHA_type)sqe->Command_specific[1]) << 31 | (LHA_type)sqe->Command_specific[0];//Command Dword 10 and Command Dword 11
+						new_request->SizeInSectors = sqe->Command_specific[2] & (LHA_type)(0x0000ffff);
+						new_request->Size_in_byte = new_request->SizeInSectors * SECTOR_SIZE_IN_BYTE;
 						break;
 					case SATA_WRITE_OPCODE:
-						new_reqeust->Type = UserRequestType::WRITE;
-						new_reqeust->Start_LBA = ((LHA_type)sqe->Command_specific[1]) << 31 | (LHA_type)sqe->Command_specific[0];//Command Dword 10 and Command Dword 11
-						new_reqeust->SizeInSectors = sqe->Command_specific[2] & (LHA_type)(0x0000ffff);
-						new_reqeust->Size_in_byte = new_reqeust->SizeInSectors * SECTOR_SIZE_IN_BYTE;
+						new_request->Type = UserRequestType::WRITE;
+						new_request->Start_LBA = ((LHA_type)sqe->Command_specific[1]) << 31 | (LHA_type)sqe->Command_specific[0];//Command Dword 10 and Command Dword 11
+						new_request->SizeInSectors = sqe->Command_specific[2] & (LHA_type)(0x0000ffff);
+						new_request->Size_in_byte = new_request->SizeInSectors * SECTOR_SIZE_IN_BYTE;
 						break;
 					default:
 						throw std::invalid_argument("SATA command is not supported!");
 				}
-				((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Handle_new_arrived_request(new_reqeust);
+				((Input_Stream_Manager_SATA*)(hi->input_stream_manager))->Handle_new_arrived_request(new_request);
 				break;
 			}
 			case DMA_Req_Type::WRITE_DATA:

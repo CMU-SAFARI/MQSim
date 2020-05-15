@@ -180,7 +180,7 @@ void IO_Flow_Trace_Based::Get_statistics(Utils::Workload_Statistics &stats, LPA_
 		stats.Write_size_histogram.push_back(0);
 		stats.Read_size_histogram.push_back(0);
 	}
-	stats.Total_generated_reqeusts = 0;
+	stats.Total_generated_requests = 0;
 	stats.Total_accessed_lbas = 0;
 
 	std::ifstream trace_file_temp;
@@ -325,11 +325,11 @@ void IO_Flow_Trace_Based::Get_statistics(Utils::Workload_Statistics &stats, LPA_
 				stats.Read_size_histogram[(unsigned int)MAX_REQSIZE_HISTOGRAM_ITEMS]++;
 			}
 		}
-		stats.Total_generated_reqeusts++;
+		stats.Total_generated_requests++;
 	}
 	trace_file_temp.close();
-	stats.Average_request_size_sector = (unsigned int)(sum_request_size / stats.Total_generated_reqeusts);
-	stats.Average_inter_arrival_time_nano_sec = sum_inter_arrival / stats.Total_generated_reqeusts;
+	stats.Average_request_size_sector = (unsigned int)(sum_request_size / stats.Total_generated_requests);
+	stats.Average_inter_arrival_time_nano_sec = sum_inter_arrival / stats.Total_generated_requests;
 
 	stats.Initial_occupancy_ratio = initial_occupancy_ratio;
 	stats.Replay_no = total_replay_no;

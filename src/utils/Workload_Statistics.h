@@ -30,7 +30,7 @@ namespace Utils
 		stream_id_type Stream_id;
 		double Initial_occupancy_ratio;//Ratio of the logical storage space that is fill with data in steady-state
 		unsigned int Replay_no;
-		unsigned int Total_generated_reqeusts;
+		unsigned int Total_generated_requests;
 
 		int random_request_type_generator_seed;
 		double Read_ratio;

@@ -282,23 +282,23 @@ namespace SSD_Components
 						start_LBA -= start_LBA % stat->alignment_value;
 
 
-					unsigned int hanled_sectors_count = 0;
+					unsigned int handled_sectors_count = 0;
 					LHA_type lsa = start_LBA - min_lha;
 					unsigned int transaction_size = 0;
 					page_status_type access_status_bitmap = 0;
 					LPA_type max_lpa_within_device = Convert_host_logical_address_to_device_address(stat->Max_LHA) - Convert_host_logical_address_to_device_address(stat->Min_LHA);
-					while (hanled_sectors_count < size)
+					while (handled_sectors_count < size)
 					{
 						transaction_size = page_size_in_sectors - (unsigned int)(lsa % page_size_in_sectors);
-						if (hanled_sectors_count + transaction_size >= size)
+						if (handled_sectors_count + transaction_size >= size)
 						{
-							transaction_size = size - hanled_sectors_count;
+							transaction_size = size - handled_sectors_count;
 						}
 						LPA_type lpa = Convert_host_logical_address_to_device_address(lsa);
 						page_status_type access_status_bitmap = Find_NVM_subunit_access_bitmap(lsa);
 
 						lsa = lsa + transaction_size;
-						hanled_sectors_count += transaction_size;
+						handled_sectors_count += transaction_size;
 
 						if (lpa_set_for_preconditioning.find(lpa) == lpa_set_for_preconditioning.end()) {
 							lpa_set_for_preconditioning[lpa] = access_status_bitmap;
@@ -399,18 +399,18 @@ namespace SSD_Components
 				//Step 1-4: If both read and write LPAs are not enough for preconditioning flash storage space, then fill the remaining space
 				while (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate) {
 					start_LHA = random_address_generator->Uniform_ulong(min_lha, max_lha);
-					unsigned int hanled_sectors_count = 0;
+					unsigned int handled_sectors_count = 0;
 					LHA_type lsa = start_LHA;
 					unsigned int transaction_size = 0;
-					while (hanled_sectors_count < size) {
+					while (handled_sectors_count < size) {
 						if (lsa < min_lha || lsa > max_lha) {
 							lsa = min_lha + (lsa % (max_lha - min_lha + 1));
 						}
 						LHA_type internal_lsa = lsa - min_lha;
 
 						transaction_size = page_size_in_sectors - (unsigned int)(internal_lsa % page_size_in_sectors);
-						if (hanled_sectors_count + transaction_size >= size) {
-							transaction_size = size - hanled_sectors_count;
+						if (handled_sectors_count + transaction_size >= size) {
+							transaction_size = size - handled_sectors_count;
 						}
 
 						LPA_type lpa = Convert_host_logical_address_to_device_address(internal_lsa);
@@ -423,7 +423,7 @@ namespace SSD_Components
 						}
 
 						lsa = lsa + transaction_size;
-						hanled_sectors_count += transaction_size;
+						handled_sectors_count += transaction_size;
 					}
 				}
 			}//else of if (stat->Type == Utils::Workload_Type::SYNTHETIC)
