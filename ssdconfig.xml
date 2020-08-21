@@ -66,5 +66,11 @@
 			<Page_Capacity>8192</Page_Capacity>
 			<Page_Metadat_Capacity>448</Page_Metadat_Capacity>
 		</Flash_Parameter_Set>
+		<Zone>
+			<Zone_Size> </Zone_Size>
+			<Channel_No_Per_Zone></Channel_No_Per_Zone>
+			<Chip_No_Per_Zone></Chip_No_Per_Zone>
+			<Plane_No_Per_Zone></Plane_No_Per_Zone>
+		</Zone>
 	</Device_Parameter_Set>
 </Execution_Parameter_Set>
