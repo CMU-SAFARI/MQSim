@@ -171,12 +171,16 @@ namespace SSD_Components
 
 	sim_time_type Queue_Probe::AvgWaitingTime()
 	{
-		return (sim_time_type)((double)totalWaitingTime / (double)(nDepartures * 1000));//convert nano-seconds to micro-seconds
+		if(nDepartures)
+			return (sim_time_type)((double)totalWaitingTime / (double)(nDepartures * 1000));//convert nano-seconds to micro-seconds
+		return 0;
 	}
 
 	sim_time_type Queue_Probe::AvgWaitingTimeEpoch()
 	{
-		return (sim_time_type)((double)totalWaitingTimeEpoch / (double)(nDeparturesEpoch * 1000));
+		if(nDeparturesEpoch)
+			return (sim_time_type)((double)totalWaitingTimeEpoch / (double)(nDeparturesEpoch * 1000));
+		return 0;
 	}
 
 	sim_time_type Queue_Probe::TotalWaitingTime()
