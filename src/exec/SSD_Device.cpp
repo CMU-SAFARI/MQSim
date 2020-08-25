@@ -27,6 +27,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 
 	device->Preconditioning_required = parameters->Enabled_Preconditioning;
 	device->Memory_Type = parameters->Memory_Type;
+	device->Support_Zone = parameters->Support_Zone;
 
 	switch (Memory_Type)
 	{
@@ -109,6 +110,14 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 		}
 		delete[] read_latencies;
 		delete[] write_latencies;
+
+		//Setps 3.5: if the device support "Zone", it should have another mapping table for zones
+		if (this->Support_Zone)
+		{
+			std::cout << "NYSONG!!!" << std::endl;
+			// TODO!!
+		} 
+
 
 		//Steps 4 - 8: create FTL components and connect them together
 		SSD_Components::FTL *ftl = new SSD_Components::FTL(device->ID() + ".FTL", NULL, parameters->Flash_Channel_Count,

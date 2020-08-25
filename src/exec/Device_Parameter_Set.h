@@ -12,11 +12,13 @@
 #include "../nvm_chip/NVM_Types.h"
 #include "Parameter_Set_Base.h"
 #include "Flash_Parameter_Set.h"
+#include "Zone_Parameter_Set.h"
 
 class Device_Parameter_Set : public Parameter_Set_Base
 {
 public:
 	static int Seed;//Seed for random number generation (used in device's random number generators)
+	static bool Support_Zone;
 	static bool Enabled_Preconditioning;
 	static NVM::NVM_Type Memory_Type;
 	static HostInterface_Types HostInterface_Type;
@@ -55,6 +57,7 @@ public:
 	static unsigned int Chip_No_Per_Channel;
 	static SSD_Components::ONFI_Protocol Flash_Comm_Protocol;
 	static Flash_Parameter_Set Flash_Parameters;
+	static Zone_Parameter_Set Zone_Paramters;
 	void XML_serialize(Utils::XmlWriter& xmlwriter);
 	void XML_deserialize(rapidxml::xml_node<> *node);
 };

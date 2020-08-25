@@ -4,6 +4,7 @@
 
 
 int Device_Parameter_Set::Seed = 123;//Seed for random number generation (used in device's random number generators)
+bool Device_Parameter_Set::Support_Zone = true;
 bool Device_Parameter_Set::Enabled_Preconditioning = true;
 NVM::NVM_Type Device_Parameter_Set::Memory_Type = NVM::NVM_Type::FLASH;
 HostInterface_Types Device_Parameter_Set::HostInterface_Type = HostInterface_Types::NVME;
@@ -42,6 +43,7 @@ unsigned int Device_Parameter_Set::Channel_Transfer_Rate = 300;//MT/s
 unsigned int Device_Parameter_Set::Chip_No_Per_Channel = 4;
 SSD_Components::ONFI_Protocol Device_Parameter_Set::Flash_Comm_Protocol = SSD_Components::ONFI_Protocol::NVDDR2;
 Flash_Parameter_Set Device_Parameter_Set::Flash_Parameters;
+Zone_Parameter_Set Device_Parameter_Set::Zone_Paramters;
 
 void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 {
@@ -51,6 +53,10 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 
 	std::string attr = "Seed";
 	std::string val = std::to_string(Seed);
+	xmlwriter.Write_attribute_string(attr, val);
+
+	attr = "Support_Zone";
+	val = (Support_Zone ? "true" : "false");
 	xmlwriter.Write_attribute_string(attr, val);
 
 	attr = "Enabled_Preconditioning";
@@ -382,6 +388,10 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			if (strcmp(param->name(), "Seed") == 0) {
 				std::string val = param->value();
 				Seed = std::stoi(val);
+			} else if (strcmp(param->name(), "Support_Zone") == 0) {
+				std::string val = param->value();
+				std::transform(val.begin(), val.end(), val.end(), ::toupper);
+				Support_Zone = (val.compare("FALSE") == 0 ? false : true);
 			} else if (strcmp(param->name(), "Enabled_Preconditioning") == 0) {
 				std::string val = param->value();
 				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
@@ -629,6 +639,10 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			else if (strcmp(param->name(), "Flash_Parameter_Set") == 0)
 			{
 				Flash_Parameters.XML_deserialize(param);
+			}
+			else if (strcmp(param->name(), "Zone_Parameter_set") == 0) 
+			{
+				Zone_Paramters.XML_deserialize(param);
 			}
 		}
 	}

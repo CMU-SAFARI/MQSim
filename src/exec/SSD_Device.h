@@ -32,6 +32,7 @@ public:
 	SSD_Device(Device_Parameter_Set* parameters, std::vector<IO_Flow_Parameter_Set*>* io_flows);
 	~SSD_Device();
 	bool Preconditioning_required;
+	bool Support_Zone;
 	NVM::NVM_Type Memory_Type;
 	SSD_Components::Host_Interface_Base *Host_interface;
 	SSD_Components::Data_Cache_Manager_Base *Cache_manager;

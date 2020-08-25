@@ -9,6 +9,7 @@
 	</Host_Parameter_Set>
 	<Device_Parameter_Set>
 		<Seed>321</Seed>
+		<Support_Zone>true</Support_Zone>
 		<Enabled_Preconditioning>false</Enabled_Preconditioning>
 		<Memory_Type>FLASH</Memory_Type>
 		<HostInterface_Type>NVME</HostInterface_Type>
@@ -66,11 +67,14 @@
 			<Page_Capacity>8192</Page_Capacity>
 			<Page_Metadat_Capacity>448</Page_Metadat_Capacity>
 		</Flash_Parameter_Set>
-		<Zone>
-			<Zone_Size> </Zone_Size>
-			<Channel_No_Per_Zone></Channel_No_Per_Zone>
-			<Chip_No_Per_Zone></Chip_No_Per_Zone>
-			<Plane_No_Per_Zone></Plane_No_Per_Zone>
-		</Zone>
+		<Zone_Parameter_Set>
+			<Zone_Size>256</Zone_Size>
+			<Channel_No_Per_Zone>8</Channel_No_Per_Zone>
+			<Chip_No_Per_Zone>4</Chip_No_Per_Zone>
+			<Die_No_per_Zone>2</Die_No_per_Zone>
+			<Plane_No_Per_Zone>2</Plane_No_Per_Zone>
+			<Zone_Allocation_Scheme>CDPW</Zone_Allocation_Scheme>
+			<SubZone_Allocation_Scheme>CDPW</SubZone_Allocation_Scheme>
+		</Zone_Parameter_Set>
 	</Device_Parameter_Set>
 </Execution_Parameter_Set>
