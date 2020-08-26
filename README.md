@@ -35,7 +35,7 @@ You can specify your preferred SSD configuration in the XML format. If the SSD c
 
 ### SSD Device
 1. **Seed:** the seed value that is used for random number generation. Range = {all positive integer values}.
-2. **Device_Type:** the type of the device. Range = {REGULAR, ZNS}.
+2. **Support_Zone:** the type of the device. If true, the device is ZNS. Range = {ture, false}.
 3. **Enabled_Preconditioning:** the toggle to enable preconditioning. Range = {true, false}.
 4. **Memory_Type:** the type of the non-volatile memory used for data storage. Range = {FLASH}.
 5. **HostInterface_Type:** the type of host interface. Range = {NVME, SATA}.
