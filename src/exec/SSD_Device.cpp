@@ -114,15 +114,21 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 		//Setps 3.5: if the device support "Zone", it should have information of zones 
 		if (this->Support_Zone)
 		{
-			std::cout << "Zone Setting here" << std::endl;
+			std::cout << "[CRIS] Zone Setting here" << std::endl;
 			// TODO!!
 
 			long int device_size = this->Channel_count * this->Chip_no_per_channel * parameters->Flash_Parameters.Die_No_Per_Chip * parameters->Flash_Parameters.Plane_No_Per_Die *
-											parameters->Flash_Parameters.Block_No_Per_Plane * parameters->Flash_Parameters.Page_No_Per_Block * parameters->Flash_Parameters.Page_Capacity;
-			std::cout << "device_size = " << device_size << std::endl;
-			unsigned int device_size_in_MB = device_size / 1024 / 1024;
-			std::cout << "device_size in MB = " << device_size_in_MB << std::endl;	
+											parameters->Flash_Parameters.Block_No_Per_Plane / 1024 * parameters->Flash_Parameters.Page_No_Per_Block / 1024 * parameters->Flash_Parameters.Page_Capacity;
+
+			std::cout << "[CRIS] device_size = " << device_size << std::endl;
 			this->Zone_count = device_size / parameters->Zone_Paramters.Zone_Size;
+
+			for (int i = 0 ; i < this->Zone_count; i++)
+			{
+				NVM::FlashMemory::Zone *zone = new NVM::FlashMemory::Zone(i, parameters->Zone_Paramters.Channel_No_Per_Zone, parameters->Zone_Paramters.Chip_No_Per_Zone, 
+																			parameters->Zone_Paramters.Die_No_Per_Zone, parameters->Zone_Paramters.Plane_No_Per_Zone);
+				this->Zones.push_back(zone);
+			}
 			
 		} 
 
