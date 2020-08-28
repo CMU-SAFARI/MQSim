@@ -117,7 +117,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 			std::cout << "Zone Setting here" << std::endl;
 			// TODO!!
 
-			unsigned int device_size = this->Channel_count * this->Chip_no_per_channel * parameters->Flash_Parameters.Die_No_Per_Chip * parameters->Flash_Parameters.Plane_No_Per_Die *
+			long int device_size = this->Channel_count * this->Chip_no_per_channel * parameters->Flash_Parameters.Die_No_Per_Chip * parameters->Flash_Parameters.Plane_No_Per_Die *
 											parameters->Flash_Parameters.Block_No_Per_Plane * parameters->Flash_Parameters.Page_No_Per_Block * parameters->Flash_Parameters.Page_Capacity;
 			std::cout << "device_size = " << device_size << std::endl;
 			unsigned int device_size_in_MB = device_size / 1024 / 1024;

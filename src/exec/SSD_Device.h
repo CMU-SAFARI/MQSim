@@ -19,6 +19,8 @@
 #include "IO_Flow_Parameter_Set.h"
 #include "../utils/Workload_Statistics.h"
 
+#include "../nvm_chip/flash_memory/Zone.h"
+
 /*********************************************************************************************************
 * An SSD device has the following components:
 * 
@@ -54,7 +56,8 @@ public:
 	unsigned int Chip_no_per_channel;
 
 	unsigned int Zone_count;
-	//std::vector<NVM::FlashMemory::Zone *> Zones;
+	std::vector<NVM::FlashMemory::Zone *> Zones;
+	
 
 private:
 	static SSD_Device * my_instance;//Used in static functions
