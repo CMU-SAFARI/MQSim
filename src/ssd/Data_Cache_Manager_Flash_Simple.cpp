@@ -96,6 +96,8 @@ namespace SSD_Components
 					if (user_request->Transaction_list.size() > 0) {
 						static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Translate_lpa_to_ppa_and_dispatch(user_request->Transaction_list);
 					}
+
+					return;
 				}
 				default:
 					PRINT_ERROR("The specified caching mode is not not support in simple cache manager!")
@@ -113,6 +115,8 @@ namespace SSD_Components
 					if (user_request->Transaction_list.size() > 0) {
 						waiting_user_requests_queue_for_dram_free_slot[user_request->Stream_id].push_back(user_request);
 					}
+
+					return;
 				}
 				default:
 					PRINT_ERROR("The specified caching mode is not not support in simple cache manager!")
