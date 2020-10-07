@@ -24,7 +24,7 @@
 		<Data_Cache_DRAM_tRCD>13</Data_Cache_DRAM_tRCD>
 		<Data_Cache_DRAM_tCL>13</Data_Cache_DRAM_tCL>
 		<Data_Cache_DRAM_tRP>13</Data_Cache_DRAM_tRP>
-		<Address_Mapping>PAGE_LEVEL</Address_Mapping>
+		<Address_Mapping>ZONE_LEVEL</Address_Mapping>
 		<Ideal_Mapping_Table>false</Ideal_Mapping_Table>
 		<CMT_Capacity>2097152</CMT_Capacity>
 		<CMT_Sharing_Mode>SHARED</CMT_Sharing_Mode>

@@ -26,6 +26,13 @@ IO_Flow_Trace_Based::~IO_Flow_Trace_Based()
 
 Host_IO_Request *IO_Flow_Trace_Based::Generate_next_request()
 {
+	if (current_trace_line[0].compare("//") == 0)
+	{	
+		// This line is comment, ignore it
+		// std::cout << "[CRIS]: " << current_trace_line[0].c_str() << std::endl;
+		return NULL;
+	}
+
 	if (current_trace_line.size() == 0 || STAT_generated_request_count >= total_requests_to_be_generated)
 	{
 		return NULL;

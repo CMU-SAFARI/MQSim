@@ -67,6 +67,7 @@ namespace SSD_Components
 
 	class Flash_Block_Manager_Base
 	{
+		friend class Address_Mapping_Unit_Zone_Level;
 		friend class Address_Mapping_Unit_Page_Level;
 		friend class GC_and_WL_Unit_Page_Level;
 		friend class GC_and_WL_Unit_Base;

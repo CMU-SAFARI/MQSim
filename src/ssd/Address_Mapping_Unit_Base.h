@@ -18,13 +18,21 @@ namespace SSD_Components
 	typedef uint32_t MVPN_type;
 	typedef uint32_t MPPN_type;
 
-	enum class Flash_Address_Mapping_Type {PAGE_LEVEL, HYBRID};
+	enum class Flash_Address_Mapping_Type {PAGE_LEVEL, HYBRID, ZONE_LEVEL};
 	enum class Flash_Plane_Allocation_Scheme_Type
 	{
 		CWDP, CWPD, CDWP, CDPW, CPWD, CPDW,
 		WCDP, WCPD, WDCP, WDPC, WPCD, WPDC,
 		DCWP, DCPW, DWCP, DWPC, DPCW, DPWC,
 		PCWD, PCDW, PWCD, PWDC, PDCW, PDWC
+	};
+	enum class Zone_Allocation_Scheme_Type
+	{
+		CDPW
+	};
+	enum class SubZone_Allocation_Scheme_Type
+	{
+		CDPW
 	};
 	enum class CMT_Sharing_Mode { SHARED, EQUAL_SIZE_PARTITIONING };
 

@@ -4,10 +4,12 @@
 #include "SSD_Device.h"
 #include "../ssd/ONFI_Channel_Base.h"
 #include "../ssd/Flash_Block_Manager.h"
+#include "../ssd/Flash_Zone_Manager_Base.h"
 #include "../ssd/Data_Cache_Manager_Flash_Advanced.h"
 #include "../ssd/Data_Cache_Manager_Flash_Simple.h"
 #include "../ssd/Address_Mapping_Unit_Base.h"
 #include "../ssd/Address_Mapping_Unit_Page_Level.h"
+#include "../ssd/Address_Mapping_Unit_Zone_Level.h"
 #include "../ssd/Address_Mapping_Unit_Hybrid.h"
 #include "../ssd/GC_and_WL_Unit_Page_Level.h"
 #include "../ssd/TSU_OutofOrder.h"
@@ -111,29 +113,8 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 		delete[] read_latencies;
 		delete[] write_latencies;
 
-		//Setps 3.5: if the device support "Zone", it should have information of zones 
-		if (this->Support_Zone)
-		{
-			std::cout << "[CRIS] Zone Setting here" << std::endl;
-			// TODO!!
-
-			long int device_size = this->Channel_count * this->Chip_no_per_channel * parameters->Flash_Parameters.Die_No_Per_Chip * parameters->Flash_Parameters.Plane_No_Per_Die *
-											parameters->Flash_Parameters.Block_No_Per_Plane / 1024 * parameters->Flash_Parameters.Page_No_Per_Block / 1024 * parameters->Flash_Parameters.Page_Capacity;
-
-			std::cout << "[CRIS] device_size = " << device_size << std::endl;
-			this->Zone_count = device_size / parameters->Zone_Paramters.Zone_Size;
-
-			for (int i = 0 ; i < this->Zone_count; i++)
-			{
-				NVM::FlashMemory::Zone *zone = new NVM::FlashMemory::Zone(i, parameters->Zone_Paramters.Channel_No_Per_Zone, parameters->Zone_Paramters.Chip_No_Per_Zone, 
-																			parameters->Zone_Paramters.Die_No_Per_Zone, parameters->Zone_Paramters.Plane_No_Per_Zone);
-				this->Zones.push_back(zone);
-			}
-			
-		} 
-
-
 		//Steps 4 - 8: create FTL components and connect them together
+		//Steps 4: Create FTL 
 		SSD_Components::FTL *ftl = new SSD_Components::FTL(device->ID() + ".FTL", NULL, parameters->Flash_Channel_Count,
 														   parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 														   parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
@@ -142,6 +123,18 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 		ftl->PHY = (SSD_Components::NVM_PHY_ONFI *)PHY;
 		Simulator->AddObject(ftl);
 		device->Firmware = ftl;
+
+		//Steps 4.5: Create Zone Manager if the device is ZNS
+		if (this->Support_Zone)
+		{
+			SSD_Components::Flash_Zone_Manager_Base *fzm = new SSD_Components::Flash_Zone_Manager_Base(this->Channel_count, 
+																	this->Chip_no_per_channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
+																	parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block, parameters->Flash_Parameters.Page_Capacity, 
+																	parameters->Zone_Parameters.Zone_Size);
+
+			ftl->ZoneManager = fzm;
+		}
+
 
 		//Step 5: create TSU
 		SSD_Components::TSU_Base *tsu;
@@ -293,6 +286,8 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 		switch (parameters->Address_Mapping)
 		{
 		case SSD_Components::Flash_Address_Mapping_Type::PAGE_LEVEL:
+			if (parameters->Support_Zone)
+				throw std::invalid_argument("The device is ZNS, and the current Address_Mapping is PAGE_LEVEL. Please use ZONE_LEVEL as Address_Mapping.");
 			amu = new SSD_Components::Address_Mapping_Unit_Page_Level(ftl->ID() + ".AddressMappingUnit", ftl, (SSD_Components::NVM_PHY_ONFI *)device->PHY,
 																	  fbm, parameters->Ideal_Mapping_Table, parameters->CMT_Capacity, parameters->Plane_Allocation_Scheme, stream_count,
 																	  parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
@@ -302,12 +297,34 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 																	  parameters->CMT_Sharing_Mode);
 			break;
 		case SSD_Components::Flash_Address_Mapping_Type::HYBRID:
+			if (parameters->Support_Zone)
+				throw std::invalid_argument("The device is ZNS, and the current Address_Mapping is HYBRID. Please use ZONE_LEVEL as Address_Mapping.");
 			amu = new SSD_Components::Address_Mapping_Unit_Hybrid(ftl->ID() + ".AddressMappingUnit", ftl, (SSD_Components::NVM_PHY_ONFI *)device->PHY,
 																  fbm, parameters->Ideal_Mapping_Table, stream_count,
 																  parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip,
 																  parameters->Flash_Parameters.Plane_No_Per_Die, parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
 																  parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Parameters.Page_Capacity, parameters->Overprovisioning_Ratio);
 			break;
+		case SSD_Components::Flash_Address_Mapping_Type::ZONE_LEVEL:	// for ZNS 
+			if (!parameters->Support_Zone)
+				throw std::invalid_argument("The device is not ZNS, and the current Address_Mapping is ZONE_LEVEL. Please use PAGE_LEVEL or HYBRID as Address_Mapping");
+			amu = new SSD_Components::Address_Mapping_Unit_Zone_Level(ftl->ID() + ".AddressMappingUnit", ftl, (SSD_Components::NVM_PHY_ONFI *)device->PHY,
+																	  fbm, parameters->Ideal_Mapping_Table, parameters->CMT_Capacity, 
+																	  parameters->Plane_Allocation_Scheme, 
+																	  parameters->Zone_Parameters.Zone_allocation_scheme,
+																	  parameters->Zone_Parameters.SubZone_allocation_scheme,
+																	  stream_count, parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
+																	  parameters->Zone_Parameters.Channel_No_Per_Zone,
+																	  parameters->Zone_Parameters.Chip_No_Per_Zone,
+																	  parameters->Zone_Parameters.Die_No_Per_Zone,
+																	  parameters->Zone_Parameters.Plane_No_Per_Zone,
+																	  flow_channel_id_assignments, flow_chip_id_assignments, flow_die_id_assignments, flow_plane_id_assignments,
+																	  parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
+																	  parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Parameters.Page_Capacity, parameters->Overprovisioning_Ratio,
+																	  parameters->CMT_Sharing_Mode,
+																	  parameters->Support_Zone);
+
+			break; 
 		default:
 			throw std::invalid_argument("No implementation is available fo the secified address mapping strategy");
 		}

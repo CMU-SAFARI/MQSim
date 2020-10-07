@@ -113,6 +113,16 @@ namespace SSD_Components
 		std::set<MVPN_type> MVPN_write_transaction_waiting_behind_barrier;
 
 		Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme;
+
+		// ZNS
+		Zone_Allocation_Scheme_Type ZoneAllocationeScheme;
+		SubZone_Allocation_Scheme_Type SubZoneAllocationScheme;
+		unsigned int Channel_No_Per_Zone;
+		unsigned int Chip_No_Per_Zone;
+		unsigned int Die_No_Per_Zone;
+		unsigned int Plane_No_Per_Zone;
+		// ------- 
+
 		flash_channel_ID_type* Channel_ids;
 		unsigned int Channel_no;
 		flash_chip_ID_type* Chip_ids;
@@ -167,10 +177,12 @@ namespace SSD_Components
 		void Remove_barrier_for_accessing_lpa(stream_id_type stream_id, LPA_type lpa);
 		void Remove_barrier_for_accessing_mvpn(stream_id_type stream_id, MVPN_type mpvn);
 		void Start_servicing_writes_for_overfull_plane(const NVM::FlashMemory::Physical_Page_Address plane_address);
-	private:
+
+	//private:
+
 		static Address_Mapping_Unit_Page_Level* _my_instance;
 		unsigned int cmt_capacity;
-		AddressMappingDomain** domains;
+		AddressMappingDomain** domains; 
 		unsigned int CMT_entry_size, GTD_entry_size;//In CMT MQSim stores (lpn, ppn, page status bits) but in GTD it only stores (ppn, page status bits)
 		void allocate_plane_for_user_write(NVM_Transaction_Flash_WR* transaction);
 		void allocate_page_in_plane_for_user_write(NVM_Transaction_Flash_WR* transaction, bool is_for_gc);

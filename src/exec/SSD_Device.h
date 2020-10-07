@@ -55,8 +55,8 @@ public:
 	unsigned int Channel_count;
 	unsigned int Chip_no_per_channel;
 
-	unsigned int Zone_count;
-	std::vector<NVM::FlashMemory::Zone *> Zones;
+	
+
 	
 
 private:

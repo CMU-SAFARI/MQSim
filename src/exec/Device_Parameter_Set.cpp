@@ -43,7 +43,7 @@ unsigned int Device_Parameter_Set::Channel_Transfer_Rate = 300;//MT/s
 unsigned int Device_Parameter_Set::Chip_No_Per_Channel = 4;
 SSD_Components::ONFI_Protocol Device_Parameter_Set::Flash_Comm_Protocol = SSD_Components::ONFI_Protocol::NVDDR2;
 Flash_Parameter_Set Device_Parameter_Set::Flash_Parameters;
-Zone_Parameter_Set Device_Parameter_Set::Zone_Paramters;
+Zone_Parameter_Set Device_Parameter_Set::Zone_Parameters;
 
 void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 {
@@ -642,7 +642,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			}
 			else if (strcmp(param->name(), "Zone_Parameter_set") == 0) 
 			{
-				Zone_Paramters.XML_deserialize(param);
+				Zone_Parameters.XML_deserialize(param);
 			}
 		}
 	}

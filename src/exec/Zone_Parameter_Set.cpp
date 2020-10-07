@@ -9,6 +9,8 @@ unsigned int Zone_Parameter_Set::Chip_No_Per_Zone = 2;
 unsigned int Zone_Parameter_Set::Die_No_Per_Zone = 2;
 unsigned int Zone_Parameter_Set::Plane_No_Per_Zone = 2;
 
+
+
 void Zone_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 {
 	std::string tmp;
@@ -35,19 +37,25 @@ void Zone_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 	val = std::to_string(Plane_No_Per_Zone);
 	xmlwriter.Write_attribute_string(attr, val);
 
-	// attr = "Zone_Allocation_Scheme";
-	// switch (Zone_Allocation_Scheme) {
-	// 	default:
-	// 		break;
-	// }
-	// xmlwriter.Write_attribute_string(attr, val);
+	attr = "Zone_Allocation_Scheme";
+	switch (Zone_allocation_scheme) {
+	 	case SSD_Components::Zone_Allocation_Scheme_Type::CDPW:
+			val = "CDPW";
+			break;
+		 default:
+	 		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
 
-	// attr = "SubZone_Allocation_Scheme";
-	// switch (SubZone_Allocation_Scheme) {
-	// 	default:
-	// 		break;
-	// }
-	// xmlwriter.Write_attribute_string(attr, val);
+	attr = "SubZone_Allocation_Scheme";
+	switch (SubZone_allocation_scheme) {
+		case SSD_Components::SubZone_Allocation_Scheme_Type::CDPW:
+			val = "CDPW";
+			break;	
+		default:
+	 		break;
+	}
+	xmlwriter.Write_attribute_string(attr, val);
 
 	xmlwriter.Write_close_tag();
 }
@@ -71,20 +79,24 @@ void Zone_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			} else if (strcmp(param->name(), "Plane_No_Per_Zone") == 0) {
 				std::string val = param->value();
 				Plane_No_Per_Zone = std::stoull(val);
-			// } else if (strcmp(param->name(), "Zone_Allocation_Scheme") == 0) {
-			// 	std::string val = param->value();
-			// 	std::transform(val.begin(), val.end(), val.begin(), ::toupper);
-			// 	if (strcmp(val.c_str(), "CDPW") == 0) {
-			// 	} else {
-			// 		PRINT_ERROR("Unknown command suspension type specified in the input file")
-			// 	}
-			// } else if (strcmp(param->name(), "SubZone_Allocation_Scheme") == 0) {
-			// 	std::string val = param->value();
-			// 	std::transform(val.begin(), val.end(), val.begin(), ::toupper);
-			// 	if (strcmp(val.c_str(), "CDPW") == 0) {
-			// 	} else {
-			// 		PRINT_ERROR("Unknown command suspension type specified in the input file")
-			// 	}
+			} else if (strcmp(param->name(), "Zone_Allocation_Scheme") == 0) {
+			 	std::string val = param->value();
+			 	std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+			 	if (strcmp(val.c_str(), "CDPW") == 0) {
+			 		Zone_allocation_scheme = SSD_Components::Zone_Allocation_Scheme_Type::CDPW;
+			 	}
+				else {
+					PRINT_ERROR("Unknown command suspension type specified in the input file. For now, we only support 'CDPW' ")
+				}
+			 } else if (strcmp(param->name(), "SubZone_Allocation_Scheme") == 0) {
+			 	std::string val = param->value();
+			 	std::transform(val.begin(), val.end(), val.begin(), ::toupper);
+			 	if (strcmp(val.c_str(), "CDPW") == 0) {
+					 SubZone_allocation_scheme = SSD_Components::SubZone_Allocation_Scheme_Type::CDPW;
+			 	} 
+				else {
+			 		PRINT_ERROR("Unknown command suspension type specified in the input file")
+			 	}
 			}
 		}
 	} catch (...) {
