@@ -44,7 +44,13 @@ namespace SSD_Components
 
 	private:
 		static Address_Mapping_Unit_Zone_Level* _my_instance;
+		Flash_Zone_Manager_Base *fzm;
+		NVM::FlashMemory::Zone **zones;
+
 		void allocate_plane_for_user_write(NVM_Transaction_Flash_WR* transaction);
+		void allocate_page_in_plane_for_user_write(NVM_Transaction_Flash_WR* transaction, bool is_for_gc);
+		void allocate_plane_for_preconditioning(stream_id_type stream_id, LPA_type lpn, NVM::FlashMemory::Physical_Page_Address& targetAddress);
+
 	};
 
 }

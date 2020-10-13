@@ -26,7 +26,9 @@ namespace SSD_Components
 		: Address_Mapping_Unit_Page_Level(id, ftl, flash_controller, block_manager, ideal_mapping_table, cmt_capacity_in_byte, PlaneAllocationScheme, concurrent_stream_no, channel_count, chip_no_per_channel, die_no_per_chip, plane_no_per_die, stream_channel_ids, stream_chip_ids, stream_die_ids, stream_plane_ids, Block_no_per_plane, Page_no_per_block, SectorsPerPage, PageSizeInByte, Overprovisioning_ratio, sharing_mode, fold_large_addresses)
 	{
 		_my_instance = this;
-		
+		fzm = ftl->ZoneManager;
+		zones = fzm->zones;
+
 		for (unsigned int domainID = 0; domainID < no_of_input_streams; domainID++)
 		{
 			domains[domainID]->ZoneAllocationeScheme = ZoneAllocationScheme;
@@ -42,15 +44,18 @@ namespace SSD_Components
 	{
 	}
 
+	void Address_Mapping_Unit_Zone_Level::allocate_plane_for_preconditioning(stream_id_type stream_id, LPA_type lpn, NVM::FlashMemory::Physical_Page_Address& targetAddress)
+	{
+		
+	}
+
 	void Address_Mapping_Unit_Zone_Level::allocate_plane_for_user_write(NVM_Transaction_Flash_WR* transaction)
 	{
 		LPA_type lpn = transaction->LPA;
 		NVM::FlashMemory::Physical_Page_Address& targetAddress = transaction->Address;
 		AddressMappingDomain* domain = domains[transaction->Stream_id];
-		
-		NVM::FlashMemory::Zone **zones = ftl->ZoneManager->zones;
-		unsigned int zone_size = ftl->ZoneManager->zone_size;
 
+		unsigned int zone_size = fzm->zone_size;
 		unsigned int zoneID = lpn / (zone_size * 1024 * 1024);
 		unsigned int zoneOffset = lpn % (zone_size * 1024 * 1024);
 
@@ -59,15 +64,20 @@ namespace SSD_Components
 
         switch (domain->ZoneAllocationeScheme) {
 			case Zone_Allocation_Scheme_Type::CDPW:
-				//targetAddress.ChannelID = domain->Channel_ids[(unsigned int)(lpn % domain->Channel_no)];
-				//targetAddress.ChipID = domain->Chip_ids[(unsigned int)((lpn / domain->Channel_no) % domain->Chip_no)];
-				//targetAddress.DieID = domain->Die_ids[(unsigned int)((lpn / (domain->Chip_no * domain->Channel_no)) % domain->Die_no)];
-				//targetAddress.PlaneID = domain->Plane_ids[(unsigned int)((lpn / (domain->Die_no * domain->Chip_no * domain->Channel_no)) % domain->Plane_no)]; 
+				// TODO!!!! need to review and modify!! 
+				targetAddress.ChannelID = domain->Channel_ids[zoneOffset % channel_count];
+				targetAddress.ChipID = domain->Chip_ids[(zoneOffset / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel];
+				targetAddress.DieID = domain->Die_ids[zoneOffset/channel_count % die_no_per_chip];
+				targetAddress.PlaneID = domain->Plane_ids[zoneOffset/(channel_count*die_no_per_chip) % plane_no_per_die];
 				break;
 			default:
 				PRINT_ERROR("Unknown zone allocation scheme type!")
-		}
-
-		
+		}		
 	}
+
+	void Address_Mapping_Unit_Zone_Level::allocate_page_in_plane_for_user_write(NVM_Transaction_Flash_WR *transaction, bool is_for_gc)
+	{
+
+	}
+
 }

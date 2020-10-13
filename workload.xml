@@ -9,7 +9,7 @@
 			<Die_IDs>0,1</Die_IDs>
 			<Plane_IDs>0,1</Plane_IDs>
 			<Initial_Occupancy_Percentage>70</Initial_Occupancy_Percentage>
-			<File_Path>traces/zns-trace_nysong.trace</File_Path>
+			<File_Path>traces/tpcc-small.trace</File_Path>
 			<Percentage_To_Be_Executed>100</Percentage_To_Be_Executed>
 			<Relay_Count>1</Relay_Count>
 			<Time_Unit>NANOSECOND</Time_Unit>

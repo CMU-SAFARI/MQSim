@@ -159,6 +159,8 @@ void Device_Parameter_Set::XML_serialize(Utils::XmlWriter& xmlwriter)
 		case SSD_Components::Flash_Address_Mapping_Type::HYBRID:
 			val = "HYBRID";
 			break;
+		case SSD_Components::Flash_Address_Mapping_Type::ZONE_LEVEL:
+			val = "ZONE_LEVEL";
 		default:
 			break;
 	}
@@ -466,6 +468,8 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 					Address_Mapping = SSD_Components::Flash_Address_Mapping_Type::PAGE_LEVEL;
 				} else if (strcmp(val.c_str(), "HYBRID") == 0) {
 					Address_Mapping = SSD_Components::Flash_Address_Mapping_Type::HYBRID;
+				} else if (strcmp(val.c_str(), "ZONE_LEVEL") == 0) {
+					Address_Mapping = SSD_Components::Flash_Address_Mapping_Type::ZONE_LEVEL;
 				} else {
 					PRINT_ERROR("Unknown address mapping type specified in the SSD configuration file")
 				}
