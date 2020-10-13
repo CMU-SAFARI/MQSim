@@ -10,7 +10,7 @@
 namespace SSD_Components
 {
 	Address_Mapping_Unit_Zone_Level* Address_Mapping_Unit_Zone_Level::_my_instance = NULL;
-	Address_Mapping_Unit_Zone_Level::Address_Mapping_Unit_Zone_Level(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* block_manager,
+	Address_Mapping_Unit_Zone_Level::Address_Mapping_Unit_Zone_Level(const sim_object_id_type& id, FTL* ftl, NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* block_manager, Flash_Zone_Manager_Base* zone_manager,
 		bool ideal_mapping_table, unsigned int cmt_capacity_in_byte, 
 		Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
 		Zone_Allocation_Scheme_Type ZoneAllocationScheme,
@@ -26,7 +26,7 @@ namespace SSD_Components
 		: Address_Mapping_Unit_Page_Level(id, ftl, flash_controller, block_manager, ideal_mapping_table, cmt_capacity_in_byte, PlaneAllocationScheme, concurrent_stream_no, channel_count, chip_no_per_channel, die_no_per_chip, plane_no_per_die, stream_channel_ids, stream_chip_ids, stream_die_ids, stream_plane_ids, Block_no_per_plane, Page_no_per_block, SectorsPerPage, PageSizeInByte, Overprovisioning_ratio, sharing_mode, fold_large_addresses)
 	{
 		_my_instance = this;
-		fzm = ftl->ZoneManager;
+		fzm = zone_manager;
 		zones = fzm->zones;
 
 		for (unsigned int domainID = 0; domainID < no_of_input_streams; domainID++)

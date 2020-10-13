@@ -119,22 +119,10 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 														   parameters->Chip_No_Per_Channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 														   parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
 														   parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, average_flash_read_latency, average_flash_write_latency, parameters->Overprovisioning_Ratio,
-														   parameters->Flash_Parameters.Block_PE_Cycles_Limit, parameters->Seed++);
+														   parameters->Flash_Parameters.Block_PE_Cycles_Limit, parameters->Seed++, parameters->Support_Zone);
 		ftl->PHY = (SSD_Components::NVM_PHY_ONFI *)PHY;
 		Simulator->AddObject(ftl);
 		device->Firmware = ftl;
-
-		//Steps 4.5: Create Zone Manager if the device is ZNS
-		if (this->Support_Zone)
-		{
-			SSD_Components::Flash_Zone_Manager_Base *fzm = new SSD_Components::Flash_Zone_Manager_Base(this->Channel_count, 
-																	this->Chip_no_per_channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
-																	parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block, parameters->Flash_Parameters.Page_Capacity, 
-																	parameters->Zone_Parameters.Zone_Size);
-
-			ftl->ZoneManager = fzm;
-		}
-
 
 		//Step 5: create TSU
 		SSD_Components::TSU_Base *tsu;
@@ -203,6 +191,20 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 													  parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 													  parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block);
 		ftl->BlockManager = fbm;
+
+
+
+		//Steps 6.5: Create Zone Manager if the device is ZNS
+		SSD_Components::Flash_Zone_Manager_Base *fzm;
+		if (parameters->Support_Zone)
+		{
+			fzm = new SSD_Components::Flash_Zone_Manager_Base(this->Channel_count, 
+															this->Chip_no_per_channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
+															parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block, parameters->Flash_Parameters.Page_Capacity, 
+															parameters->Zone_Parameters.Zone_Size);
+
+			ftl->ZoneManager = fzm;
+		}
 
 		//Step 7: create Address_Mapping_Unit
 		SSD_Components::Address_Mapping_Unit_Base *amu;
@@ -309,7 +311,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 			if (!parameters->Support_Zone)
 				throw std::invalid_argument("The device is not ZNS, and the current Address_Mapping is ZONE_LEVEL. Please use PAGE_LEVEL or HYBRID as Address_Mapping");
 			amu = new SSD_Components::Address_Mapping_Unit_Zone_Level(ftl->ID() + ".AddressMappingUnit", ftl, (SSD_Components::NVM_PHY_ONFI *)device->PHY,
-																	  fbm, parameters->Ideal_Mapping_Table, parameters->CMT_Capacity, 
+																	  fbm, fzm, parameters->Ideal_Mapping_Table, parameters->CMT_Capacity, 
 																	  parameters->Plane_Allocation_Scheme, 
 																	  parameters->Zone_Parameters.Zone_allocation_scheme,
 																	  parameters->Zone_Parameters.SubZone_allocation_scheme,

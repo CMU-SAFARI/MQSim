@@ -21,7 +21,7 @@ namespace SSD_Components
 		//friend class GC_and_WL_Unit_Zone_Level;
 	public:
 		Address_Mapping_Unit_Zone_Level(const sim_object_id_type& id, FTL* ftl, 
-			NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* block_manager,
+			NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* block_manager, Flash_Zone_Manager_Base* zone_manager,
 			bool ideal_mapping_table, unsigned int cmt_capacity_in_byte, 
 			Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme,
 			Zone_Allocation_Scheme_Type ZoneAllocationScheme,

@@ -392,7 +392,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 				Seed = std::stoi(val);
 			} else if (strcmp(param->name(), "Support_Zone") == 0) {
 				std::string val = param->value();
-				std::transform(val.begin(), val.end(), val.end(), ::toupper);
+				std::transform(val.begin(), val.end(), val.begin(), ::toupper);
 				Support_Zone = (val.compare("FALSE") == 0 ? false : true);
 			} else if (strcmp(param->name(), "Enabled_Preconditioning") == 0) {
 				std::string val = param->value();

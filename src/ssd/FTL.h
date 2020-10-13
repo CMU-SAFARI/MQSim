@@ -27,7 +27,7 @@ namespace SSD_Components
 		FTL(const sim_object_id_type& id, Data_Cache_Manager_Base* data_cache, 
 			unsigned int channel_no, unsigned int chip_no_per_channel, unsigned int die_no_per_chip, unsigned int plane_no_per_die, 
 			unsigned int block_no_per_plane, unsigned int page_no_per_block, unsigned int page_size_in_sectors, 
-			sim_time_type avg_flash_read_latency, sim_time_type avg_flash_program_latency, double over_provisioning_ratio, unsigned int max_allowed_block_erase_count, int seed);
+			sim_time_type avg_flash_read_latency, sim_time_type avg_flash_program_latency, double over_provisioning_ratio, unsigned int max_allowed_block_erase_count, int seed, bool Support_Zone);
 		~FTL();
 		void Perform_precondition(std::vector<Utils::Workload_Statistics*> workload_stats);
 		void Validate_simulation_config();
@@ -37,13 +37,15 @@ namespace SSD_Components
 		page_status_type Find_NVM_subunit_access_bitmap(LHA_type lha);
 		Address_Mapping_Unit_Base* Address_Mapping_Unit;
 		Flash_Block_Manager_Base* BlockManager;
-
-		Flash_Zone_Manager_Base* ZoneManager;
-
 		GC_and_WL_Unit_Base* GC_and_WL_Unit;
 		TSU_Base * TSU;
 		NVM_PHY_ONFI* PHY;
 		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
+		
+		
+		Flash_Zone_Manager_Base* ZoneManager;
+		bool SupportZone;
+
 	private:
 		unsigned int channel_no, chip_no_per_channel, die_no_per_chip, plane_no_per_die;
 		unsigned int block_no_per_plane, page_no_per_block, page_size_in_sectors;
