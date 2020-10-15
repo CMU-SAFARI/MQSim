@@ -12,10 +12,8 @@ namespace NVM
 		{
 			ID = ZoneID;
 			write_point = 0;
-			//SubZone = new SubZone[SubZoneNo];
-			// TODO!!
-			// how to express a physical zone? 
-			// which channels, which chips, which dies, planes?
+			erase_count = 0;
+			zone_status = Zone_Status::EMPTY;
 		}
 
 		Zone::~Zone()

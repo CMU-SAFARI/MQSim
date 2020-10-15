@@ -9,6 +9,7 @@
 #include "../nvm_chip/flash_memory/Physical_Page_Address.h"
 #include "GC_and_WL_Unit_Base.h"
 #include "../nvm_chip/flash_memory/FlashTypes.h"
+#include "Flash_Zone_Manager_Base.h"
 
 namespace SSD_Components
 {

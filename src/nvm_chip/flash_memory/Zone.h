@@ -8,6 +8,9 @@ namespace NVM
 {
 	namespace FlashMemory
 	{
+		// todo, what are zone status?
+		enum class Zone_Status {EMPTY, ACTIVE, FULL};
+	
 		class Zone
 		{
 		public:
@@ -15,7 +18,7 @@ namespace NVM
 			~Zone();
 			Zone_ID_type ID;
 			unsigned int write_point;
-			//ZoneStatus zone_status;
+			Zone_Status zone_status;
 			unsigned int erase_count;
 		};
 	}

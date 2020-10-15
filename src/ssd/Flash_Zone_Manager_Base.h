@@ -13,9 +13,6 @@
 
 namespace SSD_Components
 {
-	// todo, what are zone status?
-	enum class Zone_Status {EMPTY, FULL};
-	
 
 	class Flash_Zone_Manager_Base
 	{

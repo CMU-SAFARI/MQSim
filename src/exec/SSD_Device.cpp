@@ -4,7 +4,7 @@
 #include "SSD_Device.h"
 #include "../ssd/ONFI_Channel_Base.h"
 #include "../ssd/Flash_Block_Manager.h"
-#include "../ssd/Flash_Zone_Manager_Base.h"
+#include "../ssd/Flash_Zone_Manager.h"
 #include "../ssd/Data_Cache_Manager_Flash_Advanced.h"
 #include "../ssd/Data_Cache_Manager_Flash_Simple.h"
 #include "../ssd/Address_Mapping_Unit_Base.h"
@@ -12,6 +12,7 @@
 #include "../ssd/Address_Mapping_Unit_Zone_Level.h"
 #include "../ssd/Address_Mapping_Unit_Hybrid.h"
 #include "../ssd/GC_and_WL_Unit_Page_Level.h"
+#include "../ssd/GC_and_WL_Unit_Zone_Level.h"
 #include "../ssd/TSU_OutofOrder.h"
 #include "../ssd/TSU_Priority_OutOfOrder.h"
 #include "../ssd/TSU_FLIN.h"
@@ -195,10 +196,10 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 
 
 		//Steps 6.5: Create Zone Manager if the device is ZNS
-		SSD_Components::Flash_Zone_Manager_Base *fzm;
+		SSD_Components::Flash_Zone_Manager_Base *fzm = NULL;
 		if (parameters->Support_Zone)
 		{
-			fzm = new SSD_Components::Flash_Zone_Manager_Base(this->Channel_count, 
+			fzm = new SSD_Components::Flash_Zone_Manager(this->Channel_count, 
 															this->Chip_no_per_channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 															parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block, parameters->Flash_Parameters.Page_Capacity, 
 															parameters->Zone_Parameters.Zone_Size);
@@ -343,14 +344,27 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 			}
 		}
 		max_rho /= 100; //Convert from percentage to a value between zero and 1
+
 		SSD_Components::GC_and_WL_Unit_Base *gcwl;
-		gcwl = new SSD_Components::GC_and_WL_Unit_Page_Level(ftl->ID() + ".GCandWLUnit", amu, fbm, tsu, (SSD_Components::NVM_PHY_ONFI *)device->PHY,
+		if (!device->Support_Zone) { 
+			gcwl = new SSD_Components::GC_and_WL_Unit_Page_Level(ftl->ID() + ".GCandWLUnit", amu, fbm, tsu, (SSD_Components::NVM_PHY_ONFI *)device->PHY,
 															 parameters->GC_Block_Selection_Policy, parameters->GC_Exec_Threshold, parameters->Preemptible_GC_Enabled, parameters->GC_Hard_Threshold,
 															 parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel,
 															 parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 															 parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
 															 parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Use_Copyback_for_GC, max_rho, 10,
 															 parameters->Seed++);
+		} 
+		else {	// for ZNS
+			gcwl = new SSD_Components::GC_and_WL_Unit_Zone_Level(ftl->ID() + ".GCandWLUnit", amu, fzm, fbm, tsu, (SSD_Components::NVM_PHY_ONFI *)device->PHY,
+															 parameters->GC_Block_Selection_Policy, parameters->GC_Exec_Threshold, parameters->Preemptible_GC_Enabled, parameters->GC_Hard_Threshold,
+															 parameters->Flash_Channel_Count, parameters->Chip_No_Per_Channel,
+															 parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
+															 parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
+															 parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Use_Copyback_for_GC, max_rho, 10,
+															 parameters->Seed++);
+
+		}
 		Simulator->AddObject(gcwl);
 		fbm->Set_GC_and_WL_Unit(gcwl);
 		ftl->GC_and_WL_Unit = gcwl;

@@ -6,6 +6,7 @@
 #include "../nvm_chip/flash_memory/Physical_Page_Address.h"
 #include "Address_Mapping_Unit_Base.h"
 #include "Flash_Block_Manager_Base.h"
+#include "Flash_Zone_Manager_Base.h"
 #include "TSU_Base.h"
 #include "NVM_PHY_ONFI.h"
 
@@ -27,6 +28,7 @@ namespace SSD_Components
 
 	class Address_Mapping_Unit_Base;
 	class Flash_Block_Manager_Base;
+	class Flash_Zone_Manager_Base;
 	class TSU_Base;
 	class NVM_PHY_ONFI;
 	class PlaneBookKeepingType;
