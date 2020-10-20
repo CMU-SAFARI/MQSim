@@ -40,9 +40,9 @@ namespace SSD_Components
 		}
 	}
 
-	void GC_and_WL_Unit_Zone_Level::Do_GC_for_Zone(Zone_ID_type CandidateZoneID)
+	void GC_and_WL_Unit_Zone_Level::Do_GC_for_Zone(User_Request* user_request)
 	{
-
+		std::cout << "here is GC_and_WL_Unit_Zone_Level::Do_GC_for_Zone()" << std::endl;
 	}
 
 	

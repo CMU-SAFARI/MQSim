@@ -237,7 +237,7 @@ namespace SSD_Components
 				}
 			}
 		}
-		else//This is a write request
+		else if (user_request->Type == UserRequestType::WRITE) //This is a write request
 		{
 			switch (caching_mode_per_input_stream[user_request->Stream_id])
 			{
@@ -260,6 +260,10 @@ namespace SSD_Components
 					return;
 				}
 			}
+		}
+		else if (user_request->Type == UserRequestType::ERASE)	// for ZNS
+		{
+			static_cast<FTL*>(nvm_firmware)->GC_and_WL_Unit->Do_GC_for_Zone(user_request);
 		}
 	}
 

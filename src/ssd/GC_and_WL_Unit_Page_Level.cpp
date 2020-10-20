@@ -21,6 +21,11 @@ namespace SSD_Components
 		rga_set_size = (unsigned int)log2(block_no_per_plane);
 	}
 	
+	void GC_and_WL_Unit_Page_Level::Do_GC_for_Zone(User_Request* user_request)
+	{
+		
+	}
+
 	bool GC_and_WL_Unit_Page_Level::GC_is_in_urgent_mode(const NVM::FlashMemory::Flash_Chip* chip)
 	{
 		if (!preemptible_gc_enabled) {

@@ -10,7 +10,7 @@
 
 namespace SSD_Components
 {
-	enum class UserRequestType { READ, WRITE };
+	enum class UserRequestType { READ, WRITE, ERASE };
 	class NVM_Transaction;
 	class User_Request
 	{

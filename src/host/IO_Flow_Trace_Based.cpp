@@ -29,7 +29,6 @@ Host_IO_Request *IO_Flow_Trace_Based::Generate_next_request()
 	if (current_trace_line[0].compare("//") == 0)
 	{	
 		// This line is comment, ignore it
-		// std::cout << "[CRIS]: " << current_trace_line[0].c_str() << std::endl;
 		return NULL;
 	}
 
@@ -44,10 +43,15 @@ Host_IO_Request *IO_Flow_Trace_Based::Generate_next_request()
 		request->Type = Host_IO_Request_Type::WRITE;
 		STAT_generated_write_request_count++;
 	}
-	else
+	else if (current_trace_line[ASCIITraceTypeColumn].compare(ASCIITraceReadCode) == 0)
 	{
 		request->Type = Host_IO_Request_Type::READ;
 		STAT_generated_read_request_count++;
+	}
+	else	// for ZNS's erase request (kind of GC in ZNS) 
+	{
+		request->Type = Host_IO_Request_Type::ERASE;
+		//STAT_generated_erase_request_count++;
 	}
 
 	char *pEnd;

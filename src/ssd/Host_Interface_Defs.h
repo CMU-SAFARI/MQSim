@@ -10,6 +10,7 @@ enum class HostInterface_Types { SATA, NVME };
 #define NVME_FLUSH_OPCODE 0x0000
 #define NVME_WRITE_OPCODE 0x0001
 #define NVME_READ_OPCODE 0x0002
+#define NVME_ERASE_OPCODE 0x0003	// for ZNS
 
 #define SATA_WRITE_OPCODE 0x0001
 #define SATA_READ_OPCODE 0x0002
@@ -49,7 +50,7 @@ struct Completion_Queue_Entry
 
 struct Submission_Queue_Entry
 {
-	uint8_t Opcode;//Is it a read or write request
+	uint8_t Opcode;//Is it a read or write request (for ZNS) or erase request
 	uint8_t PRP_FUSE;
 	uint16_t Command_Identifier;//The id of the command in the I/O submission queue
 	uint64_t Namespace_identifier;

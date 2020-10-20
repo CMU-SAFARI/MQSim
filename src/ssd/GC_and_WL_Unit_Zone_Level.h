@@ -22,7 +22,7 @@ namespace SSD_Components
 
 			bool GC_is_in_urgent_mode(const NVM::FlashMemory::Flash_Chip*);
 			void Check_gc_required(const unsigned int BlockPoolSize, const NVM::FlashMemory::Physical_Page_Address& planeAddress);
-			void Do_GC_for_Zone(Zone_ID_type CandidateZoneID);
+			void Do_GC_for_Zone(User_Request* user_request);
 	private:
 
 	};
