@@ -26,12 +26,6 @@ IO_Flow_Trace_Based::~IO_Flow_Trace_Based()
 
 Host_IO_Request *IO_Flow_Trace_Based::Generate_next_request()
 {
-	if (current_trace_line[0].compare("//") == 0)
-	{	
-		// This line is comment, ignore it
-		return NULL;
-	}
-
 	if (current_trace_line.size() == 0 || STAT_generated_request_count >= total_requests_to_be_generated)
 	{
 		return NULL;
@@ -99,7 +93,7 @@ void IO_Flow_Trace_Based::Start_simulation()
 
 	sim_time_type last_request_arrival_time = 0;
 	while (std::getline(trace_file, trace_line))
-	{
+	{		
 		Utils::Helper_Functions::Remove_cr(trace_line);
 		current_trace_line.clear();
 		Utils::Helper_Functions::Tokenize(trace_line, ASCIILineDelimiter, current_trace_line);
@@ -118,6 +112,7 @@ void IO_Flow_Trace_Based::Start_simulation()
 
 	trace_file.close();
 	PRINT_MESSAGE("Trace file: " << trace_file_path << " seems healthy");
+	PRINT_MESSAGE(" in the tracefile, there are " << total_requests_in_file << " requests, except comment lines." );
 
 	if (total_replay_no == 1)
 	{

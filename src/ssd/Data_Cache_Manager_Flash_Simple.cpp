@@ -100,7 +100,7 @@ namespace SSD_Components
 				default:
 					PRINT_ERROR("The specified caching mode is not not support in simple cache manager!")
 			}
-		} else {//This is a write request
+		} else if (user_request->Type == UserRequestType::WRITE) {//This is a write request
 			switch (caching_mode_per_input_stream[user_request->Stream_id])
 			{
 				case Caching_Mode::TURNED_OFF:
@@ -117,6 +117,10 @@ namespace SSD_Components
 				default:
 					PRINT_ERROR("The specified caching mode is not not support in simple cache manager!")
 			}
+		}
+		else if (user_request->Type == UserRequestType::ERASE) {  // for ZNS
+			PRINT_ERROR("Do something for zone GC, here is Data_Cache_Manager_Flash_Simple::process_new_user_requests");
+			// TODO!! we need to implement here 
 		}
 	}
 

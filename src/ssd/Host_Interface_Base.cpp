@@ -111,6 +111,10 @@ namespace SSD_Components
 				this->input_streams[transaction->Stream_id]->STAT_sum_of_write_transactions_transfer_time += transaction->STAT_transfer_time;
 				this->input_streams[transaction->Stream_id]->STAT_sum_of_write_transactions_waiting_time += (Simulator->Time() - transaction->Issue_time) - transaction->STAT_execution_time - transaction->STAT_transfer_time;
 				break;
+			case Transaction_Type::ERASE:
+				// TODO
+				std::cout << "Do something here in Input_Stream_Manager_Base::Update_transaction_statistics()" << std::endl;
+				break;
 			default:
 				break;
 		}
