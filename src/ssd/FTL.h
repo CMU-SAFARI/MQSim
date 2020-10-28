@@ -42,8 +42,8 @@ namespace SSD_Components
 		NVM_PHY_ONFI* PHY;
 		void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 		
-		
-		Flash_Zone_Manager_Base* ZoneManager;
+		// for ZNS
+		Flash_Zone_Manager_Base* ZoneManager;	
 		bool SupportZone;
 
 	private:

@@ -8,8 +8,7 @@ namespace NVM
 {
 	namespace FlashMemory
 	{
-		// todo, what are zone status?
-		enum class Zone_Status {EMPTY, ACTIVE, FULL};
+		enum class Zone_Status {EMPTY, OPENED, CLOSED, OFFLINE, FULL};
 	
 		class Zone
 		{

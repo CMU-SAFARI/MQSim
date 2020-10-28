@@ -87,9 +87,8 @@ inline void Input_Stream_Manager_NVMe::Handle_new_arrived_request(User_Request *
 		((Input_Stream_NVMe *)input_streams[request->Stream_id])->STAT_number_of_write_requests++;
 		((Host_Interface_NVMe *)host_interface)->request_fetch_unit->Fetch_write_data(request);
 	}
-	else if (request->Type == UserRequestType::ERASE)
+	else if (request->Type == UserRequestType::ERASE) // for ZNS
 	{
-		//std::cout << "Do something here in Input_Stream_Manager_NVMe::Handle_new_arrived_request()" << std::endl;
 		((Input_Stream_NVMe *)input_streams[request->Stream_id])->Waiting_user_requests.push_back(request);
 		//((Input_Stream_NVMe *)input_streams[request->Stream_id])->STAT_number_of_erase_requests++;	// we need to do something for STAT
 		segment_user_request(request);

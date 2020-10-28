@@ -33,16 +33,25 @@ namespace SSD_Components
 	void GC_and_WL_Unit_Zone_Level::Check_gc_required(const unsigned int free_block_pool_size, const NVM::FlashMemory::Physical_Page_Address& planeAddress)
 	{
 		if (free_block_pool_size < block_pool_gc_threshold) {
-			// we need GC 
-			// there's no ENOUGH free space
-
-
+			// we need GC, there's no ENOUGH free space
+			// But, the host should do
 		}
+		return ;
 	}
 
 	void GC_and_WL_Unit_Zone_Level::Do_GC_for_Zone(User_Request* user_request)
 	{
-		std::cout << "here is GC_and_WL_Unit_Zone_Level::Do_GC_for_Zone()" << std::endl;
+		//std::cout << "here is GC_and_WL_Unit_Zone_Level::Do_GC_for_Zone()" << std::endl;
+		
+		// 1. we need to lock the zone and change its state to GC (Internal state)
+
+		// 2. get a list of blocks in the Zone 
+
+		// 3. For each block, Submit the erase operation
+
+		// 4. change the zone state to Empty and release the lock 
+
+		// 5. ack to the host?
 	}
 
 	
