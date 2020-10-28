@@ -56,7 +56,7 @@ namespace SSD_Components
 		AddressMappingDomain* domain = domains[transaction->Stream_id];
 
 		unsigned int zone_size = fzm->zone_size;
-		unsigned int zoneID = lpn / (zone_size * 1024 * 1024);
+		Zone_ID_type zoneID = lpn / (zone_size * 1024 * 1024);
 		unsigned int zoneOffset = lpn % (zone_size * 1024 * 1024);
 
 		if (zoneOffset < zones[zoneID]->write_point)
@@ -78,6 +78,20 @@ namespace SSD_Components
 	void Address_Mapping_Unit_Zone_Level::allocate_page_in_plane_for_user_write(NVM_Transaction_Flash_WR *transaction, bool is_for_gc)
 	{
 
+	}
+
+	Zone_ID_type Address_Mapping_Unit_Zone_Level::translate_lpa_to_zone_for_gc(std::list<NVM_Transaction*> transaction_list)
+	{
+		if (transaction_list.size() == 0) {
+			PRINT_ERROR("No transactions in NVM_Transaction_Flash_ER!!");
+		}
+
+		NVM_Transaction_Flash_ER* tr = static_cast<NVM_Transaction_Flash_ER*>(transaction_list.front());
+		LPA_type lpn = tr->LPA;
+		
+		transaction_list.remove(tr);
+
+		return lpn / (fzm->zone_size * 1024 * 1024);
 	}
 
 }

@@ -25,5 +25,4 @@ namespace SSD_Components
 	{
 		delete[] zones;
 	}
-
 }

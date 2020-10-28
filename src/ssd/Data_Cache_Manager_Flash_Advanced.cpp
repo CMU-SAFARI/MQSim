@@ -5,6 +5,8 @@
 #include "NVM_Transaction_Flash_WR.h"
 #include "FTL.h"
 
+#include "GC_and_WL_Unit_Zone_Level.h"
+
 namespace SSD_Components
 {
 	Data_Cache_Manager_Flash_Advanced::Data_Cache_Manager_Flash_Advanced(const sim_object_id_type& id, Host_Interface_Base* host_interface, NVM_Firmware* firmware, NVM_PHY_ONFI* flash_controller,
@@ -263,7 +265,8 @@ namespace SSD_Components
 		}
 		else if (user_request->Type == UserRequestType::ERASE)	// for ZNS
 		{
-			static_cast<FTL*>(nvm_firmware)->GC_and_WL_Unit->Do_GC_for_Zone(user_request);
+			GC_and_WL_Unit_Base* temp_gc = static_cast<FTL*>(nvm_firmware)->GC_and_WL_Unit;
+			static_cast<GC_and_WL_Unit_Zone_Level*>(temp_gc)->Do_GC_for_Zone(user_request);
 		}
 	}
 

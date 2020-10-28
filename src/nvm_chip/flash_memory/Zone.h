@@ -8,7 +8,8 @@ namespace NVM
 {
 	namespace FlashMemory
 	{
-		enum class Zone_Status {EMPTY, OPENED, CLOSED, OFFLINE, FULL};
+		enum class Zone_Status {EMPTY, OPENED, CLOSED, OFFLINE, FULL,
+								GC};
 	
 		class Zone
 		{
@@ -19,6 +20,10 @@ namespace NVM
 			unsigned int write_point;
 			Zone_Status zone_status;
 			unsigned int erase_count;
+			bool Has_ongoing_gc_wl;
+
+		private:
+
 		};
 	}
 }

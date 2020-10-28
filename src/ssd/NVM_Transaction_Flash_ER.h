@@ -11,7 +11,8 @@ namespace SSD_Components
 	class NVM_Transaction_Flash_ER : public NVM_Transaction_Flash
 	{
 	public:
-		NVM_Transaction_Flash_ER(Transaction_Source_Type source, stream_id_type streamID, const NVM::FlashMemory::Physical_Page_Address& address);NVM_Transaction_Flash_ER(Transaction_Source_Type source, stream_id_type streamID, const NVM::FlashMemory::Physical_Page_Address& address, LPA_type lpa);
+		NVM_Transaction_Flash_ER(Transaction_Source_Type source, stream_id_type streamID, const NVM::FlashMemory::Physical_Page_Address& address);
+		NVM_Transaction_Flash_ER(Transaction_Source_Type source, stream_id_type streamID, const NVM::FlashMemory::Physical_Page_Address& address, LPA_type lpa);
 		std::list<NVM_Transaction_Flash_WR *> Page_movement_activities;
 	};
 }

@@ -14,6 +14,7 @@ namespace NVM
 			write_point = 0;
 			erase_count = 0;
 			zone_status = Zone_Status::EMPTY;
+			Has_ongoing_gc_wl = false;
 		}
 
 		Zone::~Zone()

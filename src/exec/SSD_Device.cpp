@@ -200,13 +200,14 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 		if (parameters->Support_Zone)
 		{
 			fzm = new SSD_Components::Flash_Zone_Manager(this->Channel_count, 
-															this->Chip_no_per_channel, parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
+															this->Chip_no_per_channel, parameters->Flash_Parameters.Die_No_Per_Chip,
+															parameters->Flash_Parameters.Plane_No_Per_Die,
 															parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block, parameters->Flash_Parameters.Page_Capacity, 
-															parameters->Zone_Parameters.Zone_Size);
-
-			ftl->ZoneManager = fzm;
+															parameters->Zone_Parameters.Zone_Size,
+															parameters->Zone_Parameters.Zone_allocation_scheme, parameters->Zone_Parameters.SubZone_allocation_scheme);
 		}
-
+		ftl->ZoneManager = fzm;
+		
 		//Step 7: create Address_Mapping_Unit
 		SSD_Components::Address_Mapping_Unit_Base *amu;
 		std::vector<std::vector<flash_channel_ID_type>> flow_channel_id_assignments;

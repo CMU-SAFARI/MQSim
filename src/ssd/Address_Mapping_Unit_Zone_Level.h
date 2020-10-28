@@ -41,6 +41,8 @@ namespace SSD_Components
 			bool fold_large_addresses = true,
 			bool Support_Zone = true);
 		~Address_Mapping_Unit_Zone_Level();
+		
+		Zone_ID_type translate_lpa_to_zone_for_gc(std::list<NVM_Transaction*> transaction_list);
 
 	private:
 		static Address_Mapping_Unit_Zone_Level* _my_instance;
