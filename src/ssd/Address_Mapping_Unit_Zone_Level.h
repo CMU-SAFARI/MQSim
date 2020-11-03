@@ -42,7 +42,8 @@ namespace SSD_Components
 			bool Support_Zone = true);
 		~Address_Mapping_Unit_Zone_Level();
 		
-		Zone_ID_type translate_lpa_to_zone_for_gc(std::list<NVM_Transaction*> transaction_list);
+		Zone_ID_type translate_lpa_to_zoneID_for_gc(std::list<NVM_Transaction*> transaction_list);
+		Zone_ID_type get_zone_block_list(std::list<NVM_Transaction*> transaction_list, std::list<NVM::FlashMemory::Physical_Page_Address*> &list);
 
 	private:
 		static Address_Mapping_Unit_Zone_Level* _my_instance;

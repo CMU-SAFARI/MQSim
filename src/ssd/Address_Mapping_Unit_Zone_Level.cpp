@@ -70,6 +70,7 @@ namespace SSD_Components
 				targetAddress.DieID = domain->Die_ids[zoneOffset/channel_count % die_no_per_chip];
 				targetAddress.PlaneID = domain->Plane_ids[zoneOffset/(channel_count*die_no_per_chip) % plane_no_per_die];
 				break;
+				
 			default:
 				PRINT_ERROR("Unknown zone allocation scheme type!")
 		}		
@@ -80,7 +81,7 @@ namespace SSD_Components
 
 	}
 
-	Zone_ID_type Address_Mapping_Unit_Zone_Level::translate_lpa_to_zone_for_gc(std::list<NVM_Transaction*> transaction_list)
+	Zone_ID_type Address_Mapping_Unit_Zone_Level::translate_lpa_to_zoneID_for_gc(std::list<NVM_Transaction*> transaction_list)
 	{
 		if (transaction_list.size() == 0) {
 			PRINT_ERROR("No transactions in NVM_Transaction_Flash_ER!!");
@@ -88,10 +89,35 @@ namespace SSD_Components
 
 		NVM_Transaction_Flash_ER* tr = static_cast<NVM_Transaction_Flash_ER*>(transaction_list.front());
 		LPA_type lpn = tr->LPA;
-		
-		transaction_list.remove(tr);
 
 		return lpn / (fzm->zone_size * 1024 * 1024);
+	}
+
+	Zone_ID_type Address_Mapping_Unit_Zone_Level::get_zone_block_list(std::list<NVM_Transaction*> transaction_list, std::list<NVM::FlashMemory::Physical_Page_Address*> &list)
+	{
+		Zone_ID_type zoneID = translate_lpa_to_zoneID_for_gc(transaction_list);
+		NVM_Transaction_Flash_ER* tr = static_cast<NVM_Transaction_Flash_ER*>(transaction_list.front());
+		AddressMappingDomain* domain = domains[tr->Stream_id];
+
+		switch (domain->ZoneAllocationeScheme) {
+			case Zone_Allocation_Scheme_Type::CDPW:
+				for (int i = 0; i < fzm->zone_count; i++) {
+					for (int j = 4 * i; j < 4 * (i + 1); j++) {
+						NVM::FlashMemory::Physical_Page_Address* address = new NVM::FlashMemory::Physical_Page_Address;
+						address->ChannelID = domain->Channel_ids[i % channel_count];
+						address->ChipID = domain->Chip_ids[(i / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel];
+						address->DieID = domain->Die_ids[i / channel_count % die_no_per_chip];
+						address->PlaneID = domain->Plane_ids[i / (channel_count*die_no_per_chip) % plane_no_per_die];
+						address->BlockID = j;
+						list.push_back(address);
+					}
+				}
+				break;
+			default:
+				PRINT_MESSAGE("no zone allocateion scheme?");
+			
+		}
+		return zoneID;	
 	}
 
 }

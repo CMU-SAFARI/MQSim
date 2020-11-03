@@ -43,22 +43,44 @@ namespace SSD_Components
 
 	void GC_and_WL_Unit_Zone_Level::Do_GC_for_Zone(User_Request* user_request)
 	{
-		//std::cout << "here is GC_and_WL_Unit_Zone_Level::Do_GC_for_Zone()" << std::endl;
 		Flash_Zone_Manager* zm = static_cast<Flash_Zone_Manager*>(my_zone_manager);
 
-		Zone_ID_type zoneID = static_cast<Address_Mapping_Unit_Zone_Level*>(address_mapping_unit)->translate_lpa_to_zone_for_gc(user_request->Transaction_list);
-
-		// 2. get a list of blocks in the Zone 
+		// 1. get ZoneID and a list of blocks in the Zone 
 		std::list<NVM::FlashMemory::Physical_Page_Address*> block_list_in_a_zone;
-		zm->Get_Zone_Block_list(zoneID, block_list_in_a_zone);
+		Zone_ID_type zoneID = static_cast<Address_Mapping_Unit_Zone_Level*>(address_mapping_unit)->get_zone_block_list(user_request->Transaction_list, block_list_in_a_zone);
 		
-		// 1. we need to lock the zone and change its state to GC (Internal state)
+		// 2. we need to lock the zone and change its state to GC (Internal state)
 		zm->GC_WL_started(zoneID);	// Has_ongoing_erase = true;
 		zm->Change_Zone_State(zoneID, NVM::FlashMemory::Zone_Status::GC);
 
 		// 3. For each block, Submit the erase operation
+		std::list<NVM::FlashMemory::Physical_Page_Address*>::iterator address;
+		for (address = block_list_in_a_zone.begin(); address != block_list_in_a_zone.end(); address++)
+		{
+			std::cout << (*address)->BlockID << std::endl;
+			PlaneBookKeepingType* pbke = block_manager->Get_plane_bookkeeping_entry(*(*address));	// Get a controller for the plane
+			Block_Pool_Slot_Type* block = &pbke->Blocks[(*address)->BlockID];
+
+			block_manager->GC_WL_started(*(*address));
+			pbke->Ongoing_erase_operations.insert((*address)->BlockID);
+			address_mapping_unit->Set_barrier_for_accessing_physical_block(*(*address));
+
+			Stats::Total_gc_executions++;
+			tsu->Prepare_for_transaction_submit();
+
+			NVM_Transaction_Flash_ER* gc_erase_tr = 
+					new NVM_Transaction_Flash_ER(Transaction_Source_Type::GC_WL, pbke->Blocks[(*address)->BlockID].Stream_id, *(*address)); 
+			// Transaction_Source_type is userIO? GC_WL? how does it affect?
+
+			block->Erase_transaction = gc_erase_tr;
+			tsu->Submit_transaction(gc_erase_tr);
+		}
+
+		tsu->Schedule();
 
 		// 4. change the zone state to Empty and release the lock 
+
+		// we should wait here? 
 
 		// 5. ack to the host?
 	}

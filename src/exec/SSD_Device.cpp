@@ -204,7 +204,11 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 															parameters->Flash_Parameters.Plane_No_Per_Die,
 															parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block, parameters->Flash_Parameters.Page_Capacity, 
 															parameters->Zone_Parameters.Zone_Size,
-															parameters->Zone_Parameters.Zone_allocation_scheme, parameters->Zone_Parameters.SubZone_allocation_scheme);
+															parameters->Zone_Parameters.Zone_allocation_scheme, parameters->Zone_Parameters.SubZone_allocation_scheme,
+															parameters->Zone_Parameters.Channel_No_Per_Zone, 
+															parameters->Zone_Parameters.Chip_No_Per_Zone,
+															parameters->Zone_Parameters.Die_No_Per_Zone,
+															parameters->Zone_Parameters.Plane_No_Per_Zone);
 		}
 		ftl->ZoneManager = fzm;
 		
