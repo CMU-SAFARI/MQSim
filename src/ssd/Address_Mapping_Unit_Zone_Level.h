@@ -15,10 +15,12 @@
 
 namespace SSD_Components
 {
+	
 	class Address_Mapping_Unit_Zone_Level : public Address_Mapping_Unit_Page_Level
 	{
 		friend class GC_and_WL_Unit_Page_Level;
-		//friend class GC_and_WL_Unit_Zone_Level;
+		friend class GC_and_WL_Unit_Zone_Level;
+		
 	public:
 		Address_Mapping_Unit_Zone_Level(const sim_object_id_type& id, FTL* ftl, 
 			NVM_PHY_ONFI* flash_controller, Flash_Block_Manager_Base* block_manager, Flash_Zone_Manager_Base* zone_manager,
@@ -44,16 +46,19 @@ namespace SSD_Components
 		
 		Zone_ID_type translate_lpa_to_zoneID_for_gc(std::list<NVM_Transaction*> transaction_list);
 		Zone_ID_type get_zone_block_list(std::list<NVM_Transaction*> transaction_list, std::list<NVM::FlashMemory::Physical_Page_Address*> &list);
+		void Translate_lpa_to_ppa_and_dispatch(const std::list<NVM_Transaction*>& transactionList);
 
-	private:
-		static Address_Mapping_Unit_Zone_Level* _my_instance;
+	//private:
+		//static Address_Mapping_Unit_Zone_Level* _my_instance;
+		SSD_Components::AddressMappingDomain** domains;
 		Flash_Zone_Manager_Base *fzm;
 		NVM::FlashMemory::Zone **zones;
 
 		void allocate_plane_for_user_write(NVM_Transaction_Flash_WR* transaction);
 		void allocate_page_in_plane_for_user_write(NVM_Transaction_Flash_WR* transaction, bool is_for_gc);
 		void allocate_plane_for_preconditioning(stream_id_type stream_id, LPA_type lpn, NVM::FlashMemory::Physical_Page_Address& targetAddress);
-
+		bool query_cmt(NVM_Transaction_Flash* transaction);
+		bool translate_lpa_to_ppa(stream_id_type streamID, NVM_Transaction_Flash* transaction);
 	};
 
 }

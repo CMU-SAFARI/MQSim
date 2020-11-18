@@ -1,4 +1,3 @@
-931784000 1 1879048192 16 2
 938513000 1 1073741824 16 0
 938828000 1 805306368 16 0
 938944000 1 1879048192 32 0
@@ -53,3 +52,4 @@
 // The second column is device column
 // The 0fifth column : read (1) / write (0) / erase (2)
 // 2 == erase a zone whose start address is the address in the third column
+// 931784000 1 1879048192 16 2

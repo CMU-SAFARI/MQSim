@@ -17,6 +17,18 @@ namespace SSD_Components
 	{
 	}
 
+	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_user_write_in_Zone(const stream_id_type strem_id, NVM::FlashMemory::Physical_Page_Address& page_address)
+	{
+		PlaneBookKeepingType *plane_record = &plane_manager[page_address.ChannelID][page_address.ChipID][page_address.DieID][page_address.PlaneID];
+		plane_record->Valid_pages_count++;
+		plane_record->Free_pages_count--;
+
+		// we already have BlockId and PageID. 
+		program_transaction_issued(page_address);
+
+		plane_record->Check_bookkeeping_correctness(page_address);
+	}
+
 	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_user_write(const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& page_address)
 	{
 		PlaneBookKeepingType *plane_record = &plane_manager[page_address.ChannelID][page_address.ChipID][page_address.DieID][page_address.PlaneID];

@@ -245,7 +245,8 @@ namespace SSD_Components
 		delete[] Plane_ids;
 	}
 
-	inline void AddressMappingDomain::Update_mapping_info(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa, const PPA_type ppa, const page_status_type page_status_bitmap)
+	//inline 
+	void AddressMappingDomain::Update_mapping_info(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa, const PPA_type ppa, const page_status_type page_status_bitmap)
 	{
 		if (ideal_mapping) {
 			GlobalMappingTable[lpa].PPA = ppa;
@@ -256,7 +257,8 @@ namespace SSD_Components
 		}
 	}
 
-	inline page_status_type AddressMappingDomain::Get_page_status(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
+	//inline 
+	page_status_type AddressMappingDomain::Get_page_status(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
 	{
 		if (ideal_mapping) {
 			return GlobalMappingTable[lpa].WrittenStateBitmap;
@@ -265,7 +267,8 @@ namespace SSD_Components
 		}
 	}
 
-	inline PPA_type AddressMappingDomain::Get_ppa(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
+	//inline 
+	PPA_type AddressMappingDomain::Get_ppa(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
 	{
 		if (ideal_mapping) {
 			return GlobalMappingTable[lpa].PPA;
@@ -279,7 +282,8 @@ namespace SSD_Components
 		return GlobalMappingTable[lpa].PPA;
 	}
 
-	inline bool AddressMappingDomain::Mapping_entry_accessible(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
+	//inline 
+	bool AddressMappingDomain::Mapping_entry_accessible(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
 	{
 		if (ideal_mapping) {
 			return true;
