@@ -117,7 +117,7 @@ namespace SSD_Components
 				bool fully_include_hot_addresses = false;
 
 				if (stat->Address_distribution_type == Utils::Address_Distribution_Type::RANDOM_HOTCOLD)//treat a workload with very low hot/cold values as a uniform random workload
-					if (stat->Ratio_of_hot_addresses_to_whole_working_set > 0.3)
+					if (stat->Ratio_of_hot_addresses_to_whole_working_set < 0.3)
 						decision_dist_type = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
 
 
