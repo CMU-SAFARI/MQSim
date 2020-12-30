@@ -180,6 +180,9 @@ void Input_Stream_Manager_NVMe::segment_user_request(User_Request *user_request)
 	LHA_type lsa2 = user_request->Start_LBA;
 	unsigned int req_size = user_request->SizeInSectors;
 
+	//std::cout << "nysong" << std::endl;
+	//std::cout << "lsa = " << lsa << " req_size = " << req_size << std::endl;
+
 	page_status_type access_status_bitmap = 0;
 	unsigned int handled_sectors_count = 0;
 	unsigned int transaction_size = 0;
@@ -227,6 +230,9 @@ void Input_Stream_Manager_NVMe::segment_user_request(User_Request *user_request)
 
 		lsa = lsa + transaction_size;
 		handled_sectors_count += transaction_size;
+
+		//std::cout << "nysong" << std::endl;
+		//std::cout << "handled_sectors_count = " << handled_sectors_count << std::endl;
 	}
 }
 

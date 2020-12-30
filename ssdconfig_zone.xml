@@ -36,16 +36,16 @@
 		<Use_Copyback_for_GC>false</Use_Copyback_for_GC>
 		<Preemptible_GC_Enabled>false</Preemptible_GC_Enabled>
 		<GC_Hard_Threshold>0.005000</GC_Hard_Threshold>
-		<Dynamic_Wearleveling_Enabled>true</Dynamic_Wearleveling_Enabled>
-		<Static_Wearleveling_Enabled>true</Static_Wearleveling_Enabled>
+		<Dynamic_Wearleveling_Enabled>false</Dynamic_Wearleveling_Enabled>
+		<Static_Wearleveling_Enabled>false</Static_Wearleveling_Enabled>
 		<Static_Wearleveling_Threshold>100</Static_Wearleveling_Threshold>
 		<Preferred_suspend_erase_time_for_read>700000</Preferred_suspend_erase_time_for_read>
 		<Preferred_suspend_erase_time_for_write>700000</Preferred_suspend_erase_time_for_write>
 		<Preferred_suspend_write_time_for_read>100000</Preferred_suspend_write_time_for_read>
-		<Flash_Channel_Count>8</Flash_Channel_Count>
+		<Flash_Channel_Count>4</Flash_Channel_Count>
 		<Flash_Channel_Width>1</Flash_Channel_Width>
 		<Channel_Transfer_Rate>333</Channel_Transfer_Rate>
-		<Chip_No_Per_Channel>4</Chip_No_Per_Channel>
+		<Chip_No_Per_Channel>2</Chip_No_Per_Channel>
 		<Flash_Comm_Protocol>NVDDR2</Flash_Comm_Protocol>
 		<Flash_Parameter_Set>
 			<Flash_Technology>MLC</Flash_Technology>
@@ -69,8 +69,8 @@
 		</Flash_Parameter_Set>
 		<Zone_Parameter_Set>
 			<Zone_Size>256</Zone_Size>
-			<Channel_No_Per_Zone>8</Channel_No_Per_Zone>
-			<Chip_No_Per_Zone>4</Chip_No_Per_Zone>
+			<Channel_No_Per_Zone>4</Channel_No_Per_Zone>
+			<Chip_No_Per_Zone>2</Chip_No_Per_Zone>
 			<Die_No_per_Zone>2</Die_No_per_Zone>
 			<Plane_No_Per_Zone>2</Plane_No_Per_Zone>
 			<Zone_Allocation_Scheme>CDPW</Zone_Allocation_Scheme>

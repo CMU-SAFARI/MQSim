@@ -115,12 +115,12 @@ namespace SSD_Components
 		Flash_Plane_Allocation_Scheme_Type PlaneAllocationScheme;
 
 		// ZNS
-		Zone_Allocation_Scheme_Type ZoneAllocationeScheme;
+		Zone_Allocation_Scheme_Type ZoneAllocationScheme;
 		SubZone_Allocation_Scheme_Type SubZoneAllocationScheme;
-		unsigned int Channel_No_Per_Zone;
-		unsigned int Chip_No_Per_Zone;
-		unsigned int Die_No_Per_Zone;
-		unsigned int Plane_No_Per_Zone;
+		unsigned int Channel_No_Per_Zone = 0;
+		unsigned int Chip_No_Per_Zone = 0;
+		unsigned int Die_No_Per_Zone = 0;
+		unsigned int Plane_No_Per_Zone = 0;
 		// ------- 
 
 		flash_channel_ID_type* Channel_ids;

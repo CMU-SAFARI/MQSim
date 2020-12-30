@@ -17,6 +17,7 @@ namespace SSD_Components
 	{
 	}
 
+	// for ZNS
 	void Flash_Block_Manager::Allocate_block_and_page_in_plane_for_user_write_in_Zone(const stream_id_type strem_id, NVM::FlashMemory::Physical_Page_Address& page_address)
 	{
 		PlaneBookKeepingType *plane_record = &plane_manager[page_address.ChannelID][page_address.ChipID][page_address.DieID][page_address.PlaneID];

@@ -317,7 +317,9 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 			if (!parameters->Support_Zone)
 				throw std::invalid_argument("The device is not ZNS, and the current Address_Mapping is ZONE_LEVEL. Please use PAGE_LEVEL or HYBRID as Address_Mapping");
 			amu = new SSD_Components::Address_Mapping_Unit_Zone_Level(ftl->ID() + ".AddressMappingUnit", ftl, (SSD_Components::NVM_PHY_ONFI *)device->PHY,
-																	  fbm, fzm, parameters->Ideal_Mapping_Table, parameters->CMT_Capacity, 
+																	  fbm, fzm, 
+																	  parameters->Support_Zone,
+																	  parameters->Ideal_Mapping_Table, parameters->CMT_Capacity, 
 																	  parameters->Plane_Allocation_Scheme, 
 																	  parameters->Zone_Parameters.Zone_allocation_scheme,
 																	  parameters->Zone_Parameters.SubZone_allocation_scheme,
@@ -329,8 +331,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 																	  flow_channel_id_assignments, flow_chip_id_assignments, flow_die_id_assignments, flow_plane_id_assignments,
 																	  parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
 																	  parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Flash_Parameters.Page_Capacity, parameters->Overprovisioning_Ratio,
-																	  parameters->CMT_Sharing_Mode,
-																	  parameters->Support_Zone);
+																	  parameters->CMT_Sharing_Mode);
 
 			break; 
 		default:

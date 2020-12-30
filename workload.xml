@@ -4,12 +4,12 @@
 		<IO_Flow_Parameter_Set_Trace_Based>
 			<Priority_Class>HIGH</Priority_Class>
 			<Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
-			<Channel_IDs>0,1,2,3,4,5,6,7</Channel_IDs>
-			<Chip_IDs>0,1,2,3</Chip_IDs>
+			<Channel_IDs>0,1,2,3</Channel_IDs>
+			<Chip_IDs>0,1</Chip_IDs>
 			<Die_IDs>0,1</Die_IDs>
 			<Plane_IDs>0,1</Plane_IDs>
 			<Initial_Occupancy_Percentage>70</Initial_Occupancy_Percentage>
-			<File_Path>traces/zns-trace_nysong.trace</File_Path>
+			<File_Path>traces/a.trace</File_Path>
 			<Percentage_To_Be_Executed>100</Percentage_To_Be_Executed>
 			<Relay_Count>1</Relay_Count>
 			<Time_Unit>NANOSECOND</Time_Unit>

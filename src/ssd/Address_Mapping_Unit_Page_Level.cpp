@@ -24,7 +24,8 @@ namespace SSD_Components
 		}
 	}
 
-	inline bool Cached_Mapping_Table::Exists(const stream_id_type streamID, const LPA_type lpa)
+	//inline
+	bool Cached_Mapping_Table::Exists(const stream_id_type streamID, const LPA_type lpa)
 	{
 		LPA_type key = LPN_TO_UNIQUE_KEY(streamID, lpa);
 		auto it = addressMap.find(key);
@@ -103,8 +104,10 @@ namespace SSD_Components
 		return false;
 	}
 
-	inline bool Cached_Mapping_Table::Check_free_slot_availability()
+	//inline 
+	bool Cached_Mapping_Table::Check_free_slot_availability()
 	{
+
 		return addressMap.size() < capacity;
 	}
 	
@@ -130,6 +133,9 @@ namespace SSD_Components
 
 	CMTSlotType Cached_Mapping_Table::Evict_one_slot(LPA_type& lpa)
 	{
+		std::cout << "nysong in Evict_one_slot" << std::endl;
+		
+
 		assert(addressMap.size() > 0);
 		addressMap.erase(lruList.back().first);
 		lpa = UNIQUE_KEY_TO_LPN(lruList.back().second->Stream_id,lruList.back().first);
@@ -277,7 +283,8 @@ namespace SSD_Components
 		}
 	}
 
-	inline PPA_type AddressMappingDomain::Get_ppa_for_preconditioning(const stream_id_type stream_id, const LPA_type lpa)
+	//inline 
+	PPA_type AddressMappingDomain::Get_ppa_for_preconditioning(const stream_id_type stream_id, const LPA_type lpa)
 	{
 		return GlobalMappingTable[lpa].PPA;
 	}
@@ -285,6 +292,10 @@ namespace SSD_Components
 	//inline 
 	bool AddressMappingDomain::Mapping_entry_accessible(const bool ideal_mapping, const stream_id_type stream_id, const LPA_type lpa)
 	{
+
+		//std::cout << "nysong" << std::endl;
+		//std::cout << "ideal_mapping = " << ideal_mapping << std::endl;
+
 		if (ideal_mapping) {
 			return true;
 		} else {
