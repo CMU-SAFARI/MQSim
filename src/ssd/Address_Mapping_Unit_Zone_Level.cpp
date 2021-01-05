@@ -753,16 +753,16 @@ namespace SSD_Components
 						domain->Plane_No_Per_Zone == plane_no_per_die) { // maximum parallelism
 							std::cout << "nysong - this is the maximum parallelism in one zone" << std::endl;
 							blockID = zoneOffset / block_size_in_byte;
-							blockOffset = zoneOffset % block_size_in_byte;
-							pageID = blockOffset / page_size_in_byte;
+							//blockOffset = zoneOffset % block_size_in_byte;
+							pageID = zoneOffset / page_size_in_byte;
 
-							index = blockID;
+							index = pageID;
 							targetAddress.ChannelID = domain->Channel_ids[index % channel_count];
 							targetAddress.ChipID = domain->Chip_ids[(index / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel];
 							targetAddress.DieID = domain->Die_ids[index / channel_count % die_no_per_chip];
 							targetAddress.PlaneID = domain->Plane_ids[index / (channel_count*die_no_per_chip) % plane_no_per_die];
-							targetAddress.BlockID = zoneID * (zone_size_in_byte / zone_p_level) + (blockID % (zone_p_level));
-							targetAddress.PageID = pageID;
+							targetAddress.BlockID = (zoneID * subzone_no_per_zone) + (blockID % (zone_p_level));
+							targetAddress.PageID = pageID % (block_size_in_byte / page_size_in_byte);
 						}
 
 				}
@@ -867,160 +867,60 @@ namespace SSD_Components
 	PPA_type Address_Mapping_Unit_Zone_Level::online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap)
 	{
 		AddressMappingDomain* domain = domains[stream_id];
-		switch (domain->PlaneAllocationScheme) {
-			//Static: Channel first
-			case Flash_Plane_Allocation_Scheme_Type::CWDP:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)(lpa % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / domain->Channel_no) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Chip_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Chip_no * domain->Die_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::CWPD:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)(lpa % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / domain->Channel_no) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Chip_no * domain->Plane_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Chip_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::CDWP:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)(lpa % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Die_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / domain->Channel_no) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Die_no * domain->Chip_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::CDPW:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)(lpa % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Die_no * domain->Plane_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / domain->Channel_no) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Die_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::CPWD:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)(lpa % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Plane_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Plane_no * domain->Chip_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / domain->Channel_no) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::CPDW:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)(lpa % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Plane_no * domain->Die_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Channel_no * domain->Plane_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / domain->Channel_no) % domain->Plane_no)];
-				break;
-				//Static: Way first
-			case Flash_Plane_Allocation_Scheme_Type::WCDP:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / domain->Chip_no) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)(lpa % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Channel_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Channel_no * domain->Die_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::WCPD:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / domain->Chip_no) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)(lpa % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Channel_no * domain->Plane_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Channel_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::WDCP:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Die_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)(lpa % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / domain->Chip_no) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Die_no * domain->Channel_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::WDPC:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Die_no * domain->Plane_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)(lpa % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / domain->Chip_no) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Die_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::WPCD:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Plane_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)(lpa % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Plane_no * domain->Channel_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / domain->Chip_no) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::WPDC:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Plane_no * domain->Die_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)(lpa % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Chip_no * domain->Plane_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / domain->Chip_no) % domain->Plane_no)];
-				break;
-				//Static: Die first
-			case Flash_Plane_Allocation_Scheme_Type::DCWP:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / domain->Die_no) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Die_no * domain->Channel_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)(lpa % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Die_no * domain->Channel_no * domain->Chip_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::DCPW:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / domain->Die_no) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Die_no * domain->Channel_no * domain->Plane_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)(lpa % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Die_no * domain->Channel_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::DWCP:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Die_no * domain->Chip_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / domain->Die_no) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)(lpa % domain->Die_no)];
-				read_address.PlaneID = domain->Die_ids[(unsigned int)((lpa / (domain->Die_no * domain->Chip_no * domain->Channel_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::DWPC:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Die_no * domain->Chip_no * domain->Plane_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / domain->Die_no) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)(lpa % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / (domain->Die_no * domain->Chip_no)) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::DPCW:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Die_no * domain->Plane_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Die_no * domain->Plane_no * domain->Channel_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)(lpa % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / domain->Die_no) % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::DPWC:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Die_no * domain->Plane_no * domain->Chip_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Die_no * domain->Plane_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)(lpa % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)((lpa / domain->Die_no) % domain->Plane_no)];
-				break;
-				//Static: Plane first
-			case Flash_Plane_Allocation_Scheme_Type::PCWD:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / domain->Plane_no) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Channel_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Channel_no * domain->Chip_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)(lpa % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::PCDW:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / domain->Plane_no) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Channel_no * domain->Die_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Channel_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)(lpa % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::PWCD:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Chip_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / domain->Plane_no) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Chip_no * domain->Channel_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)(lpa % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::PWDC:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Chip_no * domain->Die_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / domain->Plane_no) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Chip_no)) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)(lpa % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::PDCW:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Die_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Die_no * domain->Channel_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / domain->Plane_no) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)(lpa % domain->Plane_no)];
-				break;
-			case Flash_Plane_Allocation_Scheme_Type::PDWC:
-				read_address.ChannelID = domain->Channel_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Die_no * domain->Chip_no)) % domain->Channel_no)];
-				read_address.ChipID = domain->Chip_ids[(unsigned int)((lpa / (domain->Plane_no * domain->Die_no)) % domain->Chip_no)];
-				read_address.DieID = domain->Die_ids[(unsigned int)((lpa / domain->Plane_no) % domain->Die_no)];
-				read_address.PlaneID = domain->Plane_ids[(unsigned int)(lpa % domain->Plane_no)];
-				break;
+
+		unsigned int zone_size_in_byte, block_size_in_byte, zone_p_level, total_level;
+		unsigned int zoneOffset, subzoneID, subzoneOffset, blockID, blockOffset, pageID;
+
+		zone_size_in_byte = fzm->zone_size * 1024 * 1024;
+		block_size_in_byte = pages_no_per_block * page_size_in_byte;
+		zone_p_level = domain->Channel_No_Per_Zone * domain->Chip_No_Per_Zone * domain->Die_No_Per_Zone * domain->Plane_No_Per_Zone;
+		total_level = domain->Channel_no * domain->Chip_no * domain->Die_no * domain->Plane_no;
+
+		Zone_ID_type zoneID = lpa / zone_size_in_byte;
+		zoneOffset = lpa % zone_size_in_byte;
+
+		unsigned int subzone_no_per_zone = zone_size_in_byte / zone_p_level / block_size_in_byte;
+
+		unsigned int index;	
+
+		switch (domain->ZoneAllocationScheme) {
+			case Zone_Allocation_Scheme_Type::CDPW:
+				if (domain->Channel_No_Per_Zone > 1) {	// one zone is spread to two channels at least
+					if (domain->Channel_No_Per_Zone == channel_count && 
+						domain->Chip_No_Per_Zone == chip_no_per_channel && 
+						domain->Die_No_Per_Zone == die_no_per_chip && 
+						domain->Plane_No_Per_Zone == plane_no_per_die) { // maximum parallelism
+							blockID = zoneOffset / block_size_in_byte;
+							//blockOffset = zoneOffset % block_size_in_byte;
+							pageID = zoneOffset / page_size_in_byte;
+
+							index = pageID;
+							read_address.ChannelID = domain->Channel_ids[index % channel_count];
+							read_address.ChipID = domain->Chip_ids[(index / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel];
+							read_address.DieID = domain->Die_ids[index / channel_count % die_no_per_chip];
+							read_address.PlaneID = domain->Plane_ids[index / (channel_count*die_no_per_chip) % plane_no_per_die];
+							read_address.BlockID = (zoneID * subzone_no_per_zone) + (blockID % zone_p_level);
+							read_address.PageID = pageID % (block_size_in_byte / page_size_in_byte);
+						}
+
+				}
+				else if (domain->Chip_No_Per_Zone > 1) {
+
+				} 
+				else if (domain->Die_No_Per_Zone > 1) {
+
+				}
+				else if (domain->Plane_No_Per_Zone > 1) {
+
+				}
+				else {	// 1*1*1*1 = minimum parallelism in one zone, zone_p_level is 1 
+
+				}
 			default:
 				PRINT_ERROR("Unknown plane allocation scheme type!")
 		}
 
-		block_manager->Allocate_block_and_page_in_plane_for_user_write(stream_id, read_address);
+		block_manager->Allocate_block_and_page_in_plane_for_user_write_in_Zone(stream_id, read_address);
 		PPA_type ppa = Convert_address_to_ppa(read_address);
 		domain->Update_mapping_info(ideal_mapping_table, stream_id, lpa, ppa, read_sectors_bitmap);
 

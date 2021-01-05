@@ -14,18 +14,20 @@ unsigned int biggest_zone_number = 6;
 
 int main(int argc, char** argv) {
 
-    if (argc < 2) {
-        cout << "please, name the out file, \"./a.out <output file name>\"" << endl;
+    if (argc < 3) {
+        cout << "please, name the out file, \"./a.out <request size in KB> <output file name>\"" << endl;
         return 1;
     }
-    string outputfile = argv[1];
+    string outputfile = argv[2];
+    string request_size = argv[1];
     srand(time(NULL));
 
     ofstream writeFile;
     writeFile.open(outputfile);
     string trace_line = "";
 
-    unsigned int request_size_in_KB = 128;
+    unsigned int request_size_in_KB = stoi(request_size);
+    cout << "request size is " << request_size_in_KB << " KB" << endl;
     unsigned int first_arrival_time = 48513000;
     unsigned long long int first_start_LBA = smallest_zone_number * 256 * 1024 * 1024 / 512;
 

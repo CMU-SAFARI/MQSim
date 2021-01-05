@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/MQSim",
-            "args": ["-i","ssdconfig.xml","-w","workload.xml"],
+            "args": ["-i","ssdconfig_zone.xml","-w","workload.xml"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
