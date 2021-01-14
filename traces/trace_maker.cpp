@@ -8,11 +8,13 @@ using namespace std;
 
 unsigned int sector_size_in_bytes = 512;
 unsigned int zone_size_MB = 256;
-int sequential = 1;     // 1 means it is sequential 
 unsigned int smallest_zone_number = 2;
 unsigned int biggest_zone_number = 6;
+unsigned int total_no_of_request = 10000;
 
 int main(int argc, char** argv) {
+
+    cout << "This generates a sequential write requets." << endl;
 
     if (argc < 3) {
         cout << "please, name the out file, \"./a.out <request size in KB> <output file name>\"" << endl;
@@ -39,19 +41,19 @@ int main(int argc, char** argv) {
 
     unsigned int prev_arrival_time = first_arrival_time;
     unsigned long long int prev_start_LBA = first_start_LBA;
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < total_no_of_request; i++) {
         arrival_time = to_string(prev_arrival_time);
         start_LBA = to_string(prev_start_LBA);
         device_number = "1";
-        request_size_in_sector = to_string(request_size_in_KB * 1024 / sector_size_in_bytes);
-        type_of_request = "0";   // 0 means write request
+        request_size_in_sector = to_string(request_size_in_KB * 2); // 2 == 1024 / sector_size_in_bytes
+        type_of_request = "0";   // 0 means that it's a write reqeust, read request is "1"
         
         trace_line = arrival_time + " " + device_number + " " + start_LBA + " " + request_size_in_sector + " " + type_of_request + "\n";
         
         writeFile.write(trace_line.c_str(), trace_line.size());
-        sscanf(arrival_time.c_str(), "%d", &prev_arrival_time); //prev_arrival_time = stoi(arrival_time.c_str());
-        sscanf(start_LBA.c_str(), "%llu", &prev_start_LBA); //prev_start_LBA = stoi(start_LBA.c_str());
         trace_line.clear();
+        sscanf(arrival_time.c_str(), "%d", &prev_arrival_time); 
+        sscanf(start_LBA.c_str(), "%llu", &prev_start_LBA); 
 
         prev_arrival_time = prev_arrival_time + ((rand() % 15) * 1000);
         prev_start_LBA = prev_start_LBA + request_size_in_KB * 1024;

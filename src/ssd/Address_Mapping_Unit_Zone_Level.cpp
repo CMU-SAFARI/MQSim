@@ -736,12 +736,15 @@ namespace SSD_Components
 		zone_size_in_byte = fzm->zone_size * 1024 * 1024;
 		block_size_in_byte = pages_no_per_block * page_size_in_byte;
 		zone_p_level = domain->Channel_No_Per_Zone * domain->Chip_No_Per_Zone * domain->Die_No_Per_Zone * domain->Plane_No_Per_Zone;
+		// This zone_p_level is the same as the number of subzones per zone
 		total_level = domain->Channel_no * domain->Chip_no * domain->Die_no * domain->Plane_no;
 
 		Zone_ID_type zoneID = lpn / zone_size_in_byte;
 		zoneOffset = lpn % zone_size_in_byte;
 
-		unsigned int subzone_no_per_zone = zone_size_in_byte / zone_p_level / block_size_in_byte;
+		//unsigned int subzone_no_per_zone 
+		unsigned int block_no_per_subzone = zone_size_in_byte / zone_p_level / block_size_in_byte;
+
 
 		unsigned int index;
 		switch (domain->ZoneAllocationScheme) {
@@ -752,17 +755,16 @@ namespace SSD_Components
 						domain->Die_No_Per_Zone == die_no_per_chip && 
 						domain->Plane_No_Per_Zone == plane_no_per_die) { // maximum parallelism
 							std::cout << "nysong - this is the maximum parallelism in one zone" << std::endl;
-							blockID = zoneOffset / block_size_in_byte;
-							//blockOffset = zoneOffset % block_size_in_byte;
+							//blockID = zoneOffset / block_size_in_byte;
 							pageID = zoneOffset / page_size_in_byte;
-
+				
 							index = pageID;
-							targetAddress.ChannelID = domain->Channel_ids[index % channel_count];
-							targetAddress.ChipID = domain->Chip_ids[(index / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel];
-							targetAddress.DieID = domain->Die_ids[index / channel_count % die_no_per_chip];
-							targetAddress.PlaneID = domain->Plane_ids[index / (channel_count*die_no_per_chip) % plane_no_per_die];
-							targetAddress.BlockID = (zoneID * subzone_no_per_zone) + (blockID % (zone_p_level));
-							targetAddress.PageID = pageID % (block_size_in_byte / page_size_in_byte);
+							targetAddress.ChannelID = domain->Channel_ids[(unsigned int)(index % channel_count)];
+							targetAddress.ChipID = domain->Chip_ids[(unsigned int)((index / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel)];
+							targetAddress.DieID = domain->Die_ids[(unsigned int)(index / channel_count % die_no_per_chip)];
+							targetAddress.PlaneID = domain->Plane_ids[(unsigned int)(index / (channel_count*die_no_per_chip) % plane_no_per_die)];
+							targetAddress.BlockID = (unsigned int)((zoneID * block_no_per_subzone) + ((pageID / total_level) / pages_no_per_block));
+							targetAddress.PageID = (unsigned int)((pageID / total_level) % pages_no_per_block);
 						}
 
 				}
@@ -775,8 +777,17 @@ namespace SSD_Components
 				else if (domain->Plane_No_Per_Zone > 1) {
 
 				}
-				else {	// 1*1*1*1 = minimum parallelism in one zone, zone_p_level is 1 
+				else {	// 1*1*1*1 = minimum parallelism in one zone, zone_p_level is 1, we will use only one channel, one chip, one die, one plane. That means, one zone's subzone and blocks are contiguous in one plane. 
+					blockID = zoneOffset / zone_size_in_byte;
+					pageID = (zoneOffset % zone_size_in_byte) / page_size_in_byte;
 
+					index = zoneID;
+					targetAddress.ChannelID = domain->Channel_ids[(unsigned int)(index % channel_count)];
+					targetAddress.ChipID = domain->Chip_ids[(unsigned int)((index / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel)];
+					targetAddress.DieID = domain->Die_ids[(unsigned int)(index / channel_count % die_no_per_chip)];
+					targetAddress.PlaneID = domain->Plane_ids[(unsigned int)(index / (channel_count*die_no_per_chip) % plane_no_per_die)]; 
+					targetAddress.BlockID = (unsigned int)((zoneID / total_level) + blockID);
+					targetAddress.PageID = pageID;
 				}
 				break;
 			default:
@@ -879,7 +890,8 @@ namespace SSD_Components
 		Zone_ID_type zoneID = lpa / zone_size_in_byte;
 		zoneOffset = lpa % zone_size_in_byte;
 
-		unsigned int subzone_no_per_zone = zone_size_in_byte / zone_p_level / block_size_in_byte;
+		//unsigned int subzone_no_per_zone 
+		unsigned int block_no_per_subzone = zone_size_in_byte / zone_p_level / block_size_in_byte;
 
 		unsigned int index;	
 
@@ -890,17 +902,16 @@ namespace SSD_Components
 						domain->Chip_No_Per_Zone == chip_no_per_channel && 
 						domain->Die_No_Per_Zone == die_no_per_chip && 
 						domain->Plane_No_Per_Zone == plane_no_per_die) { // maximum parallelism
-							blockID = zoneOffset / block_size_in_byte;
-							//blockOffset = zoneOffset % block_size_in_byte;
+							//blockID = zoneOffset / block_size_in_byte;
 							pageID = zoneOffset / page_size_in_byte;
 
 							index = pageID;
-							read_address.ChannelID = domain->Channel_ids[index % channel_count];
-							read_address.ChipID = domain->Chip_ids[(index / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel];
-							read_address.DieID = domain->Die_ids[index / channel_count % die_no_per_chip];
-							read_address.PlaneID = domain->Plane_ids[index / (channel_count*die_no_per_chip) % plane_no_per_die];
-							read_address.BlockID = (zoneID * subzone_no_per_zone) + (blockID % zone_p_level);
-							read_address.PageID = pageID % (block_size_in_byte / page_size_in_byte);
+							read_address.ChannelID = domain->Channel_ids[(unsigned int)(index % channel_count)];
+							read_address.ChipID = domain->Chip_ids[(unsigned int)((index / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel)];
+							read_address.DieID = domain->Die_ids[(unsigned int)(index / channel_count % die_no_per_chip)];
+							read_address.PlaneID = domain->Plane_ids[(unsigned int)(index / (channel_count*die_no_per_chip) % plane_no_per_die)];
+							read_address.BlockID = (unsigned int)((zoneID * block_no_per_subzone) + ((pageID / total_level) / pages_no_per_block));
+							read_address.PageID = (unsigned int)((pageID / total_level) % pages_no_per_block);
 						}
 
 				}
@@ -914,7 +925,16 @@ namespace SSD_Components
 
 				}
 				else {	// 1*1*1*1 = minimum parallelism in one zone, zone_p_level is 1 
+					blockID = zoneOffset / zone_size_in_byte;
+					pageID = (zoneOffset % zone_size_in_byte) / page_size_in_byte;
 
+					index = zoneID;
+					read_address.ChannelID = domain->Channel_ids[(unsigned int)(index % channel_count)];
+					read_address.ChipID = domain->Chip_ids[(unsigned int)((index / (channel_count * die_no_per_chip * plane_no_per_die)) % chip_no_per_channel)];
+					read_address.DieID = domain->Die_ids[(unsigned int)(index / channel_count % die_no_per_chip)];
+					read_address.PlaneID = domain->Plane_ids[(unsigned int)(index / (channel_count*die_no_per_chip) % plane_no_per_die)]; 
+					read_address.BlockID = (unsigned int)((zoneID / total_level) + blockID);
+					read_address.PageID = pageID;
 				}
 			default:
 				PRINT_ERROR("Unknown plane allocation scheme type!")

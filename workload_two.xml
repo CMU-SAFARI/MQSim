@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<MQSim_IO_Scenarios>
+	<IO_Scenario>
+		<IO_Flow_Parameter_Set_Trace_Based>
+			<Priority_Class>HIGH</Priority_Class>
+			<Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
+			<Channel_IDs>0,1,2,3</Channel_IDs>
+			<Chip_IDs>0,1</Chip_IDs>
+			<Die_IDs>0,1</Die_IDs>
+			<Plane_IDs>0,1</Plane_IDs>
+			<Initial_Occupancy_Percentage>70</Initial_Occupancy_Percentage>
+			<File_Path>traces/sequential_write_4KB_from_zone10</File_Path>
+			<Percentage_To_Be_Executed>100</Percentage_To_Be_Executed>
+			<Relay_Count>1</Relay_Count>
+			<Time_Unit>NANOSECOND</Time_Unit>
+		</IO_Flow_Parameter_Set_Trace_Based>
+		<IO_Flow_Parameter_Set_Trace_Based>
+			<Priority_Class>HIGH</Priority_Class>
+			<Device_Level_Data_Caching_Mode>WRITE_CACHE</Device_Level_Data_Caching_Mode>
+			<Channel_IDs>0,1,2,3</Channel_IDs>
+			<Chip_IDs>0,1</Chip_IDs>
+			<Die_IDs>0,1</Die_IDs>
+			<Plane_IDs>0,1</Plane_IDs>
+			<Initial_Occupancy_Percentage>70</Initial_Occupancy_Percentage>
+			<File_Path>traces/sequential_write_4KB_from_zone2</File_Path>
+			<Percentage_To_Be_Executed>100</Percentage_To_Be_Executed>
+			<Relay_Count>1</Relay_Count>
+			<Time_Unit>NANOSECOND</Time_Unit>
+		</IO_Flow_Parameter_Set_Trace_Based>
+	</IO_Scenario>
+</MQSim_IO_Scenarios>
