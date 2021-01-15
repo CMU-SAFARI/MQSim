@@ -15,12 +15,12 @@ unsigned int total_no_of_request = 10000;
 unsigned int zone_number = biggest_zone_number - smallest_zone_number + 1;
 
 struct zone {
-    unsigned int start_LBA;
-    unsigned int writepoint_LBA;
+    unsigned long long int start_LBA;
+    unsigned long long int writepoint_LBA;
     bool available;
 };
 
-struct zone *zonelist = (struct zone*)malloc(sizeof(struct zone)*zone_number);
+struct zone *zonelist = (struct zone*)malloc(sizeof(struct zone) * (zone_number + 1));
 
 bool all_zonelist_false()
 {
@@ -41,11 +41,16 @@ int main(int argc, char** argv) {
     }
     string outputfile = argv[2];
     string request_size = argv[1];
-    for (int i = 0; i < zone_number; i++) {
-        zonelist[i].start_LBA = (smallest_zone_number + i) * 256 * 1024 * 1024 / 512;
+
+    // zonelist initialization
+    for (int i = 0; i < zone_number + 1; i++) {
+        zonelist[i].start_LBA = (smallest_zone_number + i) * 1024 * 1024 * 512; // 256 MB / 512 B
+        cout << "each zone's start_LBA: " << zonelist[i].start_LBA << endl;
         zonelist[i].writepoint_LBA = zonelist[i].start_LBA;
         zonelist[i].available = true;
     }
+    zonelist[zone_number].available = false;
+    // The reason why the number of zonelist is zone_number+1 is for the checking zone fillup
 
     srand(time(NULL));
 
@@ -56,7 +61,6 @@ int main(int argc, char** argv) {
     unsigned int request_size_in_KB = stoi(request_size);
     cout << "request size is " << request_size_in_KB << " KB" << endl;
     unsigned int first_arrival_time = 48513000;
-    unsigned long long int first_start_LBA = smallest_zone_number * 256 * 1024 * 1024 / 512;
 
     string arrival_time;
     string start_LBA;
@@ -65,23 +69,24 @@ int main(int argc, char** argv) {
     string type_of_request;
 
     unsigned int prev_arrival_time = first_arrival_time;
-    unsigned long long int prev_start_LBA; // = zonelist[3].start_LBA;
-    for (int i = 0; i < total_no_of_request; i++) {
-        int zone_id;
-        while (zone_id = rand() % zone_number + smallest_zone_number) {
-            if(zonelist[zone_id].available == true)
-                break; 
-            else if (all_zonelist_false()) {
-                cout << "Every zone is filled up" << endl;
-                writeFile.close();
-                exit(0);
-            }
-        }
+    unsigned long long int prev_start_LBA;
+    int i, j;
+    for (i = 0; i < total_no_of_request; i++) {
+        int zone_id = rand() % zone_number;
+        // while (zone_id = rand() % zone_number + smallest_zone_number) {
+        //     if(zonelist[zone_id].available == true)
+        //         break; 
+        //     else if (all_zonelist_false()) {
+        //         cout << "Every zone is filled up" << endl;
+        //         writeFile.close();
+        //         exit(0);
+        //     }
+        // }
 
-        int access_count_in_one_zone = rand() % 100;
+        int access_count_in_one_zone = rand() % 50;
         prev_start_LBA = zonelist[zone_id].writepoint_LBA;
 
-        for (int j = 0; j < access_count_in_one_zone; j++) {
+        for (j = 0; j < access_count_in_one_zone; j++) {
             arrival_time = to_string(prev_arrival_time);
             start_LBA = to_string(prev_start_LBA);
             device_number = "1";
@@ -96,10 +101,11 @@ int main(int argc, char** argv) {
             sscanf(arrival_time.c_str(), "%d", &prev_arrival_time); 
             sscanf(start_LBA.c_str(), "%llu", &prev_start_LBA); 
             prev_arrival_time = prev_arrival_time + ((rand() % 15) * 1000);
-            prev_start_LBA = prev_start_LBA + request_size_in_KB * 1024;
+            prev_start_LBA = prev_start_LBA + (request_size_in_KB * 2); // 2 == 1024 / sector_size_in_bytes
             zonelist[zone_id].writepoint_LBA = prev_start_LBA;
             if (zonelist[zone_id].writepoint_LBA >= zonelist[zone_id+1].start_LBA) {
                 zonelist[zone_id].available = false;
+                cout << "zone # " << zone_id << "is filled up! no more write request!!" << endl;
                 break;
             }
             i++;

@@ -644,7 +644,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			{
 				Flash_Parameters.XML_deserialize(param);
 			}
-			else if (strcmp(param->name(), "Zone_Parameter_set") == 0) 
+			else if (strcmp(param->name(), "Zone_Parameter_Set") == 0) 
 			{
 				Zone_Parameters.XML_deserialize(param);
 			}

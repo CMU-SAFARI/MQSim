@@ -31,7 +31,9 @@ int main(int argc, char** argv) {
     unsigned int request_size_in_KB = stoi(request_size);
     cout << "request size is " << request_size_in_KB << " KB" << endl;
     unsigned int first_arrival_time = 48513000;
-    unsigned long long int first_start_LBA = smallest_zone_number * 256 * 1024 * 1024 / 512;
+    unsigned long long int first_start_LBA = smallest_zone_number * 512 * 1024 * 1024; //256 * 1024 * 1024 * 1024 / 512; == 256 MB / 512 B
+    // |---------512 byte-------||---------512 byte-------|
+    // LBA :       1                         2
 
     string arrival_time;
     string start_LBA;
@@ -56,7 +58,7 @@ int main(int argc, char** argv) {
         sscanf(start_LBA.c_str(), "%llu", &prev_start_LBA); 
 
         prev_arrival_time = prev_arrival_time + ((rand() % 15) * 1000);
-        prev_start_LBA = prev_start_LBA + request_size_in_KB * 1024;
+        prev_start_LBA = prev_start_LBA + request_size_in_KB * 2; // 2 == 1024 / sector_size_in_bytes;
     }
     writeFile.close();
     return 0;

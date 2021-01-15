@@ -71,7 +71,7 @@
 			<Zone_Size>256</Zone_Size>
 			<Channel_No_Per_Zone>4</Channel_No_Per_Zone>
 			<Chip_No_Per_Zone>2</Chip_No_Per_Zone>
-			<Die_No_per_Zone>2</Die_No_per_Zone>
+			<Die_No_Per_Zone>2</Die_No_per_Zone>
 			<Plane_No_Per_Zone>2</Plane_No_Per_Zone>
 			<Zone_Allocation_Scheme>CDPW</Zone_Allocation_Scheme>
 			<SubZone_Allocation_Scheme>CDPW</SubZone_Allocation_Scheme>

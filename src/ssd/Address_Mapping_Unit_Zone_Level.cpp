@@ -129,6 +129,8 @@ namespace SSD_Components
 			domains[domainID]->Chip_No_Per_Zone = ChipNoPerZone;
 			domains[domainID]->Die_No_Per_Zone = DieNoPerZone;
 			domains[domainID]->Plane_No_Per_Zone = PlaneNoPerZone;
+			std::cout << "CWPD=" << ChannelNoPerZone << ChipNoPerZone << DieNoPerZone << PlaneNoPerZone << std::endl;
+			std::cout << "'zone_size = " << fzm->zone_size << std::endl;
 		}
 		
 	}
@@ -754,7 +756,7 @@ namespace SSD_Components
 						domain->Chip_No_Per_Zone == chip_no_per_channel && 
 						domain->Die_No_Per_Zone == die_no_per_chip && 
 						domain->Plane_No_Per_Zone == plane_no_per_die) { // maximum parallelism
-							std::cout << "nysong - this is the maximum parallelism in one zone" << std::endl;
+							//std::cout << "nysong - this is the maximum parallelism in one zone" << std::endl;
 							//blockID = zoneOffset / block_size_in_byte;
 							pageID = zoneOffset / page_size_in_byte;
 				
@@ -766,7 +768,6 @@ namespace SSD_Components
 							targetAddress.BlockID = (unsigned int)((zoneID * block_no_per_subzone) + ((pageID / total_level) / pages_no_per_block));
 							targetAddress.PageID = (unsigned int)((pageID / total_level) % pages_no_per_block);
 						}
-
 				}
 				else if (domain->Chip_No_Per_Zone > 1) {
 
@@ -778,6 +779,8 @@ namespace SSD_Components
 
 				}
 				else {	// 1*1*1*1 = minimum parallelism in one zone, zone_p_level is 1, we will use only one channel, one chip, one die, one plane. That means, one zone's subzone and blocks are contiguous in one plane. 
+					//std::cout << "nysong - This it the minimum parallelism in one zone" << std::endl;
+					
 					blockID = zoneOffset / zone_size_in_byte;
 					pageID = (zoneOffset % zone_size_in_byte) / page_size_in_byte;
 
