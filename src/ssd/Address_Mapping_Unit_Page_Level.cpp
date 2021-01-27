@@ -133,7 +133,7 @@ namespace SSD_Components
 
 	CMTSlotType Cached_Mapping_Table::Evict_one_slot(LPA_type& lpa)
 	{
-		std::cout << "nysong in Evict_one_slot" << std::endl;
+		//std::cout << "nysong in Evict_one_slot" << std::endl;
 		
 
 		assert(addressMap.size() > 0);

@@ -44,7 +44,7 @@ namespace SSD_Components
 	{
 		if (free_block_pool_size < block_pool_gc_threshold) {
 			
-			std::cout << "nysong - I'm in the Check_gc_required and block_pool_gc_threshold is " << block_pool_gc_threshold << std::endl;
+			//std::cout << "nysong - I'm in the Check_gc_required and block_pool_gc_threshold is " << block_pool_gc_threshold << std::endl;
 
 			flash_block_ID_type gc_candidate_block_id = block_manager->Get_coldest_block_id(plane_address);
 			PlaneBookKeepingType* pbke = block_manager->Get_plane_bookkeeping_entry(plane_address);

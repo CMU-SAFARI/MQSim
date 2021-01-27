@@ -6,32 +6,43 @@
 
 using namespace std;
 
-unsigned int sector_size_in_bytes = 512;
-unsigned int zone_size_MB = 256;
+const unsigned int sector_size_in_bytes = 512;
+const unsigned int zone_size_MB = 256;
 unsigned int smallest_zone_number = 2;
-unsigned int biggest_zone_number = 6;
+unsigned int biggest_zone_number = 14;
+unsigned int total_size_of_accessed_file_in_GB = 1;
 unsigned int total_no_of_request = 10000;
 
 int main(int argc, char** argv) {
 
     cout << "This generates a sequential write requets." << endl;
 
-    if (argc < 3) {
-        cout << "please, name the out file, \"./a.out <request size in KB> <output file name>\"" << endl;
-        return 1;
-    }
-    string outputfile = argv[2];
-    string request_size = argv[1];
+    unsigned int request_size_in_KB = 8;
+    cout << "please enter the request size in KB : ";
+    scanf("%u", &request_size_in_KB);
+
+    cout << "please enter the smallest zone number : ";
+    scanf("%u", &smallest_zone_number);
+
+    cout << "please enter the whole file size to be accessed in GB : ";
+    scanf("%u", &total_size_of_accessed_file_in_GB);
+
+    string outputfile = "sequential_write_" + to_string(request_size_in_KB)+ "KB_from_zone"  \
+                        + to_string(smallest_zone_number) + "_" + to_string(total_size_of_accessed_file_in_GB) + "GB";
+    cout << "output file name is " << outputfile << endl;
+
     srand(time(NULL));
 
     ofstream writeFile;
     writeFile.open(outputfile);
     string trace_line = "";
 
-    unsigned int request_size_in_KB = stoi(request_size);
-    cout << "request size is " << request_size_in_KB << " KB" << endl;
-    unsigned int first_arrival_time = 48513000;
-    unsigned long long int first_start_LBA = smallest_zone_number * 512 * 1024 * 1024; //256 * 1024 * 1024 * 1024 / 512; == 256 MB / 512 B
+    //cout << "request size is " << request_size_in_KB << " KB" << endl;
+    total_no_of_request = total_size_of_accessed_file_in_GB * 1024 * 1024 / request_size_in_KB;
+    cout << "total number of requests is " << total_no_of_request << endl;
+
+    unsigned long long int first_arrival_time = 4851300;
+    unsigned long long int first_start_LBA = smallest_zone_number * 512 * 1024; //256 * 1024 * 1024 / 512; == 256 MB / 512 B
     // |---------512 byte-------||---------512 byte-------|
     // LBA :       1                         2
 
@@ -41,7 +52,7 @@ int main(int argc, char** argv) {
     string request_size_in_sector;
     string type_of_request;
 
-    unsigned int prev_arrival_time = first_arrival_time;
+    unsigned long long int prev_arrival_time = first_arrival_time;
     unsigned long long int prev_start_LBA = first_start_LBA;
     for (int i = 0; i < total_no_of_request; i++) {
         arrival_time = to_string(prev_arrival_time);
@@ -54,7 +65,7 @@ int main(int argc, char** argv) {
         
         writeFile.write(trace_line.c_str(), trace_line.size());
         trace_line.clear();
-        sscanf(arrival_time.c_str(), "%d", &prev_arrival_time); 
+        sscanf(arrival_time.c_str(), "%llu", &prev_arrival_time); 
         sscanf(start_LBA.c_str(), "%llu", &prev_start_LBA); 
 
         prev_arrival_time = prev_arrival_time + ((rand() % 15) * 1000);
