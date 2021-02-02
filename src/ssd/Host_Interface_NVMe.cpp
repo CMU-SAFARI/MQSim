@@ -14,7 +14,7 @@ Input_Stream_NVMe::~Input_Stream_NVMe()
 		delete user_request;
 }
 
-Input_Stream_Manager_NVMe::Input_Stream_Manager_NVMe(Host_Interface_Base *host_interface, uint16_t queue_fetch_szie) : Input_Stream_Manager_Base(host_interface), Queue_fetch_size(queue_fetch_szie)
+Input_Stream_Manager_NVMe::Input_Stream_Manager_NVMe(Host_Interface_Base *host_interface, uint16_t queue_fetch_size) : Input_Stream_Manager_Base(host_interface), Queue_fetch_size(queue_fetch_size)
 {
 }
 
