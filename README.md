@@ -1,5 +1,28 @@
 # MQSim: A Simulator for Modern NVMe and SATA SSDs
 
+MQSim is a simulator that accurately captures the behavior of both modern multi-queue SSDs and conventional SATA-based SSDs. MQSim faithfully models a number of critical features absent in existing state-of-the-art simulators, including (1) modern multi-queue-based host–interface protocols (e.g., NVMe), (2) the steady-state behavior of SSDs, and (3) the end-to-end latency of I/O requests. MQSim can be run as a standalone tool, or integrated with a full-system simulator.
+
+The full paper is published in FAST 2018 and is available online at https://people.inf.ethz.ch/omutlu/pub/MQSim-SSD-simulation-framework_fast18.pdf  
+
+## Citation
+Please cite our full FAST 2018 paper if you find this repository useful.
+
+> Arash Tavakkol, Juan Gomez-Luna, Mohammad Sadrosadati, Saugata Ghose, and Onur Mutlu, [`"MQSim: A Framework for Enabling Realistic Studies of Modern Multi-Queue SSD Devices"`](https://people.inf.ethz.ch/omutlu/pub/MQSim-SSD-simulation-framework_fast18.pdf) Proceedings of the 16th USENIX Conference on File and Storage Technologies (FAST), Oakland, CA, USA, February 2018.
+
+```bibtex
+@inproceedings{tavakkol2018mqsim,
+  title={{MQSim: A Framework for Enabling Realistic Studies of Modern Multi-Queue SSD Devices}},
+  author={Tavakkol, Arash and G{\'o}mez-Luna, Juan and Sadrosadati, Mohammad and Ghose, Saugata and Mutlu, Onur},
+  booktitle={FAST},
+  year={2018}
+}
+```
+## Additional Resources
+
+To learn more about MQSim, please refer to the slides and talk below:
+
+ - Slides: [`(pptx)`](https://people.inf.ethz.ch/omutlu/pub/MQSim-SSD-simulation-framework_fast18-talk.pptx) [`(pdf)`](https://people.inf.ethz.ch/omutlu/pub/MQSim-SSD-simulation-framework_fast18-talk.pdf)
+  - Talk: [`Introduction to MQSim`](http://www.youtube.com/watch?v=d40ekgmjM98) from the [`Understanding and Designing Modern NAND Flash-Based Solid-State Drives (SSDs)`](https://safari.ethz.ch/projects_and_seminars/spring2022/doku.php?id=modern_ssds) course
 
 ## Usage in Linux
 Run following commands:
