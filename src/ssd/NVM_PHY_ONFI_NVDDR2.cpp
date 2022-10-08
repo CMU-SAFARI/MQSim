@@ -326,7 +326,9 @@ namespace SSD_Components {
 	{
 		int i = 0;
 		for (auto &address : command->Address) {
-			if (address.PlaneID == read_transaction->Address.PlaneID) {
+			// check if we are not reading a page that has not been written before
+			if (address.PlaneID == read_transaction->Address.PlaneID &&
+				   command->Meta_data[i].LPA != NO_LPA) {
 				read_transaction->LPA = command->Meta_data[i].LPA;
 			}
 			i++;
