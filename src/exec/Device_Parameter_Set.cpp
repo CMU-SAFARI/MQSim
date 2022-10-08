@@ -596,7 +596,7 @@ void Device_Parameter_Set::XML_deserialize(rapidxml::xml_node<> *node)
 			} else if (strcmp(param->name(), "Static_Wearleveling_Threshold") == 0) {
 				std::string val = param->value();
 				Static_Wearleveling_Threshold = std::stoul(val);
-			} else if (strcmp(param->name(), "Prefered_suspend_erase_time_for_read") == 0) {
+			} else if (strcmp(param->name(), "Preferred_suspend_erase_time_for_read") == 0) {
 				std::string val = param->value();
 				Preferred_suspend_erase_time_for_read = std::stoull(val);
 			} else if (strcmp(param->name(), "Preferred_suspend_erase_time_for_write") == 0) {

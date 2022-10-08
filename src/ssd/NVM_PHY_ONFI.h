@@ -30,6 +30,7 @@ namespace SSD_Components
 		virtual LPA_type Get_metadata(flash_channel_ID_type channe_id, flash_chip_ID_type chip_id, flash_die_ID_type die_id, flash_plane_ID_type plane_id, flash_block_ID_type block_id, flash_page_ID_type page_id) = 0;//A simplification to decrease the complexity of GC execution! The GC unit may need to know the metadata of a page to decide if a page is valid or invalid. 
 		virtual bool HasSuspendedCommand(NVM::FlashMemory::Flash_Chip* chip) = 0;
 		virtual ChipStatus GetChipStatus(NVM::FlashMemory::Flash_Chip* chip) = 0;
+		virtual bool CheckSuspendLock(NVM::FlashMemory::Flash_Chip* chip) = 0;
 		virtual sim_time_type Expected_finish_time(NVM::FlashMemory::Flash_Chip* chip) = 0;
 		/// Provides communication between controller and NVM chips for a simple read/write/erase command.
 		virtual void Send_command_to_chip(std::list<NVM_Transaction_Flash*>& transactionList) = 0;

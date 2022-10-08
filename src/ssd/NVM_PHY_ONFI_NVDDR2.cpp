@@ -23,6 +23,7 @@ namespace SSD_Components {
 				bookKeepingTable[channelID][chipID].Last_transfer_finish_time = T0;
 				bookKeepingTable[channelID][chipID].Die_book_keeping_records = new DieBookKeepingEntry[DieNoPerChip];
 				bookKeepingTable[channelID][chipID].Status = ChipStatus::IDLE;
+				bookKeepingTable[channelID][chipID].SuspendLock = false;
 				bookKeepingTable[channelID][chipID].HasSuspend = false;
 				bookKeepingTable[channelID][chipID].WaitingReadTXCount = 0;
 				bookKeepingTable[channelID][chipID].No_of_active_dies = 0;
@@ -83,6 +84,11 @@ namespace SSD_Components {
 	inline ChipStatus NVM_PHY_ONFI_NVDDR2::GetChipStatus(NVM::FlashMemory::Flash_Chip* chip)
 	{
 		return bookKeepingTable[chip->ChannelID][chip->ChipID].Status;
+	}
+
+	inline bool NVM_PHY_ONFI_NVDDR2::CheckSuspendLock(NVM::FlashMemory::Flash_Chip* chip)
+	{
+		return bookKeepingTable[chip->ChannelID][chip->ChipID].SuspendLock;
 	}
 	
 	inline sim_time_type NVM_PHY_ONFI_NVDDR2::Expected_finish_time(NVM::FlashMemory::Flash_Chip* chip)
@@ -162,6 +168,10 @@ namespace SSD_Components {
 				if (chipBKE->OngoingDieCMDTransfers.size()) {
 					chipBKE->PrepareSuspend();
 				}
+				chipBKE->No_of_active_dies--;
+				if (chipBKE->No_of_active_dies == 0)
+					chipBKE->Status = ChipStatus::IDLE;
+
 			} else {
 				PRINT_ERROR("Read suspension is not supported!")
 			}
@@ -574,6 +584,9 @@ namespace SSD_Components {
 		case CMD_PROGRAM_PAGE_COPYBACK_MULTIPLANE:
 		{
 			DEBUG("Chip " << chip->ChannelID << ", " << chip->ChipID << ": finished program command")
+			
+			chipBKE->SuspendLock = true;
+
 			int i = 0;
 			for (std::list<NVM_Transaction_Flash*>::iterator it = dieBKE->ActiveTransactions.begin();
 				it != dieBKE->ActiveTransactions.end(); it++, i++)
@@ -581,6 +594,9 @@ namespace SSD_Components {
 				((NVM_Transaction_Flash_WR*)(*it))->Content = command->Meta_data[i].LPA;
 				_my_instance->broadcastTransactionServicedSignal(*it);
 			}
+
+			chipBKE->SuspendLock = false;
+
 			dieBKE->ActiveTransactions.clear();
 			dieBKE->ClearCommand();
 
