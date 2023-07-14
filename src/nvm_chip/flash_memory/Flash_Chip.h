@@ -90,6 +90,8 @@ namespace NVM
 				} else if (flash_technology == Flash_Technology_Type::TLC) {
 					//From: Yaakobi et al., "Characterization and Error-Correcting Codes for TLC Flash Memories", ICNC 2012
 					latencyType = (pageID <= 5) ? 0 : ((pageID <= 7) ? 1 : (((pageID - 8) >> 1) % 3));;
+				} else if (flash_technology == Flash_Technology_Type::QLC){
+					latencyType = (pageID <= 7) ? 0 : ((pageID <= 11) ? 1 : ((pageID <= 15) ? 2 : (((pageID - 16) >> 2) % 4)));
 				}
 
 				switch (CMDCode)
@@ -118,6 +120,9 @@ namespace NVM
 			sim_time_type GetSuspendEraseTime();
 			void Report_results_in_XML(std::string name_prefix, Utils::XmlWriter& xmlwriter);
 			LPA_type Get_metadata(flash_die_ID_type die_id, flash_plane_ID_type plane_id, flash_block_ID_type block_id, flash_page_ID_type page_id);//A simplification to decrease the complexity of GC execution! The GC unit may need to know the metadata of a page to decide if a page is valid or invalid. 
+
+			//added by pglprome
+			sim_time_type Get_remaining_execution_time();
 		private:
 			Flash_Technology_Type flash_technology;
 			Internal_Status status;
