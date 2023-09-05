@@ -95,6 +95,7 @@ namespace SSD_Components
 							}
 						}
 						block->Erase_transaction = gc_wl_erase_tr;
+						_my_instance->tsu->Submit_transaction(gc_wl_erase_tr);//gc_wl_erase_tr must be submitted before scheduling
 						_my_instance->tsu->Schedule();
 					}
 				}
