@@ -1,3 +1,8 @@
 MQSim
 build/
 
+# ignore vs2022 and vscode project artifacts
+.vs/
+.cspell/
+.pytest_cache/
+.vscode/
