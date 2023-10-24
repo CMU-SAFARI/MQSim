@@ -1,3 +1,14 @@
 MQSim
 build/
 
+# updated MQSim.vcxproj creates these artifacts
+Debug/
+Release/
+x64/
+MQSim.exe
+MQSim.pdb
+
+# ignore vscode project artifacts
+.cspell/
+.pytest_cache/
+.vscode/
