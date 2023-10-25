@@ -47,5 +47,4 @@ namespace Utils
 		static unsigned int plane_no_per_die;
 	};
 }
-
 #endif // !LOGICAL_ADDRESS_PARTITIONING_UNIT_H

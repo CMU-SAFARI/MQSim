@@ -9,7 +9,6 @@ namespace SSD_Components
 		this->nEnterances = 0;
 		this->totalTime = 0;
 	}
-
 	Queue_Probe::Queue_Probe()
 	{
 		states.push_back(StateStatistics());
@@ -43,7 +42,6 @@ namespace SSD_Components
 		totalWaitingTimeEpoch += tc;
 		setCount(count - 1);
 	}
-
 	void Queue_Probe::setCount(int val)
 	{
 		sim_time_type n = Simulator->Time();
@@ -52,19 +50,15 @@ namespace SSD_Components
 
 		lastCountChange = n;
 		count = val;
-		if (count > maxQueueLength) {
+		if (count > maxQueueLength)
 			maxQueueLength = count;
-		}
-		while (count + 1 > states.size()) {
+		while (count + 1 > states.size())
 			states.push_back(StateStatistics());
-		}
 		states[count].nEnterances++;
-		while (count + 1 > statesEpoch.size()) {
+		while (count + 1 > statesEpoch.size())
 			statesEpoch.push_back(StateStatistics());
-		}
 		statesEpoch[count].nEnterances++;
 	}
-
 	void Queue_Probe::ResetEpochStatistics()
 	{
 		nRequestsEpoch = 0;
@@ -72,12 +66,12 @@ namespace SSD_Components
 		totalWaitingTimeEpoch = 0;
 		epochStartTime = Simulator->Time();
 
-		for(unsigned int i = 0; i < statesEpoch.size(); i++) {
+		for(unsigned int i = 0; i < statesEpoch.size(); i++)
+		{
 			statesEpoch[i].totalTime = 0;
 			statesEpoch[i].nEnterances = 0;
 		}
 	}
-
 	void Queue_Probe::Snapshot(std::string id, Utils::XmlWriter& writer)
 	{
 		writer.Write_start_element_tag(id + "_QueueProbe");
@@ -87,13 +81,13 @@ namespace SSD_Components
 		writer.Write_attribute_string("AvgWaitingTime", std::to_string(AvgWaitingTime()));
 		writer.Write_attribute_string("NRequests", std::to_string(NRequests()));
 		writer.Write_attribute_string("NDepartures", std::to_string(NDepartures()));
-		for (unsigned int i = 0; i < states.size(); i++) {
+		for (unsigned int i = 0; i < states.size(); i++)
+		{
 			writer.Write_start_element_tag(id + "_Distribution");
 			sim_time_type now = Simulator->Time();
 			sim_time_type t = states[i].totalTime;
-			if (count == i) {
+			if (count == i)
 				t += now - lastCountChange;
-			}
 			double r = (double)t / (double)(now - lastCountChangeReference);
 			writer.Write_attribute_string("QueueLength", std::to_string(i));
 			writer.Write_attribute_string("nEnterances", std::to_string(states[i].nEnterances));
@@ -103,32 +97,26 @@ namespace SSD_Components
 		}
 		writer.Write_end_element_tag();//id + "_QueueProbe"
 	}
-
 	unsigned long Queue_Probe::NRequests()
 	{
 		return nRequests;
-	}
-
+	}		
 	unsigned long Queue_Probe::NDepartures()
 	{
 		return nDepartures;
 	}
-
 	int Queue_Probe::QueueLength()
 	{
 		return count;
 	}
-
 	std::vector<StateStatistics> Queue_Probe::States()
 	{
 		return states;
 	}
-
 	unsigned int Queue_Probe::MaxQueueLength()
 	{
 		return maxQueueLength;
 	}
-
 	double Queue_Probe::AvgQueueLength()
 	{
 		sim_time_type sum = 0;
@@ -136,49 +124,40 @@ namespace SSD_Components
 			sum += states[len].totalTime * len;
 		return (double)sum / (double)Simulator->Time();
 	}
-
 	double Queue_Probe::STDevQueueLength()
 	{
 		sim_time_type sum = 0;
-		for (unsigned int len = 0; len < states.size(); len++) {
+		for (unsigned int len = 0; len < states.size(); len++)
 			sum += states[len].totalTime * len;
-		}
 		double mean = (double)sum / (double)Simulator->Time();
 		double stdev = 0.0;
-		for (unsigned int len = 0; len < states.size(); len++) {
+		for (unsigned int len = 0; len < states.size(); len++)
 			stdev += std::pow((double)states[len].totalTime * len / (double)Simulator->Time() - mean, 2);
-		}
-
 		return std::sqrt(stdev);
 	}
-
 	double Queue_Probe::AvgQueueLengthEpoch()
 	{
 		sim_time_type sum = 0;
 		sim_time_type sumTime = 0;
-		for (unsigned int len = 0; len < states.size(); len++) {
+		for (unsigned int len = 0; len < states.size(); len++)
+		{
 			sum += statesEpoch[len].totalTime * len;
 			sumTime += statesEpoch[len].totalTime;
 		}
-
 		return (double)sum / (double)(Simulator->Time() - epochStartTime);
 	}
-
 	sim_time_type Queue_Probe::MaxWaitingTime()
 	{
 		return maxWaitingTime / 1000;//convert nano-seconds to micro-seconds
 	}
-
 	sim_time_type Queue_Probe::AvgWaitingTime()
 	{
 		return (sim_time_type)((double)totalWaitingTime / (double)(nDepartures * 1000));//convert nano-seconds to micro-seconds
 	}
-
 	sim_time_type Queue_Probe::AvgWaitingTimeEpoch()
 	{
 		return (sim_time_type)((double)totalWaitingTimeEpoch / (double)(nDeparturesEpoch * 1000));
 	}
-
 	sim_time_type Queue_Probe::TotalWaitingTime()
 	{
 		return totalWaitingTime;

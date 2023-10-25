@@ -6,7 +6,7 @@
 namespace Host_Components
 {
 	enum class Host_IO_Request_Type { READ, WRITE };
-	class Host_IO_Request
+	class Host_IO_Reqeust
 	{
 	public:
 		sim_time_type Arrival_time;//The time that the request has been generated

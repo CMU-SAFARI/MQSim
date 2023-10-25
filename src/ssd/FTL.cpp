@@ -282,79 +282,78 @@ namespace SSD_Components
 						start_LBA -= start_LBA % stat->alignment_value;
 
 
-					unsigned int handled_sectors_count = 0;
+					unsigned int hanled_sectors_count = 0;
 					LHA_type lsa = start_LBA - min_lha;
 					unsigned int transaction_size = 0;
 					page_status_type access_status_bitmap = 0;
 					LPA_type max_lpa_within_device = Convert_host_logical_address_to_device_address(stat->Max_LHA) - Convert_host_logical_address_to_device_address(stat->Min_LHA);
-					while (handled_sectors_count < size)
+					while (hanled_sectors_count < size)
 					{
 						transaction_size = page_size_in_sectors - (unsigned int)(lsa % page_size_in_sectors);
-						if (handled_sectors_count + transaction_size >= size)
+						if (hanled_sectors_count + transaction_size >= size)
 						{
-							transaction_size = size - handled_sectors_count;
+							transaction_size = size - hanled_sectors_count;
 						}
 						LPA_type lpa = Convert_host_logical_address_to_device_address(lsa);
 						page_status_type access_status_bitmap = Find_NVM_subunit_access_bitmap(lsa);
 
 						lsa = lsa + transaction_size;
-						handled_sectors_count += transaction_size;
+						hanled_sectors_count += transaction_size;
 
-						if (lpa_set_for_preconditioning.find(lpa) == lpa_set_for_preconditioning.end()) {
+						if (lpa_set_for_preconditioning.find(lpa) == lpa_set_for_preconditioning.end())
+						{
 							lpa_set_for_preconditioning[lpa] = access_status_bitmap;
-							//The lpas in trace_lpas_sorted_histogram are those that are actually accessed by the application
-							if (lpa <= max_lpa_within_device) {
-								if (!is_hot_address && hot_region_last_index_in_histogram == 0) {
+							if (lpa <= max_lpa_within_device)//The lpas in trace_lpas_sorted_histogram are those that are actually accessed by the application
+							{
+								if (!is_hot_address && hot_region_last_index_in_histogram == 0)
 									hot_region_last_index_in_histogram = (unsigned int)(trace_lpas_sorted_histogram.size());
-								}
 								std::pair<int, LPA_type> entry((is_hot_address ? 1000 : 1), lpa);
 								trace_lpas_sorted_histogram.insert(entry);
 							}
-						} else {
-							lpa_set_for_preconditioning[lpa] = access_status_bitmap | lpa_set_for_preconditioning[lpa];
 						}
+						else
+							lpa_set_for_preconditioning[lpa] = access_status_bitmap | lpa_set_for_preconditioning[lpa];
+
 					}
 				}
-			} else {
+			}//if (stat->Type == Utils::Workload_Type::SYNTHETIC)
+			else
+			{
 				//Step 1-1: Read LPAs are preferred for steady-state since each read should be written before the actual access
-				for (auto itr = stat->Write_read_shared_addresses.begin(); itr != stat->Write_read_shared_addresses.end(); itr++) {
+				for (auto itr = stat->Write_read_shared_addresses.begin(); itr != stat->Write_read_shared_addresses.end(); itr++)
+				{
 					LPA_type lpa = (*itr);
-					if (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate) {
+					if (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate)
 						lpa_set_for_preconditioning[lpa] = stat->Write_address_access_pattern[lpa].Accessed_sub_units | stat->Read_address_access_pattern[lpa].Accessed_sub_units;
-					} else {
-						break;
-					}
+					else break;
 				}
 
-				for (auto itr = stat->Read_address_access_pattern.begin(); itr != stat->Read_address_access_pattern.end(); itr++) {
+				for (auto itr = stat->Read_address_access_pattern.begin(); itr != stat->Read_address_access_pattern.end(); itr++)
+				{
 					LPA_type lpa = (*itr).first;
-					if (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate) {
-						if (lpa_set_for_preconditioning.find(lpa) == lpa_set_for_preconditioning.end()) {
+					if (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate)
+					{
+						if (lpa_set_for_preconditioning.find(lpa) == lpa_set_for_preconditioning.end())
 							lpa_set_for_preconditioning[lpa] = stat->Read_address_access_pattern[lpa].Accessed_sub_units;
-						}
 					}
-					else {
-						break;
-					}
+					else break;
 				}
 
 				//Step 1-2: if the read LPAs are not enough for steady-state, then fill the lpa_set_for_preconditioning using write LPAs
-				for (auto itr = stat->Write_address_access_pattern.begin(); itr != stat->Write_address_access_pattern.end(); itr++) {
+				for (auto itr = stat->Write_address_access_pattern.begin(); itr != stat->Write_address_access_pattern.end(); itr++)
+				{
 					LPA_type lpa = (*itr).first;
-					if (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate) {
-						if (lpa_set_for_preconditioning.find(lpa) == lpa_set_for_preconditioning.end()) {
+					if (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate)
+						if (lpa_set_for_preconditioning.find(lpa) == lpa_set_for_preconditioning.end())
 							lpa_set_for_preconditioning[lpa] = stat->Write_address_access_pattern[lpa].Accessed_sub_units;
-						}
-					}
 					std::pair<int, LPA_type> entry((*itr).second.Access_count, lpa);
 					trace_lpas_sorted_histogram.insert(entry);
 				}
 
 				//Step 1-3: Determine the address distribution type of the input trace
 				stat->Address_distribution_type = Utils::Address_Distribution_Type::RANDOM_HOTCOLD;//Initially assume that the trace has hot/cold access pattern
-				
-				//First check if there are enough number of write requests in the workload to make a statistically correct decision, if not, MQSim assumes the workload has a uniform access pattern
-				if (stat->Write_address_access_pattern.size() > STATISTICALLY_SUFFICIENT_WRITES_FOR_PRECONDITIONING) {
+				if (stat->Write_address_access_pattern.size() > STATISTICALLY_SUFFICIENT_WRITES_FOR_PRECONDITIONING)//First check if there are enough number of write requests in the workload to make a statistically correct decision, if not, MQSim assumes the workload has a uniform access pattern
+				{
 					int hot_region_write_count = 0;
 					int prev_value = (*trace_lpas_sorted_histogram.begin()).first;
 					double f_temp = 0;
@@ -362,15 +361,18 @@ namespace SSD_Components
 					double step = 0.01;
 					double next_milestone = 0.01;
 					double prev_r = 0.0;
-					for (auto itr = trace_lpas_sorted_histogram.begin(); itr != trace_lpas_sorted_histogram.end(); itr++) {
+					for (auto itr = trace_lpas_sorted_histogram.begin(); itr != trace_lpas_sorted_histogram.end(); itr++)
+					{
 						hot_region_last_index_in_histogram++;
 						hot_region_write_count += (*itr).first;
 
 						f_temp = double(hot_region_last_index_in_histogram) / double(trace_lpas_sorted_histogram.size());
 						r_temp = double(hot_region_write_count) / double(stat->Total_accessed_lbas);
 
-						if (f_temp >= next_milestone) {
-							if ((r_temp - prev_r) < step) {
+						if (f_temp >= next_milestone)
+						{
+							if ((r_temp - prev_r) < step)
+							{
 								r_temp = prev_r;
 								f_temp = next_milestone - step;
 								break;
@@ -382,48 +384,54 @@ namespace SSD_Components
 						prev_value = (*itr).first;
 					}
 
-					if ((r_temp > MIN_HOT_REGION_TRAFFIC_RATIO) && ((r_temp / f_temp) > HOT_REGION_METRIC)) {
+					if ((r_temp > MIN_HOT_REGION_TRAFFIC_RATIO) && ((r_temp / f_temp) > HOT_REGION_METRIC))
+					{
 						stat->Ratio_of_hot_addresses_to_whole_working_set = f_temp;
 						stat->Ratio_of_traffic_accessing_hot_region = r_temp;
-					} else {
+					}
+					else
+					{
 						stat->Address_distribution_type = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
 					}
-				} else {
-					stat->Address_distribution_type = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
 				}
+				else
+					stat->Address_distribution_type = Utils::Address_Distribution_Type::RANDOM_UNIFORM;
+
 
 				Utils::RandomGenerator* random_address_generator = new Utils::RandomGenerator(preconditioning_seed++);
 				unsigned int size = stat->Average_request_size_sector;
 				LHA_type start_LHA = 0;
 				
 				//Step 1-4: If both read and write LPAs are not enough for preconditioning flash storage space, then fill the remaining space
-				while (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate) {
+				while (lpa_set_for_preconditioning.size() < no_of_logical_pages_in_steadystate)
+				{
 					start_LHA = random_address_generator->Uniform_ulong(min_lha, max_lha);
-					unsigned int handled_sectors_count = 0;
+					unsigned int hanled_sectors_count = 0;
 					LHA_type lsa = start_LHA;
 					unsigned int transaction_size = 0;
-					while (handled_sectors_count < size) {
-						if (lsa < min_lha || lsa > max_lha) {
+					while (hanled_sectors_count < size)
+					{
+						if (lsa < min_lha || lsa > max_lha)
 							lsa = min_lha + (lsa % (max_lha - min_lha + 1));
-						}
 						LHA_type internal_lsa = lsa - min_lha;
 
 						transaction_size = page_size_in_sectors - (unsigned int)(internal_lsa % page_size_in_sectors);
-						if (handled_sectors_count + transaction_size >= size) {
-							transaction_size = size - handled_sectors_count;
+						if (hanled_sectors_count + transaction_size >= size)
+						{
+							transaction_size = size - hanled_sectors_count;
 						}
 
 						LPA_type lpa = Convert_host_logical_address_to_device_address(internal_lsa);
 						page_status_type access_status_bitmap = Find_NVM_subunit_access_bitmap(internal_lsa);
 
-						if (lpa_set_for_preconditioning.find(lpa) != lpa_set_for_preconditioning.end()) {
+						if (lpa_set_for_preconditioning.find(lpa) != lpa_set_for_preconditioning.end())
 							lpa_set_for_preconditioning[lpa] = access_status_bitmap;
-						} else {
+						else
 							lpa_set_for_preconditioning[lpa] = access_status_bitmap | lpa_set_for_preconditioning[lpa];
-						}
+
 
 						lsa = lsa + transaction_size;
-						handled_sectors_count += transaction_size;
+						hanled_sectors_count += transaction_size;
 					}
 				}
 			}//else of if (stat->Type == Utils::Workload_Type::SYNTHETIC)
@@ -432,180 +440,184 @@ namespace SSD_Components
 			//Note: if hot/cold separation is required, then the following estimations should be changed according to Van Houtd's paper in Performance Evaluation 2014.
 			std::vector<double> steadystate_block_status_probability;//The probability distribution function of the number of valid pages in a block in the steadystate
 			double rho = stat->Initial_occupancy_ratio * (1 - over_provisioning_ratio) / (1 - double(GC_and_WL_Unit->Get_minimum_number_of_free_pages_before_GC()) / block_no_per_plane);
-			switch (decision_dist_type) {
+			switch (decision_dist_type)
+			{
 			case Utils::Address_Distribution_Type::RANDOM_HOTCOLD://Estimate the steady-state of the hot/cold traffic based on the steady-state of the uniform traffic
 			{
 				double r_to_f_ratio = std::sqrt(double(stat->Ratio_of_traffic_accessing_hot_region) / double(stat->Ratio_of_hot_addresses_to_whole_working_set));
-				switch (GC_and_WL_Unit->Get_gc_policy()) {
-					case GC_Block_Selection_Policy_Type::GREEDY://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
-					case GC_Block_Selection_Policy_Type::FIFO://Could be estimated with greedy for large page_no_per_block values, as mentioned in //Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
+				switch (GC_and_WL_Unit->Get_gc_policy())
+				{
+				case GC_Block_Selection_Policy_Type::GREEDY://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
+				case GC_Block_Selection_Policy_Type::FIFO://Could be estimated with greedy for large page_no_per_block values, as mentioned in //Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
+				{
+					for (unsigned int i = 0; i <= page_no_per_block; i++)
+						steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
+					Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, 30, 0.001, 0.0000000001, 10000);//As specified in the SIGMETRICS 2013 paper, a larger value for d-choices (the name of RGA in Van Houdt's paper) will lead to results close to greedy. We use d=30 to estimate steady-state of the greedy policy with that of d-chioces.
+					break;
+				}
+				case GC_Block_Selection_Policy_Type::RGA://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
+				{
+					for (unsigned int i = 0; i <= page_no_per_block; i++)
+						steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
+					Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, GC_and_WL_Unit->Get_GC_policy_specific_parameter(), 0.001, 0.0000000001, 10000);
+					break;
+				}
+				case GC_Block_Selection_Policy_Type::RANDOM:
+				case GC_Block_Selection_Policy_Type::RANDOM_P://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
+				{
+					for (unsigned int i = 0; i <= page_no_per_block; i++)
 					{
-						for (unsigned int i = 0; i <= page_no_per_block; i++) {
-							steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
-						}
-						Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, 30, 0.001, 0.0000000001, 10000);//As specified in the SIGMETRICS 2013 paper, a larger value for d-choices (the name of RGA in Van Houdt's paper) will lead to results close to greedy. We use d=30 to estimate steady-state of the greedy policy with that of d-chioces.
-						break;
+						steadystate_block_status_probability.push_back(rho / (rho + std::pow(1 - rho, i)));
+						for (unsigned int j = i + 1; j <= page_no_per_block; j++)
+							steadystate_block_status_probability[i] *= ((1 - rho) * j) / (rho + (1 - rho) * j);
 					}
-					case GC_Block_Selection_Policy_Type::RGA://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
-					{
-						for (unsigned int i = 0; i <= page_no_per_block; i++) {
-							steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
-						}
-						Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, GC_and_WL_Unit->Get_GC_policy_specific_parameter(), 0.001, 0.0000000001, 10000);
-						break;
-					}
-					case GC_Block_Selection_Policy_Type::RANDOM:
-					case GC_Block_Selection_Policy_Type::RANDOM_P://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
-					{
-						for (unsigned int i = 0; i <= page_no_per_block; i++) {
-							steadystate_block_status_probability.push_back(rho / (rho + std::pow(1 - rho, i)));
-							for (unsigned int j = i + 1; j <= page_no_per_block; j++) {
-								steadystate_block_status_probability[i] *= ((1 - rho) * j) / (rho + (1 - rho) * j);
-							}
-						}
-						for (int i = page_no_per_block; i > 0; i--) {
-							steadystate_block_status_probability[i] = steadystate_block_status_probability[i] - steadystate_block_status_probability[i - 1];
-						}
-						break;
-					}
-					case GC_Block_Selection_Policy_Type::RANDOM_PP://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
-					{
-						//initialize the pdf values 
-						for (unsigned int i = 0; i <= page_no_per_block; i++) {
-							steadystate_block_status_probability.push_back(0);
-						}
+					for (int i = page_no_per_block; i > 0; i--)
+						steadystate_block_status_probability[i] = steadystate_block_status_probability[i] - steadystate_block_status_probability[i - 1];
+					break;
+				}
+				case GC_Block_Selection_Policy_Type::RANDOM_PP://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
+				{
+					//initialize the pdf values 
+					for (unsigned int i = 0; i <= page_no_per_block; i++)
+						steadystate_block_status_probability.push_back(0);
 
-						double rho = stat->Initial_occupancy_ratio * (1 - over_provisioning_ratio);
-						double S_rho_b = 0;
-						for (unsigned int j = GC_and_WL_Unit->Get_GC_policy_specific_parameter() + 1; j <= page_no_per_block; j++) {
-							S_rho_b += 1.0 / double(j);
-						}
-						double a_r = page_no_per_block - GC_and_WL_Unit->Get_GC_policy_specific_parameter() - page_no_per_block * S_rho_b;
-						double b_r = rho * S_rho_b + 1 - rho;
-						double c_r = -1 * rho / page_no_per_block;
-						double mu_b = (-1 * b_r + std::sqrt(b_r * b_r - 4 * a_r * c_r)) / (2 * a_r);//assume always rho < 1 - 1/b
-						for (int i = page_no_per_block; i >= 0; i--) {
-							if (i <= int(GC_and_WL_Unit->Get_GC_policy_specific_parameter())) {
-								steadystate_block_status_probability[i] = ((i + 1) * steadystate_block_status_probability[i + 1])
-									/ (i + (rho / (1 - rho - mu_b * (page_no_per_block * S_rho_b - page_no_per_block + GC_and_WL_Unit->Get_GC_policy_specific_parameter()))));
-							}
-							else if (i < int(page_no_per_block)) {
-								steadystate_block_status_probability[i] = double(page_no_per_block * mu_b) / double(i);
-							} else {
-								steadystate_block_status_probability[i] = mu_b;
-							}
-						}
-						break;
+					double rho = stat->Initial_occupancy_ratio * (1 - over_provisioning_ratio);
+					double S_rho_b = 0;
+					for (unsigned int j = GC_and_WL_Unit->Get_GC_policy_specific_parameter() + 1; j <= page_no_per_block; j++)
+					{
+						S_rho_b += 1.0 / double(j);
 					}
+					double a_r = page_no_per_block - GC_and_WL_Unit->Get_GC_policy_specific_parameter() - page_no_per_block * S_rho_b;
+					double b_r = rho * S_rho_b + 1 - rho;
+					double c_r = -1 * rho / page_no_per_block;
+					double mu_b = (-1 * b_r + std::sqrt(b_r * b_r - 4 * a_r * c_r)) / (2 * a_r);//assume always rho < 1 - 1/b
+					for (int i = page_no_per_block; i >= 0; i--)
+					{
+						if (i <= int(GC_and_WL_Unit->Get_GC_policy_specific_parameter()))
+						{
+							steadystate_block_status_probability[i] = ((i + 1) * steadystate_block_status_probability[i + 1])
+								/ (i + (rho / (1 - rho - mu_b * (page_no_per_block * S_rho_b - page_no_per_block + GC_and_WL_Unit->Get_GC_policy_specific_parameter()))));
+						}
+						else if (i < int(page_no_per_block))
+						{
+							steadystate_block_status_probability[i] = double(page_no_per_block * mu_b) / double(i);
+						}
+						else
+						{
+							steadystate_block_status_probability[i] = mu_b;
+						}
+					}
+					break;
+				}
 				}
 
 				double average_page_no_per_block = 0;
 
 				std::vector<double> steadystate_block_status_probability_temp;
-				for (int i = 0; i < int(page_no_per_block) + 1; i++) {
+				for (int i = 0; i < int(page_no_per_block) + 1; i++)
+				{
 					steadystate_block_status_probability_temp.push_back(steadystate_block_status_probability[i]);
 					average_page_no_per_block += steadystate_block_status_probability[i] * i;
 				}
 
-				for (int i = 0; i < int(page_no_per_block) + 1; i++) {
+				for (int i = 0; i < int(page_no_per_block) + 1; i++)
+				{
 					int phi_index = int((double(i) - average_page_no_per_block) * r_to_f_ratio);
-					if (phi_index < 0 || phi_index >= int(page_no_per_block)) {
+					if (phi_index < 0 || phi_index >= int(page_no_per_block))
 						steadystate_block_status_probability[i] = 0;
-					}
-					else {
-						steadystate_block_status_probability[i] = r_to_f_ratio * steadystate_block_status_probability_temp[phi_index];
-					}
+					else steadystate_block_status_probability[i] = r_to_f_ratio * steadystate_block_status_probability_temp[phi_index];
 				}
 				double sum = 0;
-				for (unsigned int i = 0; i <= page_no_per_block; i++) {
+				for (unsigned int i = 0; i <= page_no_per_block; i++)
 					sum += steadystate_block_status_probability[i];
-				}
-				for (unsigned int i = 0; i <= page_no_per_block; i++) {
+				for (unsigned int i = 0; i <= page_no_per_block; i++)
 					steadystate_block_status_probability[i] /= sum;
-				}
 
 				break;
 			}
 			case Utils::Address_Distribution_Type::STREAMING://A simple estimation based on: "Stochastic Modeling of Large-Scale Solid-State Storage Systems: Analysis, Design Tradeoffs and Optimization", SIGMETRICS 2013
-				for (unsigned int i = 0; i <= page_no_per_block; i++) {
-					if( i == 0) {
+				for (unsigned int i = 0; i <= page_no_per_block; i++)
+				{
+					if( i == 0)
 						steadystate_block_status_probability.push_back(1 - rho);
-					} else if(i == page_no_per_block) {
+					else if(i == page_no_per_block)
 						steadystate_block_status_probability.push_back(rho);
-					} else {
+					else
 						steadystate_block_status_probability.push_back(0);
-					}
 				}
 
-				//None of the GC policies change the the status of blocks in the steady state assuming over-provisioning ratio is always greater than 0
-				switch (GC_and_WL_Unit->Get_gc_policy()) {
-					case GC_Block_Selection_Policy_Type::GREEDY:
-					case GC_Block_Selection_Policy_Type::RANDOM_PP:
-					case GC_Block_Selection_Policy_Type::RGA:
-					case GC_Block_Selection_Policy_Type::FIFO:
-					case GC_Block_Selection_Policy_Type::RANDOM:
-					case GC_Block_Selection_Policy_Type::RANDOM_P:
-						break;
+				switch (GC_and_WL_Unit->Get_gc_policy())//None of the GC policies change the the status of blocks in the steady state assuming over-provisioning ratio is always greater than 0
+				{
+				case GC_Block_Selection_Policy_Type::GREEDY:
+				case GC_Block_Selection_Policy_Type::RANDOM_PP:
+				case GC_Block_Selection_Policy_Type::RGA:
+				case GC_Block_Selection_Policy_Type::FIFO:
+				case GC_Block_Selection_Policy_Type::RANDOM:
+				case GC_Block_Selection_Policy_Type::RANDOM_P:
+					break;
 				}
 				break;
 			case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
 			{
-				switch (GC_and_WL_Unit->Get_gc_policy()) {
+				switch (GC_and_WL_Unit->Get_gc_policy())
+				{
 					case GC_Block_Selection_Policy_Type::GREEDY://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
 					case GC_Block_Selection_Policy_Type::FIFO://Could be estimated with greedy for large page_no_per_block values, as mentioned in //Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
 					{
-						for (unsigned int i = 0; i <= page_no_per_block; i++) {
+						for (unsigned int i = 0; i <= page_no_per_block; i++)
 							steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
-						}
 						Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, 30, 0.001, 0.0000000001, 10000);//As specified in the SIGMETRICS 2013 paper, a larger value for d-choices (the name of RGA in Van Houdt's paper) will lead to results close to greedy. We use d=30 to estimate steady-state of the greedy policy with that of d-chioces.
 						break;
 					}
 					case GC_Block_Selection_Policy_Type::RGA://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
 					{
-						for (unsigned int i = 0; i <= page_no_per_block; i++) {
+						for (unsigned int i = 0; i <= page_no_per_block; i++)
 							steadystate_block_status_probability.push_back(Utils::Combination_count(page_no_per_block, i) * std::pow(rho, i) * std::pow(1 - rho, page_no_per_block - i));
-						}
 						Utils::Euler_estimation(steadystate_block_status_probability, page_no_per_block, rho, GC_and_WL_Unit->Get_GC_policy_specific_parameter(), 0.001, 0.0000000001, 10000);
 						break;
 					}
 					case GC_Block_Selection_Policy_Type::RANDOM:
 					case GC_Block_Selection_Policy_Type::RANDOM_P://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
 					{
-						for (unsigned int i = 0; i <= page_no_per_block; i++) {
+						for (unsigned int i = 0; i <= page_no_per_block; i++)
+						{
 							steadystate_block_status_probability.push_back(rho / (rho + std::pow(1 - rho, i)));
-							for (unsigned int j = i + 1; j <= page_no_per_block; j++) {
+							for (unsigned int j = i + 1; j <= page_no_per_block; j++)
 								steadystate_block_status_probability[i] *= ((1 - rho) * j) / (rho + (1 - rho) * j);
-							}
 						}
-						for (int i = page_no_per_block; i > 0; i--) {
+						for (int i = page_no_per_block; i > 0; i--)
 							steadystate_block_status_probability[i] = steadystate_block_status_probability[i] - steadystate_block_status_probability[i - 1];
-						}
 						break;
 					}
 					case GC_Block_Selection_Policy_Type::RANDOM_PP://Based on: B. Van Houdt, "A mean field model for a class of garbage collection algorithms in flash-based solid state drives", SIGMETRICS 2013.
 					{
 						//initialize the pdf values 
-						for (unsigned int i = 0; i <= page_no_per_block; i++) {
+						for (unsigned int i = 0; i <= page_no_per_block; i++)
 							steadystate_block_status_probability.push_back(0);
-						}
 						
 						double rho = stat->Initial_occupancy_ratio * (1 - over_provisioning_ratio);
 						double S_rho_b = 0;
-						for (unsigned int j = GC_and_WL_Unit->Get_GC_policy_specific_parameter() + 1; j <= page_no_per_block; j++) {
+						for (unsigned int j = GC_and_WL_Unit->Get_GC_policy_specific_parameter() + 1; j <= page_no_per_block; j++)
+						{
 							S_rho_b += 1.0 / double(j);
 						}
 						double a_r = page_no_per_block - GC_and_WL_Unit->Get_GC_policy_specific_parameter() - page_no_per_block * S_rho_b;
 						double b_r = rho * S_rho_b + 1 - rho;
 						double c_r = -1 * rho / page_no_per_block;
 						double mu_b = (-1 * b_r + std::sqrt(b_r * b_r - 4 * a_r * c_r)) / (2 * a_r);//assume always rho < 1 - 1/b
-						for (int i = page_no_per_block; i >= 0 ; i--) {
-							if (i <= int(GC_and_WL_Unit->Get_GC_policy_specific_parameter())) {
+						for (int i = page_no_per_block; i >= 0 ; i--)
+						{
+							if (i <= int(GC_and_WL_Unit->Get_GC_policy_specific_parameter()))
+							{
 								steadystate_block_status_probability[i] = ((i + 1) * steadystate_block_status_probability[i + 1])
 									/ (i + (rho / (1 - rho - mu_b * (page_no_per_block * S_rho_b - page_no_per_block + GC_and_WL_Unit->Get_GC_policy_specific_parameter()))));
 							}
-							else if (i < int(page_no_per_block)) {
+							else if (i < int(page_no_per_block))
+							{
 								steadystate_block_status_probability[i] = double(page_no_per_block * mu_b) / double(i);
-							} else {
+							}
+							else
+							{
 								steadystate_block_status_probability[i] = mu_b;
 							}
 						}
@@ -621,132 +633,135 @@ namespace SSD_Components
 			//Step 3: Distribute LPAs over the entire flash space
 			//MQSim assigns PPAs to LPAs based on the estimated steadystate status of blocks, assuming that there is no hot/cold data separation.
 			double sum = 0;
-
-			//Check if probability distribution is correct
-			for (unsigned int i = 0; i <= page_no_per_block; i++) {
+			for (unsigned int i = 0; i <= page_no_per_block; i++)//Check if probability distribution is correct
 				sum += steadystate_block_status_probability[i];
-			}
-
-			//Due to some precision errors the sum may not be exactly equal to 1
-			if (sum > 1.001 || sum < 0.99) {
+			if (sum > 1.001 || sum < 0.99)//Due to some precision errors the sum may not be exactly equal to 1
 				PRINT_ERROR("Wrong probability distribution function for the number of valid pages in flash blocks in the steady-state! It is not safe to continue preconditioning!")
-			}
 			Address_Mapping_Unit->Allocate_address_for_preconditioning(stat->Stream_id, lpa_set_for_preconditioning, steadystate_block_status_probability);
 
 			//Step 4: Touch the LPAs and bring them to CMT to warmup address mapping unit
-			if (!Address_Mapping_Unit->Is_ideal_mapping_table()) {
+			if (!Address_Mapping_Unit->Is_ideal_mapping_table())
+			{
 				//Step 4-1: Determine how much share of the entire CMT should be filled based on the flow arrival rate and access pattern
 				unsigned int no_of_entries_in_cmt = 0;
 				LPA_type min_LPA = Convert_host_logical_address_to_device_address(stat->Min_LHA);
 				LPA_type max_LPA = Convert_host_logical_address_to_device_address(stat->Max_LHA);
 
-				switch (Address_Mapping_Unit->Get_CMT_sharing_mode()) {
-					case CMT_Sharing_Mode::SHARED: {
-						double flow_rate = 0;
-						if (stat->Type == Utils::Workload_Type::SYNTHETIC) {
-							switch (stat->generator_type) {
-								case Utils::Request_Generator_Type::BANDWIDTH:
-									flow_rate = 1.0 / double(stat->Average_inter_arrival_time_nano_sec) * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
-									break;
-								case Utils::Request_Generator_Type::QUEUE_DEPTH:
-								{
-									sim_time_type max_arrival_time = sim_time_type(stat->Read_ratio * double(avg_flash_read_latency) + (1 - stat->Read_ratio) * double(avg_flash_program_latency));
-									double avg_arrival_time = double(max_arrival_time) / double(stat->Request_queue_depth);
-									flow_rate = 1.0 / avg_arrival_time * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
-									break;
-								}
-								default:
-									PRINT_ERROR("Unknown request type generator in the FTL preconditioning function.")
-							}
-						} else {
+				switch (Address_Mapping_Unit->Get_CMT_sharing_mode())
+				{
+				case CMT_Sharing_Mode::SHARED:
+				{
+					double flow_rate = 0;
+					if (stat->Type == Utils::Workload_Type::SYNTHETIC)
+					{
+						switch (stat->generator_type)
+						{
+						case Utils::Request_Generator_Type::BANDWIDTH:
 							flow_rate = 1.0 / double(stat->Average_inter_arrival_time_nano_sec) * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
+							break;
+						case Utils::Request_Generator_Type::QUEUE_DEPTH:
+						{
+							sim_time_type max_arrival_time = sim_time_type(stat->Read_ratio * double(avg_flash_read_latency) + (1 - stat->Read_ratio) * double(avg_flash_program_latency));
+							double avg_arrival_time = double(max_arrival_time) / double(stat->Request_queue_depth);
+							flow_rate = 1.0 / avg_arrival_time * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
+							break;
 						}
-
-						no_of_entries_in_cmt = (unsigned int)(double(flow_rate) / double(overall_rate) * Address_Mapping_Unit->Get_cmt_capacity());
-						break;
+						default:
+							PRINT_ERROR("Unknown request type generator in the FTL preconditioning function.")
+						}
 					}
-					case CMT_Sharing_Mode::EQUAL_SIZE_PARTITIONING:
-						no_of_entries_in_cmt = (unsigned int)(1.0 / double(workload_stats.size()) * Address_Mapping_Unit->Get_cmt_capacity());
-						if (max_LPA - min_LPA + 1 < LPA_type(no_of_entries_in_cmt)) {
-							no_of_entries_in_cmt = (unsigned int)(max_LPA - min_LPA + 1);
-						}
-						break;
-					default:
-						PRINT_ERROR("Unknown mapping table sharing mode in the FTL preconditioning function.")
+					else
+					{
+						flow_rate = 1.0 / double(stat->Average_inter_arrival_time_nano_sec) * SIM_TIME_TO_SECONDS_COEFF * stat->Average_request_size_sector;
+					}
+
+					no_of_entries_in_cmt = (unsigned int)(double(flow_rate) / double(overall_rate) * Address_Mapping_Unit->Get_cmt_capacity());
+					break;
+				}
+				case CMT_Sharing_Mode::EQUAL_SIZE_PARTITIONING:
+					no_of_entries_in_cmt = (unsigned int)(1.0 / double(workload_stats.size()) * Address_Mapping_Unit->Get_cmt_capacity());
+					if (max_LPA - min_LPA + 1 < LPA_type(no_of_entries_in_cmt))
+						no_of_entries_in_cmt = (unsigned int)(max_LPA - min_LPA + 1);
+					break;
+				default:
+					PRINT_ERROR("Unknown mapping table sharing mode in the FTL preconditioning function.")
 				}
 
-				if (max_LPA - min_LPA + 1 < LPA_type(trace_lpas_sorted_histogram.size())) {
+				if (max_LPA - min_LPA + 1 < LPA_type(trace_lpas_sorted_histogram.size()))
 					no_of_entries_in_cmt = (unsigned int)(trace_lpas_sorted_histogram.size());
-				}
 
 				//Step 4-2: Bring the LPAs into CMT based on the flow access pattern
-				switch (decision_dist_type) {
-					case Utils::Address_Distribution_Type::RANDOM_HOTCOLD:
+				switch (decision_dist_type)
+				{
+				case Utils::Address_Distribution_Type::RANDOM_HOTCOLD:
+				{
+					//First bring hot addresses to CMT
+					unsigned int required_no_of_hot_cmt_entries = (unsigned int)(stat->Ratio_of_hot_addresses_to_whole_working_set * no_of_entries_in_cmt);
+					unsigned int entries_to_bring_into_cmt = required_no_of_hot_cmt_entries;
+					if (required_no_of_hot_cmt_entries > hot_region_last_index_in_histogram)
+						entries_to_bring_into_cmt = hot_region_last_index_in_histogram;
+					auto itr = trace_lpas_sorted_histogram.begin();
+					while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < entries_to_bring_into_cmt)
 					{
-						//First bring hot addresses to CMT
-						unsigned int required_no_of_hot_cmt_entries = (unsigned int)(stat->Ratio_of_hot_addresses_to_whole_working_set * no_of_entries_in_cmt);
-						unsigned int entries_to_bring_into_cmt = required_no_of_hot_cmt_entries;
-						if (required_no_of_hot_cmt_entries > hot_region_last_index_in_histogram) {
-							entries_to_bring_into_cmt = hot_region_last_index_in_histogram;
-						}
-						auto itr = trace_lpas_sorted_histogram.begin();
-						while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < entries_to_bring_into_cmt) {
-							Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).second);
-							trace_lpas_sorted_histogram.erase(itr++);
-						}
-
-						//If there is free space in the CMT, then bring the remaining addresses to CMT
-						no_of_entries_in_cmt -= entries_to_bring_into_cmt;
-						auto itr2 = trace_lpas_sorted_histogram.begin();
-						std::advance(itr2, hot_region_last_index_in_histogram);
-						while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt) {
-							Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr2++).second);
-							if (itr2 == trace_lpas_sorted_histogram.end()) {
-								break;
-							}
-						}
-						break;
+						Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).second);
+						trace_lpas_sorted_histogram.erase(itr++);
 					}
-					case Utils::Address_Distribution_Type::STREAMING:
+
+					//If there is free space in the CMT, then bring the remaining addresses to CMT
+					no_of_entries_in_cmt -= entries_to_bring_into_cmt;
+					auto itr2 = trace_lpas_sorted_histogram.begin();
+					std::advance(itr2, hot_region_last_index_in_histogram);
+					while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
 					{
-						LPA_type lpa;
-						LPA_type first_lpa_streaming = Convert_host_logical_address_to_device_address(stat->First_Accessed_Address);
-						auto itr = lpa_set_for_preconditioning.find(lpa);
-						if (itr != lpa_set_for_preconditioning.begin()) {
+						Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr2++).second);
+						if (itr2 == trace_lpas_sorted_histogram.end())
+							break;
+					}
+					break;
+				}
+				case Utils::Address_Distribution_Type::STREAMING:
+				{
+					LPA_type lpa;
+					LPA_type first_lpa_streaming = Convert_host_logical_address_to_device_address(stat->First_Accessed_Address);
+					auto itr = lpa_set_for_preconditioning.find(lpa);
+					if (itr != lpa_set_for_preconditioning.begin())
+						itr--;
+					while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
+					{
+						Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).first);
+						if (itr == lpa_set_for_preconditioning.begin())
+						{
+							itr = lpa_set_for_preconditioning.end();
 							itr--;
 						}
-						while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt) {
-							Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).first);
-							if (itr == lpa_set_for_preconditioning.begin()) {
-								itr = lpa_set_for_preconditioning.end();
-								itr--;
-							} else {
-								itr--;
-							}
-						}
-						break;
+						else itr--;
 					}
-					case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
+					break;
+				}
+				case Utils::Address_Distribution_Type::RANDOM_UNIFORM:
+				{
+					int random_walker = int(random_generator.Uniform(0, uint32_t(trace_lpas_sorted_histogram.size()) - 2));
+					int random_step = random_generator.Uniform_uint(0, (uint32_t)(trace_lpas_sorted_histogram.size()) / no_of_entries_in_cmt);
+					auto itr = trace_lpas_sorted_histogram.begin();
+					while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt)
 					{
-						int random_walker = int(random_generator.Uniform(0, uint32_t(trace_lpas_sorted_histogram.size()) - 2));
-						int random_step = random_generator.Uniform_uint(0, (uint32_t)(trace_lpas_sorted_histogram.size()) / no_of_entries_in_cmt);
-						auto itr = trace_lpas_sorted_histogram.begin();
-						while (Address_Mapping_Unit->Get_current_cmt_occupancy_for_stream(stat->Stream_id) < no_of_entries_in_cmt) {
-							std::advance(itr, random_step);
-							Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).second);
-							if (trace_lpas_sorted_histogram.size() > 1) {
-								trace_lpas_sorted_histogram.erase(itr++);
-								if (random_walker + random_step >= int(trace_lpas_sorted_histogram.size() - 1) || random_walker + random_step < 0) {
-									random_step *= -1;
-								}
-								random_walker += random_step;
-							} else {
-								trace_lpas_sorted_histogram.erase(itr);
-								break;
-							}
+						std::advance(itr, random_step);
+						Address_Mapping_Unit->Bring_to_CMT_for_preconditioning(stat->Stream_id, (*itr).second);
+						if (trace_lpas_sorted_histogram.size() > 1)
+						{
+							trace_lpas_sorted_histogram.erase(itr++);
+							if (random_walker + random_step >= int(trace_lpas_sorted_histogram.size() - 1) || random_walker + random_step < 0)
+								random_step *= -1;
+							random_walker += random_step;
 						}
-						break;
+						else
+						{
+							trace_lpas_sorted_histogram.erase(itr);
+							break;
+						}
 					}
+					break;
+				}
 				}
 			}
 		}
@@ -833,6 +848,7 @@ namespace SSD_Components
 		val = std::to_string(Stats::Total_flash_writes_for_mapping);
 		xmlwriter.Write_attribute_string_inline(attr, val);
 
+
 		attr = "CMT_Hits";
 		val = std::to_string(Stats::CMT_hits);
 		xmlwriter.Write_attribute_string_inline(attr, val);
@@ -888,13 +904,8 @@ namespace SSD_Components
 		xmlwriter.Write_end_element_tag();
 	}
 
-	void FTL::Start_simulation()
-	{
-	}
-
-	void FTL::Execute_simulator_event(MQSimEngine::Sim_Event*)
-	{
-	}
+	void FTL::Start_simulation() {}
+	void FTL::Execute_simulator_event(MQSimEngine::Sim_Event*) {}
 
 	LPA_type FTL::Convert_host_logical_address_to_device_address(LHA_type lha)
 	{
@@ -905,4 +916,5 @@ namespace SSD_Components
 	{
 		return ((page_status_type)~(0xffffffffffffffff << (int)1)) << (int)(lha % page_size_in_sectors);
 	}
+
 }

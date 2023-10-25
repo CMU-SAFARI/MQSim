@@ -30,7 +30,7 @@ namespace Utils
 		stream_id_type Stream_id;
 		double Initial_occupancy_ratio;//Ratio of the logical storage space that is fill with data in steady-state
 		unsigned int Replay_no;
-		unsigned int Total_generated_requests;
+		unsigned int Total_generated_reqeusts;
 
 		int random_request_type_generator_seed;
 		double Read_ratio;
@@ -68,5 +68,4 @@ namespace Utils
 		std::vector<unsigned int> Write_size_histogram, Read_size_histogram;//Histogram with 1 sector resolution
 	};
 }
-
 #endif// !WORKLOAD_STATISTICS_H

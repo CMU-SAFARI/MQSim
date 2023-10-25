@@ -16,9 +16,8 @@ namespace SSD_Components
 		_my_instance = this;
 		dram_burst_transfer_time_ddr = (double) ONE_SECOND / (dram_data_rate * 1000 * 1000);
 		this->caching_mode_per_input_stream = new Caching_Mode[stream_count];
-		for (unsigned int i = 0; i < stream_count; i++) {
+		for (unsigned int i = 0; i < stream_count; i++)
 			this->caching_mode_per_input_stream[i] = caching_mode_per_input_stream[i];
-		}
 	}
 
 	Data_Cache_Manager_Base::~Data_Cache_Manager_Base() {}
@@ -41,9 +40,8 @@ namespace SSD_Components
 	void Data_Cache_Manager_Base::broadcast_user_request_serviced_signal(User_Request* nvm_transaction)
 	{
 		for (std::vector<UserRequestServicedSignalHanderType>::iterator it = connected_user_request_serviced_signal_handlers.begin();
-			it != connected_user_request_serviced_signal_handlers.end(); it++) {
+			it != connected_user_request_serviced_signal_handlers.end(); it++)
 			(*it)(nvm_transaction);
-		}
 	}
 
 	void Data_Cache_Manager_Base::Connect_to_user_memory_transaction_serviced_signal(MemoryTransactionServicedSignalHanderType function)
@@ -54,9 +52,8 @@ namespace SSD_Components
 	void Data_Cache_Manager_Base::broadcast_user_memory_transaction_serviced_signal(NVM_Transaction* transaction)
 	{
 		for (std::vector<MemoryTransactionServicedSignalHanderType>::iterator it = connected_user_memory_transaction_serviced_signal_handlers.begin();
-			it != connected_user_memory_transaction_serviced_signal_handlers.end(); it++) {
+			it != connected_user_memory_transaction_serviced_signal_handlers.end(); it++)
 			(*it)(transaction);
-		}
 	}
 
 	void Data_Cache_Manager_Base::handle_user_request_arrived_signal(User_Request* user_request)
@@ -68,4 +65,5 @@ namespace SSD_Components
 	{
 		this->host_interface = host_interface;
 	}
+
 }

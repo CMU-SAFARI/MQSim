@@ -21,7 +21,6 @@ namespace SSD_Components
 		Cache_Slot_Status Status;
 		std::list<std::pair<LPA_type, Data_Cache_Slot_Type*>>::iterator lru_list_ptr;//used for fast implementation of LRU
 	};
-
 	enum class Data_Cache_Simulation_Event_Type {
 		MEMORY_READ_FOR_CACHE_EVICTION_FINISHED,
 		MEMORY_WRITE_FOR_CACHE_FINISHED,

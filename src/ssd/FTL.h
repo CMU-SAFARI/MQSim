@@ -19,7 +19,6 @@ namespace SSD_Components
 	class Address_Mapping_Unit_Base;
 	class GC_and_WL_Unit_Base;
 	class TSU_Base;
-
 	class FTL : public NVM_Firmware
 	{
 	public:
@@ -51,5 +50,6 @@ namespace SSD_Components
 		sim_time_type avg_flash_program_latency;
 	};
 }
+
 
 #endif // !FTL_H

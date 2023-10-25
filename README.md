@@ -1,28 +1,5 @@
 # MQSim: A Simulator for Modern NVMe and SATA SSDs
 
-MQSim is a simulator that accurately captures the behavior of both modern multi-queue SSDs and conventional SATA-based SSDs. MQSim faithfully models a number of critical features absent in existing state-of-the-art simulators, including (1) modern multi-queue-based host–interface protocols (e.g., NVMe), (2) the steady-state behavior of SSDs, and (3) the end-to-end latency of I/O requests. MQSim can be run as a standalone tool, or integrated with a full-system simulator.
-
-The full paper is published in FAST 2018 and is available online at https://people.inf.ethz.ch/omutlu/pub/MQSim-SSD-simulation-framework_fast18.pdf  
-
-## Citation
-Please cite our full FAST 2018 paper if you find this repository useful.
-
-> Arash Tavakkol, Juan Gomez-Luna, Mohammad Sadrosadati, Saugata Ghose, and Onur Mutlu, [`"MQSim: A Framework for Enabling Realistic Studies of Modern Multi-Queue SSD Devices"`](https://people.inf.ethz.ch/omutlu/pub/MQSim-SSD-simulation-framework_fast18.pdf) Proceedings of the 16th USENIX Conference on File and Storage Technologies (FAST), Oakland, CA, USA, February 2018.
-
-```bibtex
-@inproceedings{tavakkol2018mqsim,
-  title={{MQSim: A Framework for Enabling Realistic Studies of Modern Multi-Queue SSD Devices}},
-  author={Tavakkol, Arash and G{\'o}mez-Luna, Juan and Sadrosadati, Mohammad and Ghose, Saugata and Mutlu, Onur},
-  booktitle={FAST},
-  year={2018}
-}
-```
-## Additional Resources
-
-To learn more about MQSim, please refer to the slides and talk below:
-
- - Slides: [`(pptx)`](https://people.inf.ethz.ch/omutlu/pub/MQSim-SSD-simulation-framework_fast18-talk.pptx) [`(pdf)`](https://people.inf.ethz.ch/omutlu/pub/MQSim-SSD-simulation-framework_fast18-talk.pdf)
-  - Talk: [`Introduction to MQSim`](http://www.youtube.com/watch?v=d40ekgmjM98) from the [`Understanding and Designing Modern NAND Flash-Based Solid-State Drives (SSDs)`](https://safari.ethz.ch/projects_and_seminars/spring2022/doku.php?id=modern_ssds) course
 
 ## Usage in Linux
 Run following commands:
@@ -77,7 +54,7 @@ You can specify your preferred SSD configuration in the XML format. If the SSD c
 18. **CMT_Capacity:** the size of the SRAM/DRAM space in bytes used to cache the address mapping table (Cached Mapping Table). Range = {all positive integer values}.
 19. **CMT_Sharing_Mode:** the mode that determines how the entire CMT (Cached Mapping Table) space is shared among concurrently running flows when an NVMe host interface is used. Range = {SHARED, EQUAL_PARTITIONING}.
 20. **Plane_Allocation_Scheme:** the scheme for plane allocation as defined in Tavakkol et al. [3]. Range = {CWDP, CWPD, CDWP, CDPW, CPWD, CPDW, WCDP, WCPD, WDCP, WDPC, WPCD, WPDC, DCWP, DCPW, DWCP, DWPC, DPCW, DPWC, PCWD, PCDW, PWCD, PWDC, PDCW, PDWC}
-21. **Transaction_Scheduling_Policy:** the transaction scheduling policy that is used in the SSD back end. Range = {OUT_OF_ORDER as defined in the Sprinkler paper [2], PRIORITY_OUT_OF_ORDER which implements OUT_OF_ORDER and NVMe priorities}.
+21. **Transaction_Scheduling_Policy:** the transaction scheduling policy that is used in the SSD back end. Range = {OUT_OF_ORDER as defined in the Sprinkler paper [2]}.
 22. **Overprovisioning_Ratio:** the ratio of reserved storage space with respect to the available flash storage capacity. Range = {all positive double precision values}.
 23. **GC_Exect_Threshold:** the threshold for starting Garbage Collection (GC). When the ratio of the free physical pages for a plane drops below this threshold, GC execution begins. Range = {all positive double precision values}.
 24. **GC_Block_Selection_Policy:** the GC block selection policy. Range {GREEDY, RGA *(described in [4] and [5])*, RANDOM *(described in [4])*, RANDOM_P *(described in [4])*, RANDOM_PP *(described in [4])*, FIFO *(described in [6])*}.
@@ -150,10 +127,13 @@ The following parameters are used to define a trace-based workload:
 5. **Die_IDs:** a comma-separated list of chip IDs that are allocated to this workload. This list is used for resource partitioning. If there are D dies in each flash chip (defined in the SSD configuration file), then the die ID list should include values in the range 0 to D-1. If no resource partitioning is required, then all workloads should have die IDs 0 to D-1.
 6. **Plane_IDs:** a comma-separated list of plane IDs that are allocated to this workload. This list is used for resource partitioning. If there are P planes in each die (defined in the SSD configuration file), then the plane ID list should include values in the range 0 to P-1. If no resource partitioning is required, then all workloads should have plane IDs 0 to P-1.
 7. **Initial_Occupancy_Percentage:** the percentage of the storage space (i.e., logical pages) that is filled during preconditioning. Range = {all integer values in the range 1 to 100}.
-8. **File_Path:** the relative/absolute path to the input trace file.
-9. **Percentage_To_Be_Executed:** the percentage of requests in the input trace file that should be executed. Range = {all integer values in the range 1 to 100}.
-10. **Relay_Count:** the number of times that the trace execution should be repeated. Range = {all positive integer values}.
-11. **Time_Unit:** the unit of arrival times in the input trace file. Range = {PICOSECOND, NANOSECOND, MICROSECOND}
+8. **Address_Distribution:** the distribution pattern of addresses for precondition in the generated flow of I/O requests. Range = {STREAMING, RANDOM_UNIFORM, RANDOM_HOTCOLD, MIXED_STREAMING_RANDOM}.
+9. **Percentage_of_Hot_Region:** if RANDOM_HOTCOLD is set for address distribution of precondition, then this parameter determines the ratio of the hot region with respect to the entire logical address space. Range = {all integer values in the range 1 to 100}.
+10. **File_Path:** the relative/absolute path to the input trace file.
+11. **Percentage_To_Be_Executed:** the percentage of requests in the input trace file that should be executed. Range = {all integer values in the range 1 to 100}.
+12. **Relay_Count:** the number of times that the trace execution should be repeated. Range = {all positive integer values}.
+13. **Time_Unit:** the unit of arrival times in the input trace file. Range = {PICOSECOND, NANOSECOND, MICROSECOND}
+
 
 ### Defining a Synthetic Workload
 You can define a synthetic workload for MQSim, using the <IO_Flow_Parameter_Set_Synthetic> XML tag. 
@@ -166,11 +146,11 @@ The following parameters are used to define a trace-based workload:
 5. **Die_IDs:** same as trace-based parameters mentioned above.
 6. **Plane_IDs:** same as trace-based parameters mentioned above.
 7. **Initial_Occupancy_Percentage:** same as trace-based parameters mentioned above.
-8. **Working_Set_Percentage:** the percentage of available logical storage space that is accessed by generated requests. Range = {all integer values in the range 1 to 100}.
-9. **Synthetic_Generator_Type:** determines the way that the stream of requests is generated. Currently, there are two modes for generating consecutive requests, 1) based on the average bandwidth of I/O requests, or 2) based on the average depth of the I/O queue. Range = {BANDWIDTH, QUEUE_DEPTH}.
-10. **Read_Percentage:** the ratio of read requests in the generated flow of I/O requests. Range = {all integer values in the range 1 to 100}.
-11. **Address_Distribution:** the distribution pattern of addresses in the generated flow of I/O requests. Range = {STREAMING, RANDOM_UNIFORM, RANDOM_HOTCOLD, MIXED_STREAMING_RANDOM}.
-12. **Percentage_of_Hot_Region:** if RANDOM_HOTCOLD is set for address distribution, then this parameter determines the ratio of the hot region with respect to the entire logical address space. Range = {all integer values in the range 1 to 100}.
+8. **Address_Distribution:** the distribution pattern of addresses for precondition in the generated flow of I/O requests. Range = {STREAMING, RANDOM_UNIFORM, RANDOM_HOTCOLD, MIXED_STREAMING_RANDOM}.
+9. **Percentage_of_Hot_Region:** if RANDOM_HOTCOLD is set for address distribution of precondition, then this parameter determines the ratio of the hot region with respect to the entire logical address space. Range = {all integer values in the range 1 to 100}.
+10. **Working_Set_Percentage:** the percentage of available logical storage space that is accessed by generated requests. Range = {all integer values in the range 1 to 100}.
+11. **Synthetic_Generator_Type:** determines the way that the stream of requests is generated. Currently, there are two modes for generating consecutive requests, 1) based on the average bandwidth of I/O requests, or 2) based on the average depth of the I/O queue. Range = {BANDWIDTH, QUEUE_DEPTH}.
+12. **Read_Percentage:** the ratio of read requests in the generated flow of I/O requests. Range = {all integer values in the range 1 to 100}.
 13. **Generated_Aligned_Addresses:** the toggle to enable aligned address generation. Range = {true, false}.
 14. **Address_Alignment_Unit:** the unit that all generated addresses must be aligned to in sectors (i.e. 512 bytes). Range = {all positive integer values}.
 15. **Request_Size_Distribution:** the distribution pattern of request sizes in the generated flow of I/O requests. Range = {FIXED, NORMAL}.
@@ -188,36 +168,6 @@ You can use an XML processor to easily read and analyze an MQSim output file. Fo
 1. Drag and drop that parameter from the task source pane to the Excel sheet.,<br />
 2. Right click on the cell that you have dropped the parameter and select *XML* > *Refresh XML Data* from the drop-down menue.
 
-The parameters used to define the output file of the simulator are divided into categories:
-
-### Host
-For each defined IO_Flow, the following parameters are shown:
-1. **Name:** The name of the IO flow, e.g. Host.IO_Flow.Synth.No_0
-2. **Request_Count:** The total number of requests from this IO_flow.
-3. **Read_Request_Count:** The total number of read requests from this IO_flow.
-4. **Write_Request_Count:** The total number of write requests from this IO_flow.
-5. **IOPS:** The number of IO operations per second, i.e. how many requests are served per second.
-6. **IOPS_Read:** The number of read IO operations per second.
-7. **IOPS_Write:** The number of write IO operations per second.
-8. **Bytes_Transferred:** The total number of data bytes transferred across the interface.
-9. **Bytes_Transferred_Read:** The total number of data bytes read from the SSD Device.
-10. **Bytes_Transferred_write:** The total number of data bytes written to the SSD Device.
-11. **Bandwidth:** The total bandwidth delivered by the SSD Device in bytes per second.
-12. **Bandwidth_Read:** The total read bandwidth delivered by the SSD Device in bytes per second.
-13. **Bandwidth_Write:** The total write bandwidth delivered by the SSD Device in bytes per second.
-14. **Device_Response_Time:** The average SSD device response time for a request, in nanoseconds. This is defined as the time between enqueueing the request in the I/O submission queue, and removing it from the I/O completion queue.
-15. **Min_Device_Response_Time:** The minimum SSD device response time for a request, in nanoseconds. 
-16. **Max_Device_Response_Time:** The maximum SSD device response time for a request, in nanoseconds.
-17. **End_to_End_Request_Delay:** The average delay between generating an I/O request and receiving a corresponding answer. This is defined as the difference between the request arrival time, and its removal time from the I/O completion queue. Note that the request arrival_time is the same as the request enqueue_time, when using the multi-queue properties of NVMe drives.
-18. **Min_End_to_End_Request_Delay:** The minimum end-to-end request delay.
-19. **Max_End_to_End_Request_Delay:** The maximum end-to-end request delay.
-
-### SSDDevice
-The output parameters in the SSDDevice category contain values for:
-1. Average transaction times at a lower abstraction level (SSDDevice.IO_Stream)
-2. Statistics for the flash transaction layer (FTL)
-3. Statistics for each queue in the SSD's internal flash Transaction Scheduling Unit (TSU): In the TSU exists a User_Read_TR_Queue, a User_Write_TR_Queue, a Mapping_Read_TR_Queue, a Mapping_Write_TR_Queue, a GC_Read_TR_Queue, a GC_Write_TR_queue, a GC_Erase_TR_Queue for each combination of channel and package.
-4. For each package: the fraction of time in the exclusive memory command execution, exclusive data transfer, overlapped memory command execution and data transfer, and idle mode.
 
 
 ## References

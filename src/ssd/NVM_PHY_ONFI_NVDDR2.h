@@ -48,7 +48,6 @@ namespace SSD_Components
 			ActiveTransactions.clear();
 			Free = true;
 		}
-
 		void PrepareResume()
 		{
 			ActiveCommand = SuspendedCommand;
@@ -59,7 +58,6 @@ namespace SSD_Components
 			SuspendedTransactions.clear();
 			Free = false;
 		}
-
 		void ClearCommand()
 		{
 			delete ActiveCommand;

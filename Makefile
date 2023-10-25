@@ -1,6 +1,6 @@
 CC        := g++
 LD        := g++
-CC_FLAGS := -std=c++11 -O3 -g
+CC_FLAGS := -std=c++11 -O3 -g -Wall -Wno-reorder
 
 MODULES   := exec host nvm_chip nvm_chip/flash_memory sim ssd utils
 SRC_DIR   := $(addprefix src/,$(MODULES)) src

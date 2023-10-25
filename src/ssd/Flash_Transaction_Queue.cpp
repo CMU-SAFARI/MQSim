@@ -18,31 +18,26 @@ namespace SSD_Components
 		RequestQueueProbe.EnqueueRequest(transaction);
 		return list<NVM_Transaction_Flash*>::push_back(transaction);
 	}
-
 	void Flash_Transaction_Queue::push_front(NVM_Transaction_Flash* const& transaction)
 	{
 		RequestQueueProbe.EnqueueRequest(transaction);
 		return list<NVM_Transaction_Flash*>::push_front(transaction);
 	}
-
 	std::list<NVM_Transaction_Flash*>::iterator Flash_Transaction_Queue::insert(list<NVM_Transaction_Flash*>::iterator position, NVM_Transaction_Flash* const& transaction)
 	{
 		RequestQueueProbe.EnqueueRequest(transaction);
 		return list<NVM_Transaction_Flash*>::insert(position, transaction);
 	}
-
 	void Flash_Transaction_Queue::remove(NVM_Transaction_Flash* const& transaction)
 	{
 		RequestQueueProbe.DequeueRequest(transaction);
 		return list<NVM_Transaction_Flash*>::remove(transaction);
 	}
-
 	void Flash_Transaction_Queue::remove(std::list<NVM_Transaction_Flash*>::iterator const& itr_pos)
 	{
 		RequestQueueProbe.DequeueRequest(*itr_pos);
 		list<NVM_Transaction_Flash*>::erase(itr_pos);
 	}
-
 	void Flash_Transaction_Queue::pop_front()
 	{
 		RequestQueueProbe.DequeueRequest(this->front());

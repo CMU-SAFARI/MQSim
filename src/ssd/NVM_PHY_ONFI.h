@@ -15,7 +15,6 @@
 namespace SSD_Components
 {
 	enum class ChipStatus { IDLE, CMD_IN, CMD_DATA_IN, DATA_OUT, READING, WRITING, ERASING, WAIT_FOR_DATA_OUT, WAIT_FOR_COPYBACK_CMD };
-	
 	class NVM_PHY_ONFI : public NVM_PHY_Base
 	{
 	public:
@@ -24,6 +23,7 @@ namespace SSD_Components
 			: NVM_PHY_Base(id),
 			channel_count(ChannelCount), chip_no_per_channel(chip_no_per_channel), die_no_per_chip(DieNoPerChip), plane_no_per_die(PlaneNoPerDie){}
 		~NVM_PHY_ONFI() {};
+
 
 		virtual BusChannelStatus Get_channel_status(flash_channel_ID_type) = 0;
 		virtual NVM::FlashMemory::Flash_Chip* Get_chip(flash_channel_ID_type channel_id, flash_chip_ID_type chip_id) = 0;

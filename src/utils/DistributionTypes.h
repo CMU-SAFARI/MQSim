@@ -8,5 +8,4 @@ namespace Utils
 	enum class Workload_Type { SYNTHETIC, TRACE_BASED };
 	enum class Request_Generator_Type { BANDWIDTH, QUEUE_DEPTH };//Time_INTERVAL: general requests based on the arrival rate definitions, DEMAND_BASED: just generate a request, every time that there is a demand
 }
-
-#endif // !DISTRIBUTION_TYPES
+#endif

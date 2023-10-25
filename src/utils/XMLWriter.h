@@ -30,5 +30,4 @@ namespace Utils
 		std::vector<std::string> tempElementTag;
 	};
 }
-
-#endif // !XMLWRITE_H
+#endif //!XMLWRITE_H

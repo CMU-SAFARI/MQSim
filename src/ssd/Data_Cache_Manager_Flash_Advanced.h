@@ -61,5 +61,4 @@ namespace SSD_Components
 		void service_dram_access_request(Memory_Transfer_Info* request_info);
 	};
 }
-
 #endif // !DATA_CACHE_MANAGER_FLASH_ADVANCED_H

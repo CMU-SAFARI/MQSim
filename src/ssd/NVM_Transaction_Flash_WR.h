@@ -9,22 +9,17 @@
 
 namespace SSD_Components
 {
-	class NVM_Transaction_Flash_ER;
 	enum class WriteExecutionModeType { SIMPLE, COPYBACK };
-	
+	class NVM_Transaction_Flash_ER;
 	class NVM_Transaction_Flash_WR : public NVM_Transaction_Flash
 	{
 	public:
 		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type stream_id,
-			unsigned int data_size_in_byte, LPA_type lpa, PPA_type ppa, SSD_Components::User_Request* user_io_request,
-			NVM::memory_content_type content, NVM_Transaction_Flash_RD* related_read, page_status_type write_sectors_bitmap, data_timestamp_type data_timestamp);
-		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type stream_id,
-			unsigned int data_size_in_byte, LPA_type lpa, PPA_type ppa, const NVM::FlashMemory::Physical_Page_Address& address,
-			SSD_Components::User_Request* user_io_request, NVM::memory_content_type content,
+			unsigned int data_size_in_byte, LPA_type lpa, PPA_type ppa, SSD_Components::User_Request* user_io_request, NVM::memory_content_type content,
 			NVM_Transaction_Flash_RD* related_read, page_status_type write_sectors_bitmap, data_timestamp_type data_timestamp);
 		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type stream_id,
-			unsigned int data_size_in_byte, LPA_type lpa, SSD_Components::User_Request* user_io_request, IO_Flow_Priority_Class::Priority priority_class, NVM::memory_content_type content,
-			page_status_type write_sectors_bitmap, data_timestamp_type data_timestamp);
+			unsigned int data_size_in_byte, LPA_type lpa, PPA_type ppa, const NVM::FlashMemory::Physical_Page_Address& address, SSD_Components::User_Request* user_io_request, NVM::memory_content_type content,
+			NVM_Transaction_Flash_RD* related_read, page_status_type write_sectors_bitmap, data_timestamp_type data_timestamp);
 		NVM_Transaction_Flash_WR(Transaction_Source_Type source, stream_id_type stream_id,
 			unsigned int data_size_in_byte, LPA_type lpa, SSD_Components::User_Request* user_io_request, NVM::memory_content_type content,
 			page_status_type write_sectors_bitmap, data_timestamp_type data_timestamp);

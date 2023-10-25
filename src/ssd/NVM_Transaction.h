@@ -9,20 +9,17 @@
 namespace SSD_Components
 {
 	class User_Request;
-	
 	enum class Transaction_Type { READ, WRITE, ERASE, UNKOWN };
 	enum class Transaction_Source_Type { USERIO, CACHE, GC_WL, MAPPING };
-
 	class NVM_Transaction
 	{
 	public:
-		NVM_Transaction(stream_id_type stream_id, Transaction_Source_Type source, Transaction_Type type, User_Request* user_request, IO_Flow_Priority_Class::Priority priority_class) :
-			Stream_id(stream_id), Source(source), Type(type), UserIORequest(user_request), Priority_class(priority_class), Issue_time(Simulator->Time()), STAT_execution_time(INVALID_TIME), STAT_transfer_time(INVALID_TIME) {}
+		NVM_Transaction(stream_id_type stream_id, Transaction_Source_Type source, Transaction_Type type, User_Request* user_request) :
+			Stream_id(stream_id), Source(source), Type(type), UserIORequest(user_request), Issue_time(Simulator->Time()), STAT_execution_time(INVALID_TIME), STAT_transfer_time(INVALID_TIME) {}
 		stream_id_type Stream_id;
 		Transaction_Source_Type Source;
 		Transaction_Type Type;
 		User_Request* UserIORequest;
-		IO_Flow_Priority_Class::Priority Priority_class;
 		//std::list<NVM_Transaction*>::iterator RelatedNodeInQueue;//Just used for high performance linkedlist insertion/deletion
 
 		sim_time_type Issue_time;

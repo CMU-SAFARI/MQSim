@@ -42,19 +42,19 @@ namespace Host_Components
 	class IO_Flow_Base : public MQSimEngine::Sim_Object, public MQSimEngine::Sim_Reporter
 	{
 	public:
-		IO_Flow_Base(const sim_object_id_type &name, uint16_t flow_id, LHA_type start_lsa_on_device, LHA_type end_lsa_address_on_device, uint16_t io_queue_id,
-					 uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class::Priority priority_class,
-					 sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_requets_to_be_generated,
-					 HostInterface_Types SSD_device_type, PCIe_Root_Complex *pcie_root_complex, SATA_HBA *sata_hba,
-					 bool enabled_logging, sim_time_type logging_period, std::string logging_file_path);
+		IO_Flow_Base(const sim_object_id_type& name, uint16_t flow_id, LHA_type start_lsa_on_device, LHA_type end_lsa_address_on_device, uint16_t io_queue_id,
+			uint16_t nvme_submission_queue_size, uint16_t nvme_completion_queue_size, IO_Flow_Priority_Class priority_class,
+			sim_time_type stop_time, double initial_occupancy_ratio, unsigned int total_requets_to_be_generated,
+			HostInterface_Types SSD_device_type, PCIe_Root_Complex* pcie_root_complex, SATA_HBA* sata_hba,
+			bool enabled_logging, sim_time_type logging_period, std::string logging_file_path);
 		~IO_Flow_Base();
 		void Start_simulation();
-		IO_Flow_Priority_Class::Priority Priority_class() { return priority_class; }
-		virtual Host_IO_Request* Generate_next_request() = 0;
+		IO_Flow_Priority_Class Priority_class() { return priority_class; }
+		virtual Host_IO_Reqeust* Generate_next_request() = 0;
 		virtual void NVMe_consume_io_request(Completion_Queue_Entry*);
 		Submission_Queue_Entry* NVMe_read_sqe(uint64_t address);
 		const NVMe_Queue_Pair* Get_nvme_queue_pair_info();
-		virtual void SATA_consume_io_request(Host_IO_Request* request);
+		virtual void SATA_consume_io_request(Host_IO_Reqeust* request);
 		LHA_type Get_start_lsa_on_device();
 		LHA_type Get_end_lsa_address_on_device();
 		uint32_t Get_generated_request_count();
@@ -78,18 +78,18 @@ namespace Host_Components
 		SATA_HBA* sata_hba;
 		LHA_type start_lsa_on_device, end_lsa_on_device;
 
-		void Submit_io_request(Host_IO_Request*);
+		void Submit_io_request(Host_IO_Reqeust*);
 
 		//NVMe host-to-device communication variables
-		IO_Flow_Priority_Class::Priority priority_class;
+		IO_Flow_Priority_Class priority_class;
 		NVMe_Queue_Pair nvme_queue_pair;
 		uint16_t io_queue_id;
 		uint16_t nvme_submission_queue_size;
 		uint16_t nvme_completion_queue_size;
 		std::set<uint16_t> available_command_ids;
-		std::vector<Host_IO_Request*> request_queue_in_memory;
-		std::list<Host_IO_Request*> waiting_requests;//The I/O requests that are still waiting to be enqueued in the I/O queue (the I/O queue is full)
-		std::unordered_map<sim_time_type, Host_IO_Request*> nvme_software_request_queue;//The I/O requests that are enqueued in the I/O queue of the SSD device
+		std::vector<Host_IO_Reqeust*> request_queue_in_memory;
+		std::list<Host_IO_Reqeust*> waiting_requests;//The I/O requests that are still waiting to be enqueued in the I/O queue (the I/O queue is full)
+		std::unordered_map<sim_time_type, Host_IO_Reqeust*> nvme_software_request_queue;//The I/O requests that are enqueued in the I/O queue of the SSD device
 		void NVMe_update_and_submit_completion_queue_tail();
 
 		//Variables used to collect statistics

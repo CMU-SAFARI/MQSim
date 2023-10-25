@@ -25,7 +25,6 @@ namespace SSD_Components
 	* 5: GC_USER -> GC
 	*/
 	enum class Block_Service_Status {IDLE, GC_WL, USER, GC_USER, GC_UWAIT, GC_USER_UWAIT};
-	
 	class Block_Pool_Slot_Type
 	{
 	public:
