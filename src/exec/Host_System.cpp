@@ -94,8 +94,16 @@ Host_System::~Host_System()
 	if (ssd_device->Host_interface->GetType() == HostInterface_Types::SATA) {
 		delete this->SATA_hba;
 	}
+
+	Host_Components::IO_Flow_Base* base_flow;
 	for (uint16_t flow_id = 0; flow_id < this->IO_flows.size(); flow_id++) {
-		delete this->IO_flows[flow_id];
+		if(base_flow = dynamic_cast<Host_Components::IO_Flow_Synthetic*>(IO_flows[flow_id])){
+			delete (Host_Components::IO_Flow_Synthetic*)base_flow;
+		} else if(base_flow = dynamic_cast<Host_Components::IO_Flow_Trace_Based*>(IO_flows[flow_id])){
+			delete (Host_Components::IO_Flow_Trace_Based*)base_flow;
+		}else{
+			PRINT_ERROR("Error in delete IO_flows classified by IO flow Type")
+		}
 	}
 }
 

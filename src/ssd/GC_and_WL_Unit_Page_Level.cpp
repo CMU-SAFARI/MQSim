@@ -183,7 +183,9 @@ namespace SSD_Components
 					}
 				}
 				block->Erase_transaction = gc_erase_tr;
-				tsu->Submit_transaction(gc_erase_tr);
+				if(gc_erase_tr->Page_movement_activities.size() == 0){
+					tsu->Submit_transaction(gc_erase_tr);
+				}
 
 				tsu->Schedule();
 			}

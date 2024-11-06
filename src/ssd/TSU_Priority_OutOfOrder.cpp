@@ -238,7 +238,7 @@ void TSU_Priority_OutOfOrder::Schedule()
                 GCReadTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
                 break;
             default:
-                PRINT_ERROR("TSU_OutOfOrder: unknown source type for a read transaction!")
+                PRINT_ERROR("TSU_Priority_OutOfOrder: unknown source type for a read transaction!")
             }
             break;
         case Transaction_Type::WRITE:
@@ -262,7 +262,7 @@ void TSU_Priority_OutOfOrder::Schedule()
                 GCWriteTRQueue[(*it)->Address.ChannelID][(*it)->Address.ChipID].push_back((*it));
                 break;
             default:
-                PRINT_ERROR("TSU_OutOfOrder: unknown source type for a write transaction!")
+                PRINT_ERROR("TSU_Priority_OutOfOrder: unknown source type for a write transaction!")
             }
             break;
         case Transaction_Type::ERASE:
@@ -479,6 +479,12 @@ bool TSU_Priority_OutOfOrder::service_write_transaction(NVM::FlashMemory::Flash_
         {
             sourceQueue1 = &GCWriteTRQueue[chip->ChannelID][chip->ChipID];
             sourceQueue2 = get_next_write_service_queue(chip);
+            if(sourceQueue2 == NULL){
+                if(MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+                {
+                    sourceQueue2 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
+                }
+            }
         }
         else if (GCEraseTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
         {
@@ -487,9 +493,20 @@ bool TSU_Priority_OutOfOrder::service_write_transaction(NVM::FlashMemory::Flash_
         else
         {
             sourceQueue1 = get_next_write_service_queue(chip);
-            if(sourceQueue1 == NULL)
+            if(sourceQueue1 != NULL)
             {
-                return false;
+                if(MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+                {
+                    sourceQueue2 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
+                }
+            } else
+            {
+                if(MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+                {
+                    sourceQueue1 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
+                } else{
+                    return false;
+                }
             }
         }
     }
@@ -499,7 +516,19 @@ bool TSU_Priority_OutOfOrder::service_write_transaction(NVM::FlashMemory::Flash_
         sourceQueue1 = get_next_write_service_queue(chip);
         if (sourceQueue1 != NULL)
         {
-            if (GCWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+            if(MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+            {
+                sourceQueue2 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
+            }
+            else if (GCWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+            {
+                sourceQueue2 = &GCWriteTRQueue[chip->ChannelID][chip->ChipID];
+            }
+        }
+        else if(MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+        {
+            sourceQueue1 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
+            if(GCWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
             {
                 sourceQueue2 = &GCWriteTRQueue[chip->ChannelID][chip->ChipID];
             }

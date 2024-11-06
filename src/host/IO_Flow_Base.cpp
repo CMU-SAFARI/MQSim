@@ -543,15 +543,15 @@ IO_Flow_Base::IO_Flow_Base(const sim_object_id_type &name, uint16_t flow_id, LHA
 		xmlwriter.Write_attribute_string(attr, val);
 
 		attr = "IOPS";
-		val = std::to_string((double)STAT_generated_request_count / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		val = std::to_string((double)STAT_generated_request_count / ((double)Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
 		xmlwriter.Write_attribute_string(attr, val);
 
 		attr = "IOPS_Read";
-		val = std::to_string((double)STAT_generated_read_request_count / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		val = std::to_string((double)STAT_generated_read_request_count / ((double)Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
 		xmlwriter.Write_attribute_string(attr, val);
 
 		attr = "IOPS_Write";
-		val = std::to_string((double)STAT_generated_write_request_count / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		val = std::to_string((double)STAT_generated_write_request_count / ((double)Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
 		xmlwriter.Write_attribute_string(attr, val);
 
 		attr = "Bytes_Transferred";
@@ -567,15 +567,15 @@ IO_Flow_Base::IO_Flow_Base(const sim_object_id_type &name, uint16_t flow_id, LHA
 		xmlwriter.Write_attribute_string(attr, val);
 
 		attr = "Bandwidth";
-		val = std::to_string((double)STAT_transferred_bytes_total / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		val = std::to_string((double)STAT_transferred_bytes_total / ((double)Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
 		xmlwriter.Write_attribute_string(attr, val);
 
 		attr = "Bandwidth_Read";
-		val = std::to_string((double)STAT_transferred_bytes_read / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		val = std::to_string((double)STAT_transferred_bytes_read / ((double)Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
 		xmlwriter.Write_attribute_string(attr, val);
 
 		attr = "Bandwidth_Write";
-		val = std::to_string((double)STAT_transferred_bytes_write / (Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
+		val = std::to_string((double)STAT_transferred_bytes_write / ((double)Simulator->Time() / SIM_TIME_TO_SECONDS_COEFF));
 		xmlwriter.Write_attribute_string(attr, val);
 
 

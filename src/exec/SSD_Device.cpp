@@ -308,7 +308,7 @@ SSD_Device::SSD_Device(Device_Parameter_Set *parameters, std::vector<IO_Flow_Par
 															 parameters->Flash_Parameters.Die_No_Per_Chip, parameters->Flash_Parameters.Plane_No_Per_Die,
 															 parameters->Flash_Parameters.Block_No_Per_Plane, parameters->Flash_Parameters.Page_No_Per_Block,
 															 parameters->Flash_Parameters.Page_Capacity / SECTOR_SIZE_IN_BYTE, parameters->Use_Copyback_for_GC, max_rho, 10,
-															 parameters->Seed++);
+															 parameters->Dynamic_Wearleveling_Enabled, parameters->Static_Wearleveling_Enabled, parameters->Static_Wearleveling_Threshold, parameters->Seed++);
 		Simulator->AddObject(gcwl);
 		fbm->Set_GC_and_WL_Unit(gcwl);
 		ftl->GC_and_WL_Unit = gcwl;
@@ -380,10 +380,9 @@ SSD_Device::~SSD_Device()
 		{
 			delete ((SSD_Components::ONFI_Channel_NVDDR2 *)this->Channels[channel_cntr])->Chips[chip_cntr];
 		}
-		delete this->Channels[channel_cntr];
+		delete[] (SSD_Components::ONFI_Channel_NVDDR2 *)this->Channels[channel_cntr];
 	}
-
-	delete this->PHY;
+	delete (SSD_Components::NVM_PHY_ONFI_NVDDR2*)this->PHY;
 	delete ((SSD_Components::FTL *)this->Firmware)->TSU;
 	delete ((SSD_Components::FTL *)this->Firmware)->BlockManager;
 	delete ((SSD_Components::FTL *)this->Firmware)->Address_Mapping_Unit;

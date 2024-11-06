@@ -22,6 +22,9 @@ IO_Flow_Trace_Based::IO_Flow_Trace_Based(const sim_object_id_type &name, uint16_
 
 IO_Flow_Trace_Based::~IO_Flow_Trace_Based()
 {
+	if(trace_file.is_open()){
+		trace_file.close();
+	}
 }
 
 Host_IO_Request *IO_Flow_Trace_Based::Generate_next_request()

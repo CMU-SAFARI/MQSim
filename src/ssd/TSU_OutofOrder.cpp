@@ -345,6 +345,10 @@ bool TSU_OutOfOrder::service_write_transaction(NVM::FlashMemory::Flash_Chip *chi
 			{
 				sourceQueue2 = &UserWriteTRQueue[chip->ChannelID][chip->ChipID];
 			}
+			else if(MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+			{
+				sourceQueue2 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
+			}
 		}
 		else if (GCEraseTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
 		{
@@ -353,31 +357,47 @@ bool TSU_OutOfOrder::service_write_transaction(NVM::FlashMemory::Flash_Chip *chi
 		else if (UserWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
 		{
 			sourceQueue1 = &UserWriteTRQueue[chip->ChannelID][chip->ChipID];
+			if(MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+			{
+				sourceQueue2 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
+			}
+		}
+		else if(MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0){
+			sourceQueue1 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
 		}
 		else
 		{
 			return false;
 		}
 	}
-	else
+	//If GC is currently executed in the preemptive mode, then user IO transaction queues are checked first
+	else if(UserWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
 	{
-		//If GC is currently executed in the preemptive mode, then user IO transaction queues are checked first
-		if (UserWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+		sourceQueue1 = &UserWriteTRQueue[chip->ChannelID][chip->ChipID];
+		if(MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
 		{
-			sourceQueue1 = &UserWriteTRQueue[chip->ChannelID][chip->ChipID];
-			if (GCWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
-			{
-				sourceQueue2 = &GCWriteTRQueue[chip->ChannelID][chip->ChipID];
-			}
+			sourceQueue2 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
 		}
 		else if (GCWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
 		{
-			sourceQueue1 = &GCWriteTRQueue[chip->ChannelID][chip->ChipID];
+			sourceQueue2 = &GCWriteTRQueue[chip->ChannelID][chip->ChipID];
 		}
-		else
+	}
+	else if (MappingWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+	{
+		sourceQueue1 = &MappingWriteTRQueue[chip->ChannelID][chip->ChipID];
+		if (GCWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
 		{
-			return false;
+			sourceQueue2 = &GCWriteTRQueue[chip->ChannelID][chip->ChipID];
 		}
+	}
+	else if (GCWriteTRQueue[chip->ChannelID][chip->ChipID].size() > 0)
+	{
+		sourceQueue1 = &GCWriteTRQueue[chip->ChannelID][chip->ChipID];
+	}
+	else
+	{
+		return false;
 	}
 
 	bool suspensionRequired = false;

@@ -152,7 +152,7 @@ namespace Utils
 		total_lha_no = 0;
 		for (unsigned int stream_id = 0; stream_id < concurrent_stream_no; stream_id++) {
 			start_lhas_per_flow.push_back(total_lha_no);
-			end_lhas_per_flow.push_back(total_lha_no + lsa_count_per_stream[stream_id] - 1);
+			end_lhas_per_flow.push_back(total_lha_no + lsa_count_per_stream[stream_id]);
 			total_lha_no += lsa_count_per_stream[stream_id];
 		}
 

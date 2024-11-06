@@ -59,6 +59,7 @@ namespace SSD_Components
 		{
 			case SSD_Components::Cache_Sharing_Mode::SHARED:
 			{
+				delete[] back_pressure_buffer_depth;
 				delete per_stream_cache[0];
 				while (dram_execution_queue[0].size()) {
 					delete dram_execution_queue[0].front();
@@ -70,6 +71,8 @@ namespace SSD_Components
 				break;
 			}
 			case SSD_Components::Cache_Sharing_Mode::EQUAL_PARTITIONING:
+			{
+				delete[] back_pressure_buffer_depth;
 				for (unsigned int i = 0; i < stream_count; i++) {
 					delete per_stream_cache[i];
 					while (dram_execution_queue[i].size()) {
@@ -81,11 +84,13 @@ namespace SSD_Components
 					}
 				}
 				break;
+
+			}
 			default:
 				break;
 		}
 		
-		delete per_stream_cache;
+		delete[] per_stream_cache;
 		delete[] dram_execution_queue;
 		delete[] waiting_user_requests_queue_for_dram_free_slot;
 		delete[] bloom_filter;
@@ -94,6 +99,7 @@ namespace SSD_Components
 	void Data_Cache_Manager_Flash_Advanced::Setup_triggers()
 	{
 		Data_Cache_Manager_Base::Setup_triggers();
+		static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Connect_to_user_request_arrived_signal(handle_transaction_serviced_signal_from_PHY);
 		flash_controller->ConnectToTransactionServicedSignal(handle_transaction_serviced_signal_from_PHY);
 	}
 
@@ -313,6 +319,8 @@ namespace SSD_Components
 				flash_written_back_write_size_in_sectors += count_sector_no_from_status_bitmap(tr->write_sectors_bitmap);
 				bloom_filter[user_request->Stream_id].insert(tr->LPA);
 				writeback_transactions.push_back(tr);
+			} else{
+				delete tr;
 			}
 			user_request->Transaction_list.erase(it++);
 		}
@@ -328,6 +336,8 @@ namespace SSD_Components
 			read_transfer_info->next_event_type = Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_EVICTION_FINISHED;
 			read_transfer_info->Stream_id = user_request->Stream_id;
 			service_dram_access_request(read_transfer_info);
+		} else{
+			delete evicted_cache_slots;
 		}
 
 		//Issue memory write to write data to DRAM
@@ -398,9 +408,9 @@ namespace SSD_Components
 							timestamp, ((NVM_Transaction_Flash_RD*)transaction)->read_sectors_bitmap | slot.State_bitmap_of_existing_sectors);
 					} else  {
 						if (!((Data_Cache_Manager_Flash_Advanced*)_my_instance)->per_stream_cache[transaction->Stream_id]->Check_free_slot_availability()) {
-							std::list<NVM_Transaction*>* evicted_cache_slots = new std::list<NVM_Transaction*>;
 							Data_Cache_Slot_Type evicted_slot = ((Data_Cache_Manager_Flash_Advanced*)_my_instance)->per_stream_cache[transaction->Stream_id]->Evict_one_slot_lru();
 							if (evicted_slot.Status == Cache_Slot_Status::DIRTY_NO_FLASH_WRITEBACK) {
+								std::list<NVM_Transaction*>* evicted_cache_slots = new std::list<NVM_Transaction*>;
 								Memory_Transfer_Info* transfer_info = new Memory_Transfer_Info;
 								transfer_info->Size_in_bytes = count_sector_no_from_status_bitmap(evicted_slot.State_bitmap_of_existing_sectors) * SECTOR_SIZE_IN_BYTE;
 								evicted_cache_slots->push_back(new NVM_Transaction_Flash_WR(Transaction_Source_Type::USERIO,

@@ -69,6 +69,7 @@ void read_configuration_parameters(const string ssd_config_file_path, Execution_
 				PRINT_MESSAGE("Error in the SSD configuration file!")
 				PRINT_MESSAGE("Using MQSim's default configuration.")
 			}
+			delete[] temp_string;
 		} else {
 			PRINT_MESSAGE("Using MQSim's default configuration.");
 			PRINT_MESSAGE("Writing the default configuration parameters to the expected configuration file.");
@@ -304,8 +305,14 @@ int main(int argc, char* argv[])
 
 		PRINT_MESSAGE("Writing results to output file .......");
 		collect_results(ssd, host, (workload_defs_file_path.substr(0, workload_defs_file_path.find_last_of(".")) + "_scenario_" + std::to_string(cntr) + ".xml").c_str());
+
+		for (auto io_flow_def = (*io_scen)->begin(); io_flow_def != (*io_scen)->end(); io_flow_def++) {
+			delete *io_flow_def;
+		}
+		delete *io_scen;
 	}
-    cout << "Simulation complete; Press any key to exit." << endl;
+	delete exec_params;
+	cout << "Simulation complete; Press any key to exit." << endl;
 
 	cin.get(); // Disable if you prefer batch runs
 

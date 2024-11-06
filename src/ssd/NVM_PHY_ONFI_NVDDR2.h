@@ -90,6 +90,7 @@ namespace SSD_Components
 	public:
 		NVM_PHY_ONFI_NVDDR2(const sim_object_id_type& id, ONFI_Channel_NVDDR2** channels,
 			unsigned int ChannelCount, unsigned int chip_no_per_channel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie);
+		~NVM_PHY_ONFI_NVDDR2();
 		void Setup_triggers();
 		void Validate_simulation_config();
 		void Start_simulation();

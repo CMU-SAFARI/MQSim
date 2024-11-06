@@ -10,6 +10,7 @@ namespace Utils
 	{
 	public:
 		RandomGenerator(int);
+		~RandomGenerator();
 		uint32_t Get_uint(uint32_t max_value);
 		int32_t Get_int(int32_t max_value);
 		double FloatRandom();

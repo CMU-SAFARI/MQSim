@@ -8,7 +8,10 @@ namespace Utils
 	{
 		rand = new CMRRandomGenerator(seed / 200 + 1, seed % 200);
 	}
-
+	RandomGenerator::~RandomGenerator()
+    {
+		delete rand;
+    }
 	uint32_t RandomGenerator::Get_uint(uint32_t maxValue)
 	{
 		uint32_t v = (uint32_t)(FloatRandom() * (maxValue + 1));

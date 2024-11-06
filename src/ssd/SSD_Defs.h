@@ -25,7 +25,7 @@ typedef uint64_t data_cache_content_type;
 * as (64 - log_2(256)).
 */
 #define LPN_TO_UNIQUE_KEY(STREAM,LPN) ((((LPA_type)STREAM)<<56)|LPN)
-#define UNIQUE_KEY_TO_LPN(STREAM,LPN) ((~(((LPA_type)STREAM)<<56))&LPN)
+#define UNIQUE_KEY_TO_LPN(STREAM,KEY) ((~(((LPA_type)STREAM)<<56))&KEY)
 
 
 inline unsigned int count_sector_no_from_status_bitmap(const page_status_type page_status)

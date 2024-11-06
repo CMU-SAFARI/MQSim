@@ -95,6 +95,9 @@ namespace SSD_Components
 							}
 						}
 						block->Erase_transaction = gc_wl_erase_tr;
+						if(gc_wl_erase_tr->Page_movement_activities.size() == 0){
+							_my_instance->tsu->Submit_transaction(gc_wl_erase_tr);
+						}
 						_my_instance->tsu->Schedule();
 					}
 				}
@@ -149,6 +152,11 @@ namespace SSD_Components
 					DEBUG(Simulator->Time() << ": LPA=" << (MVPN_type)transaction->LPA << " unlocked!!");
 				}
 				pbke->Blocks[((NVM_Transaction_Flash_WR*)transaction)->RelatedErase->Address.BlockID].Erase_transaction->Page_movement_activities.remove((NVM_Transaction_Flash_WR*)transaction);
+				if(pbke->Blocks[((NVM_Transaction_Flash_WR*)transaction)->RelatedErase->Address.BlockID].Erase_transaction->Page_movement_activities.size() == 0){
+					_my_instance->tsu->Prepare_for_transaction_submit();
+					_my_instance->tsu->Submit_transaction(pbke->Blocks[((NVM_Transaction_Flash_WR*)transaction)->RelatedErase->Address.BlockID].Erase_transaction);
+					_my_instance->tsu->Schedule();
+				}
 				break;
 			case Transaction_Type::ERASE:
 				pbke->Ongoing_erase_operations.erase(pbke->Ongoing_erase_operations.find(transaction->Address.BlockID));
@@ -294,8 +302,11 @@ namespace SSD_Components
 					}
 				}
 			}
+
+			if(wl_erase_tr->Page_movement_activities.size() == 0){
+				tsu->Submit_transaction(wl_erase_tr);
+			}
 			block->Erase_transaction = wl_erase_tr;
-			tsu->Submit_transaction(wl_erase_tr);
 
 			tsu->Schedule();
 		}

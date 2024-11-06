@@ -44,6 +44,7 @@ namespace SSD_Components
 	{
 		Data_Cache_Manager_Base::Setup_triggers();
 		flash_controller->ConnectToTransactionServicedSignal(handle_transaction_serviced_signal_from_PHY);
+		static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Connect_to_user_request_arrived_signal(handle_transaction_serviced_signal_from_PHY);
 	}
 
 	void Data_Cache_Manager_Flash_Simple::Do_warmup(std::vector<Utils::Workload_Statistics*> workload_stats)
@@ -96,6 +97,7 @@ namespace SSD_Components
 					if (user_request->Transaction_list.size() > 0) {
 						static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Translate_lpa_to_ppa_and_dispatch(user_request->Transaction_list);
 					}
+					return;
 				}
 				default:
 					PRINT_ERROR("The specified caching mode is not not support in simple cache manager!")
@@ -113,6 +115,7 @@ namespace SSD_Components
 					if (user_request->Transaction_list.size() > 0) {
 						waiting_user_requests_queue_for_dram_free_slot[user_request->Stream_id].push_back(user_request);
 					}
+					return;
 				}
 				default:
 					PRINT_ERROR("The specified caching mode is not not support in simple cache manager!")
@@ -291,33 +294,33 @@ namespace SSD_Components
 	void Data_Cache_Manager_Flash_Simple::Execute_simulator_event(MQSimEngine::Sim_Event* ev)
 	{
 		Data_Cache_Simulation_Event_Type eventType = (Data_Cache_Simulation_Event_Type)ev->Type;
-		Memory_Transfer_Info* transfer_inf = (Memory_Transfer_Info*)ev->Parameters;
+		Memory_Transfer_Info* transfer_info = (Memory_Transfer_Info*)ev->Parameters;
 
 		switch (eventType)
 			{
 			case Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_USERIO_FINISHED://A user read is service from DRAM cache
 			case Data_Cache_Simulation_Event_Type::MEMORY_WRITE_FOR_USERIO_FINISHED:
-				((User_Request*)(transfer_inf)->Related_request)->Sectors_serviced_from_cache -= transfer_inf->Size_in_bytes / SECTOR_SIZE_IN_BYTE;
-				if (is_user_request_finished((User_Request*)(transfer_inf)->Related_request)) {
-					broadcast_user_request_serviced_signal(((User_Request*)(transfer_inf)->Related_request));
+				((User_Request*)(transfer_info)->Related_request)->Sectors_serviced_from_cache -= transfer_info->Size_in_bytes / SECTOR_SIZE_IN_BYTE;
+				if (is_user_request_finished((User_Request*)(transfer_info)->Related_request)) {
+					broadcast_user_request_serviced_signal(((User_Request*)(transfer_info)->Related_request));
 				}
 				break;
 			case Data_Cache_Simulation_Event_Type::MEMORY_READ_FOR_CACHE_EVICTION_FINISHED://Reading data from DRAM and writing it back to the flash storage
-				static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Translate_lpa_to_ppa_and_dispatch(*((std::list<NVM_Transaction*>*)(transfer_inf->Related_request)));
-				delete (std::list<NVM_Transaction*>*)transfer_inf->Related_request;
+				static_cast<FTL*>(nvm_firmware)->Address_Mapping_Unit->Translate_lpa_to_ppa_and_dispatch(*((std::list<NVM_Transaction*>*)(transfer_info->Related_request)));
+				delete (std::list<NVM_Transaction*>*)transfer_info->Related_request;
 				break;
 			case Data_Cache_Simulation_Event_Type::MEMORY_WRITE_FOR_CACHE_FINISHED://The recently read data from flash is written back to memory to support future user read requests
 				break;
 		}
 
-		dram_execution_queue[transfer_inf->Stream_id].pop();
-		if (dram_execution_queue[transfer_inf->Stream_id].size() > 0) {
-			Memory_Transfer_Info* new_transfer_info = dram_execution_queue[transfer_inf->Stream_id].front();
+		dram_execution_queue[transfer_info->Stream_id].pop();
+		if (dram_execution_queue[transfer_info->Stream_id].size() > 0) {
+			Memory_Transfer_Info* new_transfer_info = dram_execution_queue[transfer_info->Stream_id].front();
 			Simulator->Register_sim_event(Simulator->Time() + estimate_dram_access_time(new_transfer_info->Size_in_bytes, dram_row_size, dram_busrt_size,
 				dram_burst_transfer_time_ddr, dram_tRCD, dram_tCL, dram_tRP),
 				this, new_transfer_info, static_cast<int>(new_transfer_info->next_event_type));
 		}
 
-		delete transfer_inf;
+		delete transfer_info;
 	}
 }

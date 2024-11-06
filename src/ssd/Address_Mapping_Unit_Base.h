@@ -79,7 +79,15 @@ namespace SSD_Components
 		virtual void Remove_barrier_for_accessing_lpa(const stream_id_type stream_id, const LPA_type lpa) = 0; //Removes the barrier that has already been set for accessing an LPA (i.e., the GC_and_WL_Unit_Base unit successfully finished relocating LPA from one physical location to another physical location).
 		virtual void Remove_barrier_for_accessing_mvpn(const stream_id_type stream_id, const MVPN_type mvpn) = 0; //Removes the barrier that has already been set for accessing an MVPN (i.e., the GC_and_WL_Unit_Base unit successfully finished relocating MVPN from one physical location to another physical location).
 		virtual void Start_servicing_writes_for_overfull_plane(const NVM::FlashMemory::Physical_Page_Address plane_address) = 0;//This function is invoked when GC execution is finished on a plane and the plane has enough number of free pages to service writes
+		typedef void(*TransactionServicedSignalHandlerType) (NVM_Transaction_Flash*);
+	
+		void Connect_to_user_request_arrived_signal(TransactionServicedSignalHandlerType function)
+		{
+			connected_transaction_serviced_signal_handler = function;
+		}
 	protected:
+		
+		void ConnectDCMServiedTransactionHandler(void(*dcmServicedTransactionHandler)(NVM_Transaction_Flash*));
 		FTL* ftl;
 		NVM_PHY_ONFI* flash_controller;
 		Flash_Block_Manager_Base* block_manager;
@@ -105,6 +113,8 @@ namespace SSD_Components
 		double overprovisioning_ratio;
 		bool fold_large_addresses;
 		bool mapping_table_stored_on_flash;
+
+		TransactionServicedSignalHandlerType connected_transaction_serviced_signal_handler;
 
 		virtual bool query_cmt(NVM_Transaction_Flash* transaction) = 0;
 		virtual PPA_type online_create_entry_for_reads(LPA_type lpa, const stream_id_type stream_id, NVM::FlashMemory::Physical_Page_Address& read_address, uint64_t read_sectors_bitmap) = 0;
