@@ -1777,8 +1777,8 @@ namespace SSD_Components
 					MVPN_type mpvn = (MVPN_type)flash_controller->Get_metadata(addr.ChannelID, addr.ChipID, addr.DieID, addr.PlaneID, addr.BlockID, addr.PageID);
 					if (domains[block->Stream_id]->GlobalTranslationDirectory[mpvn].MPPN != Convert_address_to_ppa(addr)) {
 						PRINT_ERROR("Inconsistency in the global translation directory when locking an MPVN!")
-						Set_barrier_for_accessing_mvpn(block->Stream_id, mpvn);
 					}
+                    Set_barrier_for_accessing_mvpn(block->Stream_id, mpvn);
 				} else {
 					LPA_type lpa = flash_controller->Get_metadata(addr.ChannelID, addr.ChipID, addr.DieID, addr.PlaneID, addr.BlockID, addr.PageID);
 					LPA_type ppa = domains[block->Stream_id]->GlobalMappingTable[lpa].PPA;
