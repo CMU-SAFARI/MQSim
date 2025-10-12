@@ -13,9 +13,11 @@ public:
 	static sim_time_type Page_Read_Latency_LSB;
 	static sim_time_type Page_Read_Latency_CSB;
 	static sim_time_type Page_Read_Latency_MSB;
+	static sim_time_type Page_Read_Latency_MSB2;
 	static sim_time_type Page_Program_Latency_LSB;
 	static sim_time_type Page_Program_Latency_CSB;
 	static sim_time_type Page_Program_Latency_MSB;
+	static sim_time_type Page_Program_Latency_MSB2;
 	static sim_time_type Block_Erase_Latency;//Block erase latency in nano-seconds
 	static unsigned int Block_PE_Cycles_Limit;
 	static sim_time_type Suspend_Erase_Time;//in nano-seconds
