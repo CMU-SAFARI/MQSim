@@ -406,6 +406,9 @@ bool TSU_Priority_OutOfOrder::service_read_transaction(NVM::FlashMemory::Flash_C
     case ChipStatus::IDLE:
         break;
     case ChipStatus::WRITING:
+        if (_NVMController->CheckSuspendLock(chip))
+            return false;
+
         if (!programSuspensionEnabled || _NVMController->HasSuspendedCommand(chip))
         {
             return false;
@@ -415,7 +418,11 @@ bool TSU_Priority_OutOfOrder::service_read_transaction(NVM::FlashMemory::Flash_C
             return false;
         }
         suspensionRequired = true;
+        break;
     case ChipStatus::ERASING:
+        if (_NVMController->CheckSuspendLock(chip))
+            return false;
+
         if (!eraseSuspensionEnabled || _NVMController->HasSuspendedCommand(chip))
         {
             return false;
@@ -425,6 +432,7 @@ bool TSU_Priority_OutOfOrder::service_read_transaction(NVM::FlashMemory::Flash_C
             return false;
         }
         suspensionRequired = true;
+        break;
     default:
         return false;
     }

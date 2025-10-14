@@ -23,11 +23,11 @@ class TSU_Base : public MQSimEngine::Sim_Object
 {
 public:
 	TSU_Base(const sim_object_id_type &id, FTL *ftl, NVM_PHY_ONFI_NVDDR2 *NVMController, Flash_Scheduling_Type Type,
-			 unsigned int Channel_no, unsigned int chip_no_per_channel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,
-			 bool EraseSuspensionEnabled, bool ProgramSuspensionEnabled,
+			 unsigned int Channel_no, unsigned int chip_no_per_channel, unsigned int DieNoPerChip, unsigned int PlaneNoPerDie,			 
 			 sim_time_type WriteReasonableSuspensionTimeForRead,
 			 sim_time_type EraseReasonableSuspensionTimeForRead,
-			 sim_time_type EraseReasonableSuspensionTimeForWrite);
+			 sim_time_type EraseReasonableSuspensionTimeForWrite,
+			 bool EraseSuspensionEnabled, bool ProgramSuspensionEnabled);
 	virtual ~TSU_Base();
 	void Setup_triggers();
 

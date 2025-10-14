@@ -77,12 +77,13 @@ namespace SSD_Components
 		sim_time_type Expected_command_exec_finish_time;
 		sim_time_type Last_transfer_finish_time;
 		bool HasSuspend;
+		bool SuspendLock; //void suspend on relate read
 		std::queue<DieBookKeepingEntry*> OngoingDieCMDTransfers;
 		unsigned int WaitingReadTXCount;
 		unsigned int No_of_active_dies;
 
 		void PrepareSuspend() { HasSuspend = true; No_of_active_dies = 0; }
-		void PrepareResume() { HasSuspend = false; }
+		void PrepareResume() { HasSuspend = false; No_of_active_dies++;}
 	};
 
 	class NVM_PHY_ONFI_NVDDR2 : public NVM_PHY_ONFI
@@ -108,6 +109,7 @@ namespace SSD_Components
 		NVM_Transaction_Flash* Is_chip_busy_with_stream(NVM_Transaction_Flash* transaction);
 		bool Is_chip_busy(NVM_Transaction_Flash* transaction);
 		void Change_memory_status_preconditioning(const NVM::NVM_Memory_Address* address, const void* status_info);
+		bool CheckSuspendLock(NVM::FlashMemory::Flash_Chip* chip);
 	private:
 		void transfer_read_data_from_chip(ChipBookKeepingEntry* chipBKE, DieBookKeepingEntry* dieBKE, NVM_Transaction_Flash* tr);
 		void perform_interleaved_cmd_data_transfer(NVM::FlashMemory::Flash_Chip* chip, DieBookKeepingEntry* bookKeepingEntry);
