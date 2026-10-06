@@ -1,4 +1,5 @@
 #include "Flash_Block_Manager.h"
+#include "Wear_Leveling_Utils.h"
 
 
 namespace SSD_Components
@@ -145,20 +146,8 @@ namespace SSD_Components
 
 	unsigned int Flash_Block_Manager_Base::Get_min_max_erase_difference(const NVM::FlashMemory::Physical_Page_Address& plane_address)
 	{
-		unsigned int min_erased_block = 0;
-		unsigned int max_erased_block = 0;
 		PlaneBookKeepingType *plane_record = &plane_manager[plane_address.ChannelID][plane_address.ChipID][plane_address.DieID][plane_address.PlaneID];
-
-		for (unsigned int i = 1; i < block_no_per_plane; i++) {
-			if (plane_record->Blocks[i].Erase_count > plane_record->Blocks[max_erased_block].Erase_count) {
-				max_erased_block = i;
-			}
-			if (plane_record->Blocks[i].Erase_count < plane_record->Blocks[min_erased_block].Erase_count) {
-				min_erased_block = i;
-			}
-		}
-
-		return max_erased_block - min_erased_block;
+		return get_min_max_erase_count_difference(plane_record->Blocks, block_no_per_plane);
 	}
 
 	flash_block_ID_type Flash_Block_Manager_Base::Get_coldest_block_id(const NVM::FlashMemory::Physical_Page_Address& plane_address)

@@ -18,7 +18,7 @@ $1/%.o: %.cpp
 	$(CC) $(CC_FLAGS) $(INCLUDES) -c $$< -o $$@
 endef
 
-.PHONY: all checkdirs clean
+.PHONY: all checkdirs clean test-wear-leveling
 
 all: checkdirs MQSim
 
@@ -33,5 +33,9 @@ $(BUILD_DIR):
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -f MQSim
+
+test-wear-leveling: checkdirs
+	$(CC) $(CC_FLAGS) -Wall -Wextra -Wpedantic -Werror -Isrc/ssd tests/test_wear_leveling.cpp -o build/test_wear_leveling
+	./build/test_wear_leveling
 
 $(foreach bdir,$(BUILD_DIR),$(eval $(call make-goal,$(bdir))))
