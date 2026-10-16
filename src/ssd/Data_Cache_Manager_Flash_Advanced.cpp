@@ -97,6 +97,14 @@ namespace SSD_Components
 		flash_controller->ConnectToTransactionServicedSignal(handle_transaction_serviced_signal_from_PHY);
 	}
 
+	void Data_Cache_Manager_Flash_Advanced::
+	Handle_transaction_serviced_from_barrier(
+		NVM_Transaction_Flash* transaction
+	)
+	{
+		handle_transaction_serviced_signal_from_PHY(transaction);
+	}
+
 	void Data_Cache_Manager_Flash_Advanced::Do_warmup(std::vector<Utils::Workload_Statistics*> workload_stats)
 	{
 		double total_write_arrival_rate = 0, total_read_arrival_rate = 0;

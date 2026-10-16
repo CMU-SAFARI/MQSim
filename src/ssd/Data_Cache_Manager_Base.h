@@ -13,6 +13,7 @@ namespace SSD_Components
 {
 	class NVM_Firmware;
 	class Host_Interface_Base;
+	class NVM_Transaction_Flash;
 	enum class Caching_Mode {WRITE_CACHE, READ_CACHE, WRITE_READ_CACHE, TURNED_OFF};
 	enum class Caching_Mechanism { SIMPLE, ADVANCED };
 	//How the cache space is shared among the concurrently running I/O flows/streams
@@ -37,6 +38,13 @@ namespace SSD_Components
 		void Connect_to_user_memory_transaction_serviced_signal(MemoryTransactionServicedSignalHanderType);
 		void Set_host_interface(Host_Interface_Base* host_interface);
 		virtual void Do_warmup(std::vector<Utils::Workload_Statistics*> workload_stats) = 0;
+
+		// Completes a transaction that is logically serviced by a GC barrier
+		// without pretending that it was executed by the NAND PHY.
+		// The caller retains ownership and deletes the transaction afterward.
+		virtual void Handle_transaction_serviced_from_barrier(
+			NVM_Transaction_Flash* transaction
+		) = 0;
 	protected:
 		static Data_Cache_Manager_Base* _my_instance;
 		Host_Interface_Base* host_interface;
