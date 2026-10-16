@@ -92,7 +92,13 @@ namespace Utils
 				for (int i = 0; i <= 2; i++) {
 					w[i] = 0;
 					for (int j = 0; j <= 2; j++) {
-						w[i] = (a[i][j] * u[j] + w[i]) % m;
+						w[i] = static_cast<int64_t>(
+                                (
+                                    static_cast<uint64_t>(a[i][j]) *
+                                    static_cast<uint64_t>(u[j]) +
+                                    static_cast<uint64_t>(w[i])
+                                ) % static_cast<uint64_t>(m)
+                            );
 					}
 				}
 				v_copy(w, v);
@@ -106,7 +112,13 @@ namespace Utils
 					for (int j = 0; j <= 2; j++) {
 						d[i][j] = 0;
 						for (int k = 0; k <= 2; k++) {
-							d[i][j] = (a[i][k] * b[k][j] + d[i][j]) % m;
+							d[i][j] = static_cast<int64_t>(
+                                    (
+                                        static_cast<uint64_t>(a[i][k]) *
+                                        static_cast<uint64_t>(b[k][j]) +
+                                        static_cast<uint64_t>(d[i][j])
+                                    ) % static_cast<uint64_t>(m)
+                                );
 						}
 					}
 				}
