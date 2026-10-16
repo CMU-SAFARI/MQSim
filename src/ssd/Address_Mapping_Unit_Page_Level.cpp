@@ -1805,7 +1805,7 @@ namespace SSD_Components
 		//If there are read requests waiting behind the barrier, then MQSim assumes they can be serviced with the actual page data that is accessed during GC execution
 		auto read_tr = domains[stream_id]->Read_transactions_behind_LPA_barrier.find(lpa);
 		while (read_tr != domains[stream_id]->Read_transactions_behind_LPA_barrier.end()) {
-			handle_transaction_serviced_signal_from_PHY((*read_tr).second);
+			ftl->Data_cache_manager->Handle_transaction_serviced_from_barrier((*read_tr).second);
 			delete (*read_tr).second;
 			domains[stream_id]->Read_transactions_behind_LPA_barrier.erase(read_tr);
 			read_tr = domains[stream_id]->Read_transactions_behind_LPA_barrier.find(lpa);
@@ -1814,7 +1814,7 @@ namespace SSD_Components
 		//If there are write requests waiting behind the barrier, then MQSim assumes they can be serviced with the actual page data that is accessed during GC execution. This may not be 100% true for all write requests, but, to avoid more complexity in the simulation, we accept this assumption.
 		auto write_tr = domains[stream_id]->Write_transactions_behind_LPA_barrier.find(lpa);
 		while (write_tr != domains[stream_id]->Write_transactions_behind_LPA_barrier.end()) {
-			handle_transaction_serviced_signal_from_PHY((*write_tr).second);
+			ftl->Data_cache_manager->Handle_transaction_serviced_from_barrier((*write_tr).second);
 			delete (*write_tr).second;
 			domains[stream_id]->Write_transactions_behind_LPA_barrier.erase(write_tr);
 			write_tr = domains[stream_id]->Write_transactions_behind_LPA_barrier.find(lpa);
